@@ -1,0 +1,141 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta http-equiv="content-type" content="text/html; charset=utf-8"><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport"><meta content="yes" name="apple-mobile-web-app-capable"><meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"><meta content="telephone=no" name="format-detection"><meta name="description"><title>分布式一致性协议 - Paxos | 并发笔记 - ofcoder.com</title><link rel="stylesheet" type="text/css" href="/css/style.css?v=0.0.0"><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/normalize/8.0.0/normalize.min.css"><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/pure/1.0.0/pure-min.css"><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/pure/1.0.0/grids-responsive-min.css"><link rel="stylesheet" href="//cdn.bootcss.com/font-awesome/4.7.0/css/font-awesome.min.css"><script type="text/javascript" src="//cdn.bootcss.com/jquery/3.3.1/jquery.min.js"></script><link rel="Shortcut Icon" type="image/x-icon" href="/favicon.ico"><link rel="apple-touch-icon" href="/apple-touch-icon.png"><link rel="apple-touch-icon-precomposed" href="/apple-touch-icon.png"><!-- 顶部加载进度条 --><script type="text/javascript" src="//cdn.bootcss.com/pace/1.0.2/pace.min.js"></script><link rel="stylesheet" href="//cdn.bootcss.com/pace/1.0.2/themes/pink/pace-theme-flash.css"><link rel="alternate" type="application/atom+xml" href="/atom.xml"><meta name="generator" content="Hexo 4.2.1"></head><body><div class="body_container"><div id="header"><div class="site-name"><h1 class="hidden">分布式一致性协议 - Paxos</h1><a id="logo" href="/.">并发笔记 - ofcoder.com</a><p class="description">一位后端开发的养肝历程，护发经验</p></div><div id="nav-menu"><a class="current" href="/."><i class="fa fa-home"> 首页</i></a><a href="/tags/"><i class="fa fa-tags"> 标签</i></a><a href="/usql/"><i class="fa fa-database"> usql</i></a><a href="/book/"><i class="fa fas fa-book"> book</i></a><a href="/atom.xml"><i class="fa fa-rss"> 订阅</i></a></div></div><div class="pure-g-g" id="layout"><div class="pure-u-1 pure-u-md-3-4"><div class="content_container"><div class="post"><h1 class="post-title">分布式一致性协议 - Paxos</h1><div class="post-meta">Jul 7, 2020<span> | </span><span class="category"><a href="/categories/%E7%AE%97%E6%B3%95%E7%90%86%E8%AE%BA/">算法理论</a></span><span id="busuanzi_container_page_pv"> | <span id="busuanzi_value_page_pv"></span><span> 阅读</span></span><span class="post-time"><span class="post-meta-item-text"> | </span><span class="post-meta-item-icon"><i class="fa fa-keyboard-o"></i><span class="post-count"> 3.9k</span><span class="post-meta-item-text"> 字</span></span></span><span class="post-time"> | <span class="post-meta-item-icon"><i class="fa fa-hourglass-half"></i><span class="post-count"> 13</span><span class="post-meta-item-text"> 分钟</span></span></span></div><a class="disqus-comment-count" href="/2020/07/07/theory/%E5%88%86%E5%B8%83%E5%BC%8F%E4%B8%80%E8%87%B4%E6%80%A7%E5%8D%8F%E8%AE%AE%20-%20Paxos/#vcomment"><span class="valine-comment-count" data-xid="/2020/07/07/theory/%E5%88%86%E5%B8%83%E5%BC%8F%E4%B8%80%E8%87%B4%E6%80%A7%E5%8D%8F%E8%AE%AE%20-%20Paxos/"></span><span> 条评论</span></a><div class="post-content"><h3 id="paxos-科普"><a href="#paxos-科普" class="headerlink" title="paxos 科普"></a>paxos 科普</h3><p>分布式算法，不得不提paxos。它是目前公认的解决分布式共识问题最有效的算法之一，甚至可以说过去几十年里一切分布式一致性算法都来源于它。<br>那么要学习paxos，我们首先得认识它。一般描述它，都会包含两个词：<strong>分布式容错、分布式共识算法</strong>。那么它们是指什么呢？paxos又解决了什么样的问题呢？</p>
+<ol>
+<li>分布式容错<br>分布式容错，是指在分布式环境下，能够容忍一部分节点宕机，还能向外提供稳定的服务。</li>
+<li>分布式共识算法<br>分布式共识算法，是指在分布式环境下，各个节点能就某个值达成共识，即所有节点都认同某个值。</li>
+</ol>
+<p>理解共识可能要难一点，那么我举个例子。假如有A、B两个客户端，他们都对同一个X进行赋值。A需要设置X=1，B需要设置X=2。那么让A和B都认同值X=1或者X=2的过程，就是达成共识。</p>
+<p>带着这个问题，来聊聊如何达成共识呢?</p>
+<h3 id="初探paxos"><a href="#初探paxos" class="headerlink" title="初探paxos"></a>初探paxos</h3><p>paxos为了帮我们理解，抽象出三个角色和两个阶段</p>
+<ul>
+<li>角色：提案者（proposer）、接受者（acceptor）、学习者（learner）</li>
+<li>阶段：<strong>prepare阶段、accept阶段</strong>、learn阶段</li>
+</ul>
+<h4 id="提案（proposal）"><a href="#提案（proposal）" class="headerlink" title="提案（proposal）"></a>提案（proposal）</h4><p>在描述这些角色之前，我们需要先了解什么提案。在paxos算法中提案是指需要达成共识的某一个值，或者某一个操作。paxos对其封装成一个提案，并为其生成唯一的提案编号。本文中使用[M, V]表示一个提案，其M表示提案编号，V表示需要达成共识的值。</p>
+<h4 id="提案者（proposer）"><a href="#提案者（proposer）" class="headerlink" title="提案者（proposer）"></a>提案者（proposer）</h4><p>proposer的工作在于接收客户端请求，将其封装成提案（proposal）。并将提案（proposal）发给所有的接受者（acceptor）。根据接受者（acceptor）返回情况，控制是否需要提交该提案（proposal）即保存该提案（proposal）。</p>
+<h4 id="接受者（acceptor）"><a href="#接受者（acceptor）" class="headerlink" title="接受者（acceptor）"></a>接受者（acceptor）</h4><p>acceptor的工作在于参与对提案（proposal）的投票，接收和处理paxos的两个阶段的请求。</p>
+<h4 id="学习者（learner）"><a href="#学习者（learner）" class="headerlink" title="学习者（learner）"></a>学习者（learner）</h4><p>learner不参与提案和投票，只被动接收提案结果。他的存在可用于扩展读性能，或者跨区域之间读操作。</p>
+<p>因为他们不投票，所以他们不是paxos集群的重要组成部分。因此，它们可以失败，或者与集群断开连接，而不会损害paxos服务的可用性。对用户的好处是learner相比acceptor来说更能通过不太可靠的网络链接进行连接。实际上，learner可用于与另一个数据中心的paxos服务器通信，并且写入消耗最小的网络流量，因为在没有投票协议的情况下所需的消息数量较少。</p>
+<h4 id="prepare阶段"><a href="#prepare阶段" class="headerlink" title="prepare阶段"></a>prepare阶段</h4><p>prepare阶段，由proposer向acceptor发送prepare请求，acceptor根据约定决定是否需要响应该请求。如果acceptor通过提案[M, ]的prepare请求，则向proposer保证以下承诺</p>
+<ol>
+<li>acceptor承诺不再通过编号<strong>小于等于</strong>M的提案的prepare请求</li>
+<li>acceptor承诺不再通过编号<strong>小于</strong>M的提案的accept请求，也就是不再通过编号小于M的提案</li>
+<li>如果acceptor已经通过某一提案，则承诺在prepare请求的响应中返回<strong>已经通过的最大编号的提案内容</strong>。如果没有通过任何提案，则在prepare请求的响应中返回空值</li>
+</ol>
+<p>其中prepare阶段还得注意，在prepare请求中，proposer只会发提案编号，也就是[M, ]。</p>
+<h4 id="accept阶段"><a href="#accept阶段" class="headerlink" title="accept阶段"></a>accept阶段</h4><p>accept阶段，在proposer在prepare阶段收到大多数响应后，由proposer向acceptor发送accept请求。例如此时进行决策的提案是[M, V]，根据acceptor在prepare阶段对proposer的承诺。</p>
+<ul>
+<li>如果此时acceptor没有通过编号大于M的prepare请求，则会批准提案[M, V]，并返回已通过的编号最大的提案（也就是[M, ]）。</li>
+<li>如果此时acceptor已经通过编号大于M的prepare请求，则会拒绝提案[M, V]，并返回已通过的编号最大的提案（大于M的编号）。</li>
+</ul>
+<p>proposer会统计收到的accept请求的响应，<strong>如果响应中的编号等于自己发出的编号，则认为该acceptor批准过了该提案</strong>。如果存在大多数acceptor批准了该提案，则记作该提案已达成共识，或者记作提案已被批准。如果没有大多数acceptor批准该提案，则重新回到prepare阶段进行协商。</p>
+<p>其中accept阶段也有注意的地方，在prepare请求中，proposer只会发提案[M, ]。而accept请求，proposer会发送提案编号和提案值，也就是[M, V]。<strong>这里要注意的是V的值，如果在prepare请求的响应中，部分acceptor已经批准过的提案值，则V为prepare请求的响应中编号最大的提案值，否则可以由proposer任意指定。</strong></p>
+<h4 id="learn阶段"><a href="#learn阶段" class="headerlink" title="learn阶段"></a>learn阶段</h4><p>learn阶段，在某一个提案通过paxos达成共识之后，由acceptor通知learner学习提案结果。</p>
+<h3 id="算法陈述"><a href="#算法陈述" class="headerlink" title="算法陈述"></a>算法陈述</h3><p>该小节分为两部描述：提案选定、提案获取。</p>
+<ul>
+<li>提案选定，是描述paxos从一个提案的产生到如何达成共识的过程。也就是prepare阶段、accept阶段</li>
+<li>提案获取，是描述learner如何获取保存提案，也就是learn阶段</li>
+</ul>
+<h4 id="提案选定"><a href="#提案选定" class="headerlink" title="提案选定"></a>提案选定</h4><p>先来看一张非常流行的图，它用伪代码描述了paxos的过程。我预先描述下几个变量。</p>
+<ul>
+<li>minProposal：当前acceptor在prepare请求中通过的最大提案编号</li>
+<li>acceptedProposal：当前acceptor在accept请求中通过的最大提案编号</li>
+<li>acceptedValue：当前acceptor在accept请求中通过的最大提案编号的提案值</li>
+</ul>
+<p><img src="/images/theory/distributed/paxos_1.jpg" alt="paxos伪代码描述"></p>
+<ol>
+<li>先为proposal生成一个编号n，这里需要保证编号全局唯一，并且全局递增，具体实现全局编号，这里不予讨论。</li>
+<li>proposer向所有acceptors广播prepare(n)请求</li>
+<li>acceptor比较n和minProposal，如果n&gt;minProposal则执行minProposal=n，并且将 acceptedProposal 和 acceptedValue 返回给proposer。</li>
+<li>proposer接收到过半数回复后，如果发现有acceptedValue返回，将所有回复中acceptedProposal最大的acceptedValue作为本次提案的value，否则可以任意决定本次提案的value。</li>
+<li>到这里可以进入第二阶段，广播accept (n,value) 到所有节点。</li>
+<li>acceptor比较n和minProposal，如果n&gt;=minProposal，则acceptedProposal=minProposal=n，acceptedValue=value，本地持久化后，返回；否则，返回minProposal。</li>
+<li>proposer接收到过半数请求后，如果发现有返回值result（minProposal） &gt; n，表示有更新的提议，跳转到1；否则value达成一致。</li>
+</ol>
+<p>当然，实际运行过程中，没有以上陈述的那么理想。真实情况下，每一个proposer都有可能产生多个提案，但只要每个proposal遵循如上算法运行，就一定能保证执行正确性。文章后续我们会对多提案提出的情况进行模拟，并详细讲解。</p>
+<h4 id="提案获取"><a href="#提案获取" class="headerlink" title="提案获取"></a>提案获取</h4><p>在一个提案达成共识后，如何让learner获取该提案也是一个值得细究的问题。一般有以下几种方案。</p>
+<ul>
+<li>方案一<br>最简单的方法就是一旦acceptor批准了一个提案，就将该提案发给所有的learner。这种做法虽然可以让learner尽快的获得被选中的提案，但是却需要每个acceptor与所有learner逐一进行通信，通信次数为二者乘积，所以效率较低。</li>
+<li>方案二<br>选定一个主learner，如有某一个提案批准后，由acceptor通知主learner，当主learner被通知后，由它通知其他的learner。这个方案虽然多了一个步骤，但是通信次数大大降低，通信次数为learner的数量。该方案同时引出另一个问题：主learner随时可能出现故障。</li>
+<li>方案三<br>在基于方案二的基础上，由单个主learner扩展成一个主learner集合。集合中learner数量越高，可靠性也越好。</li>
+</ul>
+<h3 id="算法模拟"><a href="#算法模拟" class="headerlink" title="算法模拟"></a>算法模拟</h3><p>为了更好的熟悉paxos，我们举例描述paxos中提案选定过程。假设存在3节点的paxos集群，这里需要注意每一个节点可以同时扮演proposer和acceptor。情况如下</p>
+<p>proposerA收到请求将X设置成3，proposerB收到请求将X设置成5。proposerA和proposerB分别为此生成提案，其proposerA的提案编号为1，proposerB提案编号为2。在prepare阶段它们交互结果如下</p>
+<p><img src="/images/theory/distributed/paxos_2.png" alt="paxos prepare请求"></p>
+<ol>
+<li>proposerA和proposerB分别进入prepare阶段，将提案编号发给各个acceptor。</li>
+<li>acceptorA和acceptorB在收到proposerA的prepare请求后，由于没有通过过任何prepare请求，也没有批准过任何的accept请求。则给proposerA返回尚无提案。</li>
+<li>acceptorC由于在收到proposerB的prepare请求之后再收到proposerA的prepare请求，且proposerB的提案编号大于proposerA的提案编号，故不给proposerA返回prepare响应。</li>
+<li>acceptorA和acceptorB在收到proposerB的prepare请求后，由于之前收到proposerA的prepare请求，则比较各自的提案编号，由于proposerB的提案编号大于proposerA的提案编号，但是又没有通过任何的accept请求，则给proposerB返回尚无提案，并向proposerB保证前文所说的三个承诺。</li>
+</ol>
+<p>至此，proposerA获得2个prepare响应，proposerB获得三个prepare<br>响应。即他们都获得了大多数节点的prepare响应，于是各自开始accept阶段提交。</p>
+<p><img src="/images/theory/distributed/paxos_3.png" alt="paxos accept请求"></p>
+<ol>
+<li>proposerA由于收到的prepare响应中没有任何提案值，则自己任意设置提案值，也就是[1, 3]。并向各个acceptor发起accept请求。</li>
+<li>acceptorA、acceptorB、acceptorC收到proposerA的accept请求后，由于在prepare阶段，他们都向proposerB保证了上文所说的三个承诺，则他们不会该accept请求，并将prepare阶段通过最大的提案编号返回给proposerA，也就是[2, ]。</li>
+<li>proposerA收到[2, ]后，发现响应中的提案编号2比自己的提案编号1大，则认为没有accept通过该提案。proposerA需要重新回到prepare阶段进行协商。</li>
+<li>proposerB由于收到的prepare响应中没有任何提案值，则自己任意设置提案值，也就是[2, 5]。并向各个acceptor发起accept请求。</li>
+<li>acceptorA、acceptorB、acceptorC，在此期间没有通过任何的prepare请求也没有通过任何的accept请求，即同意批准该提案，返回[2, ]给proposerB。</li>
+<li>proposerB收到accept响应后，比对提案编号发现有大多数的提案编号是自己的编号，则认为该提案达成共识，完成协商过程。</li>
+</ol>
+<p>以上过程的主要描述了accept对proposer的两个承诺，即如果acceptor通过提案[M, ]的准备请求</p>
+<ul>
+<li>acceptor承诺不再通过编号<strong>小于等于</strong>M的提案的prepare请求</li>
+<li>acceptor承诺不再通过编号<strong>小于</strong>M的提案的accept请求，也就是不再通过编号小于M的提案</li>
+</ul>
+<p>那么还有一个承诺是</p>
+<ul>
+<li>如果acceptor已经通过某一提案，则承诺在prepare请求的响应中返回<strong>已经通过的最大编号的提案内容</strong>。如果没有通过任何提案，则在prepare请求的响应中返回空值</li>
+</ul>
+<p>为了描述该承诺，我们想象出这样一个场景。proposeB完成prepare请求后，发起accept请求，且提案为[3, 6]。在此过程中，proposeA发起prepare请求，提案编号为[4, ]，并且acceptor先收到proposeA发起prepare请求，也就是说acceptor会拒绝proposeB的accept请求。情况如下</p>
+<p><img src="/images/theory/distributed/paxos_4.png" alt="paxos 两个提案提出"></p>
+<ol>
+<li>proposerB发起accept请求，提案为[3, 6]。</li>
+<li>acceptorA收到proposerB的accept请求后，批准了该请求。</li>
+<li>proposerA发起prepare请求，提案为[4, ]。</li>
+<li>acceptorB、acceptorC先收到proposerA的prepare请求。则拒绝proposerB的accept请求。</li>
+<li>acceptorA收到proposerA的prepare请求，由于之前接收了proposerB发起accept请求，则给proposeA返回已批准的提案[3, 6]。</li>
+<li>此时，proposerB重新进入prepare协商，proposerA收到大多数prepare响应，发起accept请求，由于收到acceptorA返回的提案[3, 6]，那么proposer的提案值也只能为6，即[4, 6]。</li>
+<li>accept完成协商。</li>
+</ol>
+<h3 id="multi-paxos算法"><a href="#multi-paxos算法" class="headerlink" title="multi-paxos算法"></a>multi-paxos算法</h3><p>原始的paxos算法（Basic Paxos），只能完成一个值的共识。Lamport宗师提到可以通过执行多次basic-paxos实现一系列值的共识。但是由于多次协商会增加通信以及影响协商的活性（指协商进入死循环）。</p>
+<p>宗师则提出multi-paxos的解决方案，但是由于宗师并没有把multi-paxos讲清楚，只是介绍了大概的思想，缺少算法过程必要细节。所以这给了我们很大的想象空间，因此每个人实现的multi-paxos都有所差异。</p>
+<p>总体来说multi-Paxos基于basic-paxos做了两点改进：</p>
+<ol>
+<li>在所有Proposers中选举一个Leader，由Leader唯一地提交Proposal给Acceptors进行表决。这样没有Proposer竞争，解决了活锁问题。在系统中仅有一个Leader进行Value提交的情况下，Prepare阶段就可以跳过，从而将两阶段变为一阶段，提高效率。</li>
+<li>针对每一个要确定的值，运行一次Paxos算法实例（Instance），形成决议。每一个Paxos实例使用唯一的Instance ID标识。</li>
+</ol>
+<p>首先multi-Paxos是要选举一个leader的，宗师提到：可以通过basic-paxos进行leader的选举。</p>
+<ul>
+<li>选举leader后，只能由leader提出proposal。</li>
+<li>在leader宕机后，服务将临时不可用，等待leader重新选举。</li>
+<li>在系统中仅有一个leader进行proposal提交的情况下，prepare阶段可以跳过。</li>
+</ul>
+<p>multi-paxos通过改变prepare阶段的作用范围至后面leader提交的所有实例，从而使得leader的连续提交只需要执行一次prepare阶段，后续只需要执行accept阶段，将两阶段变为一阶段，提高了效率。为了区分连续提交的多个实例，每个实例使用一个instance ID标识，instance ID由leader本地递增生成即可。</p>
+<p>multi-paxos允许有多个自认为是leader的节点并发提交proposal而不影响其安全性，这样的场景即退化为basic-paxos。</p>
+<h3 id="paxos回顾，思考几个题目吧"><a href="#paxos回顾，思考几个题目吧" class="headerlink" title="paxos回顾，思考几个题目吧"></a>paxos回顾，思考几个题目吧</h3><figure class="highlight asciidoc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">怎么解决两个提案提出后陷入死循环？</span><br><span class="line">---------------------------------------------------------</span><br><span class="line">三个节点的集群A、B、C。</span><br><span class="line">A和B通过提案[4, 6]，C没有通过任何提案。</span><br><span class="line">此时C收到客户端请求，将值设置为5，C生成的编号为5，通过basic-paxos后。</span><br><span class="line"></span><br><span class="line">最后集群中通过的提案应该是多少呢？</span><br><span class="line">---------------------------------------------------------</span><br><span class="line">假如有三个提案者A, B, C，五个接受者SERV1, SERV2, SERV3, SERV4, SERV5</span><br><span class="line">A提案编号为1，值为3</span><br><span class="line">B提案编号为2，值为5</span><br><span class="line">C提案编号为3，值为8</span><br><span class="line"></span><br><span class="line">①A第一阶段发给SERV1, SERV2, SERV3获得回应，赢得半数选票</span><br><span class="line">②B开始第一阶段，获得SERV3, SERV4, SERV5的选票</span><br><span class="line">③A开始第二阶段，发给SERV1值为3的提案后，SERV1允许提交该值，此时A宕机</span><br><span class="line">④B开始第二阶段，发给SERV5值为5的提案后，SERV5允许提交该值，此时B宕机</span><br><span class="line">⑤C开始第一阶段，获得SERV1, SERV2, SERV5的选票，根据规定，它将收到SERV1接受的值为3，SERV5接受的值为5。</span><br><span class="line">那C的第二阶段提案应该是[3, 3]还是[3, 5]呢？</span><br><span class="line"></span><br><span class="line">----------------------------------------------------------</span><br><span class="line">multi-paxos提出leader的角色，提案只能由leader提出，那么当写性能达到leader的瓶颈，怎么解决呢？</span><br><span class="line"></span><br><span class="line">答：应该裂变分区，拆成多个不相干的分区，由多个paxos-group来完成之前一个leader的工作</span><br></pre></td></tr></table></figure>
+
+<p>参考文章：<a href="https://zhuanlan.zhihu.com/p/31780743。文中提到paxos推导过程，也可以了解下。" target="_blank" rel="noopener">https://zhuanlan.zhihu.com/p/31780743。文中提到paxos推导过程，也可以了解下。</a></p>
+</div><iframe src="/donate/?AliPayQR=null&amp;WeChatQR=/img/WeChatQR.jpg&amp;GitHub=https://github.com/farawayliu&amp;BTCQR=null&amp;BTCKEY=null&amp;PayPal=null" style="overflow-x:hidden; overflow-y:hidden; border:0xp none #fff; min-height:240px; width:100%;" frameborder="0" scrolling="no"></iframe><div><ul class="post-copyright"><li class="post-copyright-author"><strong>本文作者：</strong>far</li><li class="post-copyright-link"><strong>本文链接：</strong><a href="/2020/07/07/theory/分布式一致性协议 - Paxos/">https://www.ofcoder.com/2020/07/07/theory/%E5%88%86%E5%B8%83%E5%BC%8F%E4%B8%80%E8%87%B4%E6%80%A7%E5%8D%8F%E8%AE%AE%20-%20Paxos/</a></li><li class="post-copyright-license"><strong>版权声明：</strong>Copyright © 2021 ofcoder. Author by far.</li></ul></div><br><script type="text/javascript" src="/js/share.js?v=0.0.0" async></script><a class="article-share-link" data-url="https://www.ofcoder.com/2020/07/07/theory/%E5%88%86%E5%B8%83%E5%BC%8F%E4%B8%80%E8%87%B4%E6%80%A7%E5%8D%8F%E8%AE%AE%20-%20Paxos/" data-id="ckt6ou279000ru8j1b83v8767" data-qrcode="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAASYAAAEmCAAAAADqr2IGAAAEnElEQVR42u3aSY7bWBAFwLr/pauBXhloDe9lUmh9OrgqSDRFBg3k+PMTH7//Hn/+/d/j2fnJdWZXfvbt6+s8u7cLDkyYMGHC9JVM+aWTB8jJXiNuXtWzO8mv8+DfYsKECROmw5na4L2Jp7Nw3j7eLKV4+jkmTJgwYfoLmNrg3YbwNrHIr5a/KkyYMGHChGlfMLfpRU52VcMXEyZMmDDdj2kfsNuxZRLa22Qib+Z+sBeOCRMmTJi+jGm2uHOPvz++34QJEyZMmP5Xpt/ymI02kzPzYJyPJ5OEJnpqTJgwYcJ0LFM+FMyHiPngcwad3NX+t6IOASZMmDBh+nqmvPXZtlBfN2pnyzozoOTMN7+OCRMmTJhuwbRfoMm5ZxyzNZ121Prgc0yYMGHCdCxTGyyToL4vj+v2awCXvJ6oVMaECRMmTAcyzdY92+HlhrhNRPKtmyLtwIQJEyZMBzLNwnwbSuvyMl7K2QxiixeJCRMmTJiOZZqVuPnIMC+Arx2gbkrcN3eCCRMmTJiOZWrJrl3Qycvs5NtZE7noiGPChAkTpkOYZg9z7SJO+1v5ddpX8ma/CRMmTJgwHc6Ul69tEZsnFtcmGfki0ZsXjAkTJkyYjmXKL/EbH0nDNDkzPydv6a5awJgwYcKE6UCmPCHIB5lto3ZWxLaldd6eXpW+mDBhwoTpy5jaG20fY3OLbaN21uRdHZgwYcKE6euZZg3WfFEmCdttSTx7DW1L+kHpiwkTJkyYDmfaxMf22/a3ZmVtXh5HU19MmDBhwnQgUx7UZ0sz7WNsko+8XTt8LkyYMGHCdDhT+3cb8jfjySScb+7kZ5MpYMKECROmL2aaBenZqmgegNuQvy+S32hgwoQJE6bDmdo1l3y42HK0YT4fvm4a2ZgwYcKE6U5MSa2X32JbBudpRzuezBeAMGHChAnT/Zhmo8R26Jgv5eyL6raR/eYKmDBhwoTpWKaWI195mYX/WRN5dubmPw0mTJgwYTqLaR90N4nCvrj9RHKDCRMmTJjuxJQMKfOxYhLyP7F8M/u2vhNMmDBhwnQU06Z1O2vFztZxriqJh61kTJgwYcJ0C6ZZUZoXjUnZvAf9xDAVEyZMmDDdg6ltp86KzHZ4macsG+I3rxATJkyYMN2OKW+ebj5vA/l+mJqMQh98ggkTJkyYjmVqj+Sx26D7iRbwVS9geGDChAkTpq9hykNs+/OztCAfN7ZrQG3b90HehAkTJkyYDmd6Pdq8KjDn9K/Pb1vDbdrxoMmLCRMmTJgOZ5oF4w1HXmkmBLO0JroCJkyYMGE6lmnWxt0MEdvbbVu0s3FmzYoJEyZMmA5h+i2PzbwvGXZuGsrt3RblNyZMmDBhOpZpXwTux5YJX0vcvp6rSmVMmDBhwvSdTEkSkBfDs+Iz+d39AtCmvMeECRMmTKcztUE6L5XzUeisyRs9ZNlQfpoQYMKECROmWzO1NNcu6MxaxrNSeZUQYMKECROmw5lmo8R8vWZ/P/nYMimPMWHChAnTPZjyAL9ZdslvvU0C2qJ3mBBgwoQJE6YDmdrFndkocZMEzNrBm0J6eGDChAkTpu9i+gcYXfHzjwWnvAAAAABJRU5ErkJggg==">分享</a><div class="tags"><a href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E4%BA%8B%E5%8A%A1/">分布式事务</a><a href="/tags/paxos/">paxos</a></div><div class="post-nav"><a class="pre" href="/2020/08/12/theory/%E5%88%86%E5%B8%83%E5%BC%8F%E4%B8%80%E8%87%B4%E6%80%A7%E5%8D%8F%E8%AE%AE%20-%20ZAB/">分布式一致性协议 - ZAB</a><a class="next" href="/2020/07/05/theory/%E5%88%86%E5%B8%83%E5%BC%8F%E4%B8%80%E8%87%B4%E6%80%A7%E5%8D%8F%E8%AE%AE%20-%202PC,%203PC/">分布式一致性协议 - 2PC, 3PC</a></div><div id="vcomment"></div><script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script><script src="//unpkg.com/valine@latest/dist/Valine.min.js"></script><script>var notify = 'true' == true ? true : false;
+var verify = 'false' == true ? true : false;
+var GUEST_INFO = ['nick','mail','link'];
+var guest_info = 'nick,mail,link'.split(',').filter(function(item){
+  return GUEST_INFO.indexOf(item) > -1
+});
+guest_info = guest_info.length == 0 ? GUEST_INFO :guest_info;
+window.valine = new Valine({
+  el:'#vcomment',
+  notify:notify,
+  verify:verify,
+  appId:'s8pJruGkXvi5Skd0e6EaMQ5X-gzGzoHsz',
+  appKey:'K3NjnXxqhPNwUw5pmqOzoO4i',
+  placeholder:'说出你的故事...',
+  avatar:'mm',
+  guest_info:guest_info,
+  pageSize:'10'
+})</script></div></div></div><div class="pure-u-1-4 hidden_mid_and_down"><div id="sidebar-toc"><div class="stoc-article" id="sidebar-stoc"><strong class="stoc-title"><i class="fa fa-blind"> Contents </i></strong><div class="toc-nav" id="stoc"><ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#paxos-科普"><span class="toc-number">1.</span> <span class="toc-text">paxos 科普</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#初探paxos"><span class="toc-number">2.</span> <span class="toc-text">初探paxos</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#提案（proposal）"><span class="toc-number">2.1.</span> <span class="toc-text">提案（proposal）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#提案者（proposer）"><span class="toc-number">2.2.</span> <span class="toc-text">提案者（proposer）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#接受者（acceptor）"><span class="toc-number">2.3.</span> <span class="toc-text">接受者（acceptor）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#学习者（learner）"><span class="toc-number">2.4.</span> <span class="toc-text">学习者（learner）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#prepare阶段"><span class="toc-number">2.5.</span> <span class="toc-text">prepare阶段</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#accept阶段"><span class="toc-number">2.6.</span> <span class="toc-text">accept阶段</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#learn阶段"><span class="toc-number">2.7.</span> <span class="toc-text">learn阶段</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#算法陈述"><span class="toc-number">3.</span> <span class="toc-text">算法陈述</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#提案选定"><span class="toc-number">3.1.</span> <span class="toc-text">提案选定</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#提案获取"><span class="toc-number">3.2.</span> <span class="toc-text">提案获取</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#算法模拟"><span class="toc-number">4.</span> <span class="toc-text">算法模拟</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#multi-paxos算法"><span class="toc-number">5.</span> <span class="toc-text">multi-paxos算法</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#paxos回顾，思考几个题目吧"><span class="toc-number">6.</span> <span class="toc-text">paxos回顾，思考几个题目吧</span></a></li></ol></div></div></div></div><div class="pure-u-1 pure-u-md-3-4"><div id="footer">Copyright © 2021 <a href="/." rel="nofollow">并发笔记 - ofcoder.com | </a><a href="http://www.beian.miit.gov.cn" rel="nofollow" target="_blank">粤ICP备18053760号</a><div>本站访客 <span id="busuanzi_value_site_uv"></span>人次 | 总访问 <span id="busuanzi_value_site_pv"></span>次<img src="https://s04.flagcounter.com/count/MnzJ/bg_FFFFFF/txt_000000/border_726EE0/columns_2/maxflags_10/viewers_0/labels_1/pageviews_1/flags_0/percent_0/" style="display: none;"/></div></div></div></div><a class="show" id="rocket" href="#top"></a><script type="text/javascript" src="/js/totop.js?v=0.0.0" async></script><script type="text/javascript" src="//cdn.bootcss.com/fancybox/3.3.5/jquery.fancybox.min.js" async></script><script type="text/javascript" src="/js/fancybox.js?v=0.0.0" async></script><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/fancybox/3.3.5/jquery.fancybox.min.css"><script type="text/javascript" src="/js/search.js?v=0.0.0"></script><script>var search_path = 'search.xml';
+if (search_path.length == 0) {
+   search_path = 'search.xml';
+}
+var path = '/' + search_path;
+searchFunc(path, 'local-search-input', 'local-search-result');
+</script><script type="text/javascript" color="100,99,98" opacity="0.7" zIndex="-1" count="5" src="//cdn.bootcss.com/canvas-nest.js/1.0.1/canvas-nest.min.js"></script><script type="text/javascript" src="/js/codeblock-resizer.js?v=0.0.0"></script><script type="text/javascript" src="/js/smartresize.js?v=0.0.0"></script></div></body></html><script type="text/javascript" src="/js/toc.js?v=0.0.0" async></script><script src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" async></script>

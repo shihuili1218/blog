@@ -1,0 +1,118 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta http-equiv="content-type" content="text/html; charset=utf-8"><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport"><meta content="yes" name="apple-mobile-web-app-capable"><meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"><meta content="telephone=no" name="format-detection"><meta name="description"><title>分布式一致性协议 - Gossip | 并发笔记 - ofcoder.com</title><link rel="stylesheet" type="text/css" href="/css/style.css?v=0.0.0"><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/normalize/8.0.0/normalize.min.css"><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/pure/1.0.0/pure-min.css"><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/pure/1.0.0/grids-responsive-min.css"><link rel="stylesheet" href="//cdn.bootcss.com/font-awesome/4.7.0/css/font-awesome.min.css"><script type="text/javascript" src="//cdn.bootcss.com/jquery/3.3.1/jquery.min.js"></script><link rel="Shortcut Icon" type="image/x-icon" href="/favicon.ico"><link rel="apple-touch-icon" href="/apple-touch-icon.png"><link rel="apple-touch-icon-precomposed" href="/apple-touch-icon.png"><!-- 顶部加载进度条 --><script type="text/javascript" src="//cdn.bootcss.com/pace/1.0.2/pace.min.js"></script><link rel="stylesheet" href="//cdn.bootcss.com/pace/1.0.2/themes/pink/pace-theme-flash.css"><link rel="alternate" type="application/atom+xml" href="/atom.xml"><meta name="generator" content="Hexo 4.2.1"></head><body><div class="body_container"><div id="header"><div class="site-name"><h1 class="hidden">分布式一致性协议 - Gossip</h1><a id="logo" href="/.">并发笔记 - ofcoder.com</a><p class="description">一位后端开发的养肝历程，护发经验</p></div><div id="nav-menu"><a class="current" href="/."><i class="fa fa-home"> 首页</i></a><a href="/tags/"><i class="fa fa-tags"> 标签</i></a><a href="/usql/"><i class="fa fa-database"> usql</i></a><a href="/book/"><i class="fa fas fa-book"> book</i></a><a href="/atom.xml"><i class="fa fa-rss"> 订阅</i></a></div></div><div class="pure-g-g" id="layout"><div class="pure-u-1 pure-u-md-3-4"><div class="content_container"><div class="post"><h1 class="post-title">分布式一致性协议 - Gossip</h1><div class="post-meta">Nov 24, 2020<span> | </span><span class="category"><a href="/categories/%E7%AE%97%E6%B3%95%E7%90%86%E8%AE%BA/">算法理论</a></span><span id="busuanzi_container_page_pv"> | <span id="busuanzi_value_page_pv"></span><span> 阅读</span></span><span class="post-time"><span class="post-meta-item-text"> | </span><span class="post-meta-item-icon"><i class="fa fa-keyboard-o"></i><span class="post-count"> 2.8k</span><span class="post-meta-item-text"> 字</span></span></span><span class="post-time"> | <span class="post-meta-item-icon"><i class="fa fa-hourglass-half"></i><span class="post-count"> 10</span><span class="post-meta-item-text"> 分钟</span></span></span></div><a class="disqus-comment-count" href="/2020/11/24/theory/%E5%88%86%E5%B8%83%E5%BC%8F%E4%B8%80%E8%87%B4%E6%80%A7%E5%8D%8F%E8%AE%AE%20-%20Gossip/#vcomment"><span class="valine-comment-count" data-xid="/2020/11/24/theory/%E5%88%86%E5%B8%83%E5%BC%8F%E4%B8%80%E8%87%B4%E6%80%A7%E5%8D%8F%E8%AE%AE%20-%20Gossip/"></span><span> 条评论</span></a><div class="post-content"><p>前面我们讲过CAP定理、Paxos、Raft，那么试想几个场景：</p>
+<ul>
+<li>我们要实现一个完全的AP系统。即集群中只有一个节点存活，也能向外提供服务。在此基础上，我们如何保证数据最终一致性？</li>
+<li>在一个庞大的集群中，对某个数据修改后，如何同步到其他节点？</li>
+<li>在一个去中心化的集群中，各节点都是对等节点。如何同步数据，使保证各节点数据达到一致？</li>
+</ul>
+<p>答案就是gossip协议，gossip是一种去中心化的分布式协议，用于实现节点之间的信息交换，大名鼎鼎的bitcoin也使用了gossip来传播交易和区块信息。在分布式系统中，也用它来实现最终一致性，比如cassandra、redis。</p>
+<h3 id="六度分隔理论"><a href="#六度分隔理论" class="headerlink" title="六度分隔理论"></a>六度分隔理论</h3><p>循源，需从六度分隔理论开始。六度分隔理论，简单地说：“你和任何一个陌生人之间所间隔的人不会超五个。”也就是说，最多通过六个人你就能够认识任何一个陌生人。（小声嘀咕）你老婆最多拖6个人的关系就能认识到你的任何一个P（朋）友。</p>
+<p>数学解释如下：<br>若每个人平均认识260人，其六度就是260^6=308,915,776,000,000。消除一些节点重复，那也几乎覆盖了整个地球人口若干多多倍。</p>
+<p>基于六度分隔理论，任何信息的传播其实非常迅速，而且网络交互次数不会很多。Facebook研究了已注册的15.9亿使用者资料，发现“网络直径”为是4.57，即每个人与其他人间隔为4.57人。</p>
+<h3 id="gossip原理"><a href="#gossip原理" class="headerlink" title="gossip原理"></a>gossip原理</h3><p>gossip英文原意：流言蜚语。gossip协议就像流言蜚语一样，利用随机的，带有传染性的方式，将数据传遍整个网络。即在一定时间内，完成数据一致性。<br>gossip传播方式分为两种：反熵、谣言传播。有的也认为可分为三种：直接邮寄、反熵、谣言传播。所增加的直接邮寄，是指当数据有修改时，直接把数据发送给其他节点，即写时完成数据一致。而反熵、谣言传播则是通过异步方式修复节点之间数据一致。</p>
+<p>gossip将各节点分为三类感染状态。</p>
+<ul>
+<li>susceptible (S): The node does not know about the update</li>
+<li>infected (I): The node knows the update and is actively spreading it</li>
+<li>removed (R): The node has seen the update, but is not participating in the spread-<br>ing process (in epidemiology, this corresponds to death or immunity)</li>
+</ul>
+<p>gossip原文中，有一些含义相近的词，我们列出来可能更好理解：<br>反熵：Anti Entropy、error correction、SI<br>谣言传播：Rumor-Mongering、update spreading、SIR</p>
+<p>例如下文：<br>In Section 1.2.1 we identified two sub-problems, namely update spreading and error correction.The former is implemented by an SIR gossip protocol, and the latter by an SI protocol.<br>The SIR gossip is called rumor mongering.<br>The SI algorithm for error correction is called anti-entropy. </p>
+<h4 id="Anti-Entropy-反熵"><a href="#Anti-Entropy-反熵" class="headerlink" title="Anti-Entropy(反熵)"></a>Anti-Entropy(反熵)</h4><p>先解释反熵这个词，熵是物理中指体系的混乱程度。反熵在这里的意思，也是指修复集群中混乱程度，即修复数据一致。</p>
+<p>gossip原文中描述：用于纠错的SI算法称为反熵。这里的SI算法，是指节点只有两种状态：susceptible（未被感染）、infected（已感染）。注意每个节点都可以同时扮演这两个角色，当A把数据推给B时，A为infected，B为susceptible。当A向B拉取数据时，A为susceptible，B为infected。</p>
+<p>具体描述反熵的传播过程，则是每个节点周期性地随机选择其他节点，然后通过互相交换自己的所有数据来消除两者之间的差异，直到整个网络中节点数据一致。</p>
+<p>实现反熵的方式主要有三种：推、拉、推拉。推则是将自己数据推给对方，更新对方的数据。拉则是拉取对方的数据，更新自己数据。推拉即更新自己和对方的数据。</p>
+<h5 id="伪代码实现"><a href="#伪代码实现" class="headerlink" title="伪代码实现"></a>伪代码实现</h5><p><img src="/images/theory/distributed/gossip_si.png" alt="si gossip"><br>伪代码中围绕两个boolean变量：push、pull，表示同步消息模式。运行过程可分为两个线程理解：</p>
+<ul>
+<li>异步消息同步线程，即消息同步入口，每个∆时间单位执行一次。</li>
+<li>消息处理线程，即接收到消息，进行处理。</li>
+</ul>
+<ol>
+<li>本次数据同步发起者，记为A，A生成随机集合P。</li>
+<li>如果是push模式，并且A处于infected，则A发送数据给集合P。<ul>
+<li>第11行，集合P收到数据，保存数据。同时意味着自己处于infected</li>
+</ul>
+</li>
+<li>如果是pull模式，则A发送<strong>请求更新的指令</strong>给集合P。<ul>
+<li>第15行，集合P收到<strong>请求更新的指令</strong>，如果自己处于infected，则发送第11行所保存的数据给A。</li>
+<li>A接收到数据，即第11行。</li>
+</ul>
+</li>
+</ol>
+<h5 id="生产应用"><a href="#生产应用" class="headerlink" title="生产应用"></a>生产应用</h5><p>算法描述中，虽然描述的是周期性的向其他节点交换数据来消除两者之间的差异。但是反熵在实际生产中的应用和原本的描述会有所出入，主要原因包含两点：</p>
+<ol>
+<li>每次推送和拉取都是全量数据进行比较，性能消耗比较大。</li>
+<li>可能出现极端情况（两个节点互相进行推拉，其他的节点也没有选择它们两进行推拉）导致某些节点数据可能达不到一致。</li>
+<li>随机性的选择节点消除两者的差异，如果要整个集群节点都达到一致，所需时间不确定，也没有明确的标准表明集群中数据达到一致。</li>
+</ol>
+<p>在实际应用场景中，不推荐采用随机的节点进行反熵。而是需要刻意的设计一个闭环，这样能在一个确定的时间范围内完成最终一致性，而不是基于随机的概率。<br><img src="/images/theory/distributed/gossip_1.png" alt="gossip"></p>
+<ol>
+<li>由A发起反熵，A的数据推给B，可以把A中包含的数据B中不包含的数据同步给B</li>
+<li>B的数据推给C，消除C中没有A、B的数据</li>
+<li>C的数据推给A，则可以消除A中没有B、C的数据</li>
+<li>A还需要再推一次给B，这样才能把C中的数据推给B</li>
+</ol>
+<p>至此，完成数据的最终一致性。这里可以做一个优化：如果反熵每次都推送全量数据进行比较，太消耗资源。这里建议记录已完成一致性的数据，后续执行反熵，只推送增量数据。</p>
+<h4 id="Rumor-Mongering-谣言传播"><a href="#Rumor-Mongering-谣言传播" class="headerlink" title="Rumor-Mongering(谣言传播)"></a>Rumor-Mongering(谣言传播)</h4><p>谣言传播，采用一传十，十传百的方式。指各节点周期性的，向随机的一组节点广播更新数据。其他节点收到更新的数据后，继续周期性的，向随机的一组节点广播更新数据，直到所有节点都处理了新数据。为了使谣言传播能够停止（避免广播风暴），gossip增加removed状态，当节点收到的谣言并且该谣言处于removed（之前已经处理过的谣言）时，该节点将不继续传播该谣言。即SIR算法。</p>
+<h5 id="传播示例"><a href="#传播示例" class="headerlink" title="传播示例"></a>传播示例</h5><p>在一个集群中，发生了数据更新，即为infected状态。图片最开始只有一个节点有数据更新，由它周期性的外向外广播谣言，其每次广播数量为2，该参数即为fanout=2。<br><img src="/images/theory/distributed/gossip_2.png" alt="gossip"><br>当其他susceptible，收到数据后，变更自己为infected状态，继续向外广播谣言。直到完成数据最终一致性。<br><img src="/images/theory/distributed/gossip_3.png" alt="gossip"></p>
+<p>谣言传播属于指数级的传播，我们得到：传播所需周期与fanout（记为f）之间的关系式。当节点数量为N时，有：$log_f{N}$。</p>
+<p>当集群中存在10000个节点时，每次传播感染5个。有：$log_5{10000}$ = 5.72。得出最理想的情况，5.72次传播即可感染10000个节点。该公式为最理想情况，实际传播过程中，可能会出现某一个节点被感染多次。</p>
+<h5 id="伪代码实现-1"><a href="#伪代码实现-1" class="headerlink" title="伪代码实现"></a>伪代码实现</h5><p>在gossip论文中，提供的伪代码实现中，主要增加了不继续传播的条件。<br><img src="/images/theory/distributed/gossip_sir.png" alt="sir gossip"></p>
+<ol>
+<li>本次数据同步发起者，记为A，A生成随机集合P。</li>
+<li>如果是push模式，并且A处于infected，则A发送更新数据给集合P。<ul>
+<li>集合P收到更新数据，第16行，判断是否已处理该数据，则返回feedback给A。</li>
+<li>如果处理，则保存该更新数据。同时意味着自己处于infected</li>
+</ul>
+</li>
+<li>如果是pull模式，则发送<strong>请求更新的指令</strong>给集合P。<ul>
+<li>第23行，集合P收到<strong>请求更新的指令</strong>，如果自己处于infected，则发送第19行所保存的更新数据给A。</li>
+<li>A接收到更新数据，即第15行。</li>
+</ul>
+</li>
+<li>A收到feedback消息，通过概率切换到removed</li>
+</ol>
+<h5 id="生产应用-1"><a href="#生产应用-1" class="headerlink" title="生产应用"></a>生产应用</h5><p>谣言传播，可以快速的向网络中广播，非常具有传染性，适合节点数量多、集群庞大的网络中更新数据。由于集群中都是对等节点，它比较适合动态变化的分布式系统。</p>
+<p>但是为了方便谣言传播，发送的数据包不能太大，主要用于新数据增量更新。</p>
+<h3 id="优劣"><a href="#优劣" class="headerlink" title="优劣"></a>优劣</h3><p>gossip的优势很明显，具体总结，可有以下几点：</p>
+<ol>
+<li>简单有趣</li>
+<li>可扩展、容错：由于各节点之间对等性，允许节点之间任意的增加和减少。</li>
+<li>天然的去中心化</li>
+<li>传播速度快，适用于非常庞大的集群</li>
+</ol>
+<p>劣势：</p>
+<ol>
+<li>达成最终一致性的时间不确定性</li>
+<li>消息延迟，只能实现最终一致性，传播过程中，数据不一致</li>
+<li>广播rpc消息量大，对网络压力</li>
+<li>拜占庭将军问题，不允许存在恶意节点</li>
+</ol>
+<h3 id="做几个小题目吧"><a href="#做几个小题目吧" class="headerlink" title="做几个小题目吧"></a>做几个小题目吧</h3><figure class="highlight asciidoc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">文章开始的三个小题目，你有答案了吗？</span><br><span class="line">1. 保证各节点对等，可单独提供服务。宕机恢复后的节点使用反熵拉取新数据。</span><br><span class="line">2. 庞大的集群中，由一个leader节点去广播肯定不行，会把leader整挂的。可以采用谣言传播。</span><br><span class="line">3. 两种传播模式配合使用。新节点上线，通过反熵拉取数据更新。数据更新，通过谣言传播广播数据。</span><br><span class="line">--------------------------------------</span><br><span class="line">每次反熵都需要传输所有数据才能对比，有什么方案优化？</span><br><span class="line"></span><br><span class="line">1. 数据记录只做增量，每次对比只传输增量数据进行对比</span><br><span class="line">2. 采用hash，先传输hash是否一致，再决定要不要传输数据对比</span><br><span class="line">----------------------------------------</span><br><span class="line">谣言传播，谣言传播何时停止？</span><br><span class="line"></span><br><span class="line">论文中提供一个概率来停止广播谣言。我们可以通过设置某个节点被通知到某个阈值时停止广播谣言。</span><br><span class="line">这个阈值设置多少，需要根据集群大小具体调研，阈值设置小了，有可能一些节点接收不到谣言，阈值设置大了，会造成网络性能下降。</span><br><span class="line">------------------------------------------</span><br><span class="line">谣言传播，谣言冲突怎么解决？</span><br><span class="line"></span><br><span class="line">具体场景，可以具体表现。</span><br></pre></td></tr></table></figure>
+
+</div><iframe src="/donate/?AliPayQR=null&amp;WeChatQR=/img/WeChatQR.jpg&amp;GitHub=https://github.com/farawayliu&amp;BTCQR=null&amp;BTCKEY=null&amp;PayPal=null" style="overflow-x:hidden; overflow-y:hidden; border:0xp none #fff; min-height:240px; width:100%;" frameborder="0" scrolling="no"></iframe><div><ul class="post-copyright"><li class="post-copyright-author"><strong>本文作者：</strong>far</li><li class="post-copyright-link"><strong>本文链接：</strong><a href="/2020/11/24/theory/分布式一致性协议 - Gossip/">https://www.ofcoder.com/2020/11/24/theory/%E5%88%86%E5%B8%83%E5%BC%8F%E4%B8%80%E8%87%B4%E6%80%A7%E5%8D%8F%E8%AE%AE%20-%20Gossip/</a></li><li class="post-copyright-license"><strong>版权声明：</strong>Copyright © 2021 ofcoder. Author by far.</li></ul></div><br><script type="text/javascript" src="/js/share.js?v=0.0.0" async></script><a class="article-share-link" data-url="https://www.ofcoder.com/2020/11/24/theory/%E5%88%86%E5%B8%83%E5%BC%8F%E4%B8%80%E8%87%B4%E6%80%A7%E5%8D%8F%E8%AE%AE%20-%20Gossip/" data-id="ckt6ou278000pu8j1cubnew2d" data-qrcode="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAASYAAAEmCAAAAADqr2IGAAAEkUlEQVR42u3aS27bQBAFwNz/0g6QVQCH9HvdNKKRSytDociZYoDp369f8efjz+fvv++/+fyr+7t9vs/VJ7nP52uSKx/4YMKECROml2RKlnW/mZzgaqHJJvdk7YvBhAkTJkzvxNTebna0t2HHLLC4393sV5gwYcKE6ScwbfLE5JhPktX8ytn1mDBhwoTpJzPN0to9fRJYJOiYMGHChOknM+WHdA6RcLcQm5AiR8SECRMmTO/ENBvceY+/v32+CRMmTJgw/Vemj/LTjsK0S/+Ogm9+/F/uGhMmTJgwHcuUJKtXJ+OsbXmfAG/ClJx11uDEhAkTJkynMyUNv7YpOGtk3qO3IzuzduY//hUTJkyYMB3IlCd+ydLbw37TXJyN6bTpNyZMmDBhOp1pX5bN086Wcvbc/arqt4oJEyZMmF6eKU9Nn1puXlber6edwPniuZgwYcKE6XCmdpylLba2xHmpd/Pb5EViwoQJE6ZzmWZNvtUQTMmX56HJ/4h2LAkTJkyYMJ3LNGs6tofrbJP7IKBti16uHBMmTJgwHcu0OZjzg/9Z3KdWnj8FEyZMmDCdzjQrvG7GbvYHeU6WfF+QYcKECROmA5naFPF+e5tBnLa1mYca+Wqj1BcTJkyYMB3CNEtEZ8M9efk4SWufRfwijMCECRMmTMcytWXcdumbBLtd1awtWoc1mDBhwoTpQKY2Ec1DhDyMmA0PtQHKpjyNCRMmTJjOZdqPs+TDMbNe6yyt3T8FEyZMmDCdzrRJI5PjMy/7zq58drrmcneYMGHChOlYptlQTt4UbLfXjuDkL3I/bIQJEyZMmE5kag/XNkluaTZHeD48VO8LEyZMmDC9BdOmvJs3RKMIpWystsHHsMiLCRMmTJgOZEpahg+XSoNv2uLy7JjPy8qYMGHChOk9mDbb2CTG7VNmw6/5s4pdYMKECROml2dqC7WzBmcbTMxam5tQ44vdYcKECROmw5lmjcnZN3ni2ibDebs0ubKuZGPChAkTppdkeqrJNxu72YQF+Svc3wcTJkyYMJ3ONCuS7t/DpqTbBhb53S6vx4QJEyZMBzK1KWg71pNfnxSXZ0HDrAmKCRMmTJjeg2nWsEyCgAQ6D0Ta8Z3Zi6xTX0yYMGHCdBRTmzruS7r1AE0QcORBSdvmxIQJEyZMpzMVPygDgrZ5ueHeF5qLXBwTJkyYMB3CtIHbPOaj/OTl47ZtiQkTJkyY3pWpPbDzQ3pfom3DlKQ8nTdrL7u+mDBhwoTpWKYNSrLcvPE5K+C2q8oDHUyYMGHCdC7TLOnNU999Lj5LhvcF3wdqA5gwYcKE6QWYZmXW2UjNLHnO0+N7slX7FhMmTJgwHcvUth73jcl2gGZGMysH54k3JkyYMGE6i2kzLpPMt7RH+yak2Kf3l/fEhAkTJkyHM+Xbno3I1C3DIJXNQdug5x+/woQJEyZMP4Dp+w7pzVGdDw/dvyRMmDBhwoSpTZXb4u9s9Ke926wdiwkTJkyYTmfKt51DzNqieXqcXJ+DfnE3TJgwYcJ0LNO+APpUcJC3PFu4WQN1Nd+ECRMmTJj+P9NvYeiWh1yZpGEAAAAASUVORK5CYII=">分享</a><div class="tags"><a href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E4%BA%8B%E5%8A%A1/">分布式事务</a><a href="/tags/gossip/">gossip</a></div><div class="post-nav"><a class="pre" href="/2020/12/21/theory/%E5%88%86%E5%B8%83%E5%BC%8F%E4%B8%80%E8%87%B4%E6%80%A7%E5%8D%8F%E8%AE%AE%20-%20EPaxos/">分布式一致性协议 - EPaxos</a><a class="next" href="/2020/11/07/theory/%E5%88%86%E5%B8%83%E5%BC%8F%E4%B8%80%E8%87%B4%E6%80%A7%E5%8D%8F%E8%AE%AE%20-%20CAP%E3%80%81BASE%E3%80%81NWR/">分布式一致性协议 - CAP、BASE、NWR</a></div><div id="vcomment"></div><script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script><script src="//unpkg.com/valine@latest/dist/Valine.min.js"></script><script>var notify = 'true' == true ? true : false;
+var verify = 'false' == true ? true : false;
+var GUEST_INFO = ['nick','mail','link'];
+var guest_info = 'nick,mail,link'.split(',').filter(function(item){
+  return GUEST_INFO.indexOf(item) > -1
+});
+guest_info = guest_info.length == 0 ? GUEST_INFO :guest_info;
+window.valine = new Valine({
+  el:'#vcomment',
+  notify:notify,
+  verify:verify,
+  appId:'s8pJruGkXvi5Skd0e6EaMQ5X-gzGzoHsz',
+  appKey:'K3NjnXxqhPNwUw5pmqOzoO4i',
+  placeholder:'说出你的故事...',
+  avatar:'mm',
+  guest_info:guest_info,
+  pageSize:'10'
+})</script></div></div></div><div class="pure-u-1-4 hidden_mid_and_down"><div id="sidebar-toc"><div class="stoc-article" id="sidebar-stoc"><strong class="stoc-title"><i class="fa fa-blind"> Contents </i></strong><div class="toc-nav" id="stoc"><ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#六度分隔理论"><span class="toc-number">1.</span> <span class="toc-text">六度分隔理论</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#gossip原理"><span class="toc-number">2.</span> <span class="toc-text">gossip原理</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#Anti-Entropy-反熵"><span class="toc-number">2.1.</span> <span class="toc-text">Anti-Entropy(反熵)</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#伪代码实现"><span class="toc-number">2.1.1.</span> <span class="toc-text">伪代码实现</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#生产应用"><span class="toc-number">2.1.2.</span> <span class="toc-text">生产应用</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Rumor-Mongering-谣言传播"><span class="toc-number">2.2.</span> <span class="toc-text">Rumor-Mongering(谣言传播)</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#传播示例"><span class="toc-number">2.2.1.</span> <span class="toc-text">传播示例</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#伪代码实现-1"><span class="toc-number">2.2.2.</span> <span class="toc-text">伪代码实现</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#生产应用-1"><span class="toc-number">2.2.3.</span> <span class="toc-text">生产应用</span></a></li></ol></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#优劣"><span class="toc-number">3.</span> <span class="toc-text">优劣</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#做几个小题目吧"><span class="toc-number">4.</span> <span class="toc-text">做几个小题目吧</span></a></li></ol></div></div></div></div><div class="pure-u-1 pure-u-md-3-4"><div id="footer">Copyright © 2021 <a href="/." rel="nofollow">并发笔记 - ofcoder.com | </a><a href="http://www.beian.miit.gov.cn" rel="nofollow" target="_blank">粤ICP备18053760号</a><div>本站访客 <span id="busuanzi_value_site_uv"></span>人次 | 总访问 <span id="busuanzi_value_site_pv"></span>次<img src="https://s04.flagcounter.com/count/MnzJ/bg_FFFFFF/txt_000000/border_726EE0/columns_2/maxflags_10/viewers_0/labels_1/pageviews_1/flags_0/percent_0/" style="display: none;"/></div></div></div></div><a class="show" id="rocket" href="#top"></a><script type="text/javascript" src="/js/totop.js?v=0.0.0" async></script><script type="text/javascript" src="//cdn.bootcss.com/fancybox/3.3.5/jquery.fancybox.min.js" async></script><script type="text/javascript" src="/js/fancybox.js?v=0.0.0" async></script><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/fancybox/3.3.5/jquery.fancybox.min.css"><script type="text/javascript" src="/js/search.js?v=0.0.0"></script><script>var search_path = 'search.xml';
+if (search_path.length == 0) {
+   search_path = 'search.xml';
+}
+var path = '/' + search_path;
+searchFunc(path, 'local-search-input', 'local-search-result');
+</script><script type="text/javascript" color="100,99,98" opacity="0.7" zIndex="-1" count="5" src="//cdn.bootcss.com/canvas-nest.js/1.0.1/canvas-nest.min.js"></script><script type="text/x-mathjax-config">MathJax.Hub.Config({
+  tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}
+  });
+</script><script type="text/javascript" src="//cdn.bootcss.com/mathjax/2.7.4/MathJax.js?config=TeX-MML-AM_CHTML" async></script><script type="text/javascript" src="/js/codeblock-resizer.js?v=0.0.0"></script><script type="text/javascript" src="/js/smartresize.js?v=0.0.0"></script></div></body></html><script type="text/javascript" src="/js/toc.js?v=0.0.0" async></script><script src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" async></script>

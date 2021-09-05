@@ -1,0 +1,110 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta http-equiv="content-type" content="text/html; charset=utf-8"><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport"><meta content="yes" name="apple-mobile-web-app-capable"><meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"><meta content="telephone=no" name="format-detection"><meta name="description"><title>分布式一致性协议 - CAP、BASE、NWR | 并发笔记 - ofcoder.com</title><link rel="stylesheet" type="text/css" href="/css/style.css?v=0.0.0"><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/normalize/8.0.0/normalize.min.css"><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/pure/1.0.0/pure-min.css"><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/pure/1.0.0/grids-responsive-min.css"><link rel="stylesheet" href="//cdn.bootcss.com/font-awesome/4.7.0/css/font-awesome.min.css"><script type="text/javascript" src="//cdn.bootcss.com/jquery/3.3.1/jquery.min.js"></script><link rel="Shortcut Icon" type="image/x-icon" href="/favicon.ico"><link rel="apple-touch-icon" href="/apple-touch-icon.png"><link rel="apple-touch-icon-precomposed" href="/apple-touch-icon.png"><!-- 顶部加载进度条 --><script type="text/javascript" src="//cdn.bootcss.com/pace/1.0.2/pace.min.js"></script><link rel="stylesheet" href="//cdn.bootcss.com/pace/1.0.2/themes/pink/pace-theme-flash.css"><link rel="alternate" type="application/atom+xml" href="/atom.xml"><meta name="generator" content="Hexo 4.2.1"></head><body><div class="body_container"><div id="header"><div class="site-name"><h1 class="hidden">分布式一致性协议 - CAP、BASE、NWR</h1><a id="logo" href="/.">并发笔记 - ofcoder.com</a><p class="description">一位后端开发的养肝历程，护发经验</p></div><div id="nav-menu"><a class="current" href="/."><i class="fa fa-home"> 首页</i></a><a href="/tags/"><i class="fa fa-tags"> 标签</i></a><a href="/usql/"><i class="fa fa-database"> usql</i></a><a href="/book/"><i class="fa fas fa-book"> book</i></a><a href="/atom.xml"><i class="fa fa-rss"> 订阅</i></a></div></div><div class="pure-g-g" id="layout"><div class="pure-u-1 pure-u-md-3-4"><div class="content_container"><div class="post"><h1 class="post-title">分布式一致性协议 - CAP、BASE、NWR</h1><div class="post-meta">Nov 7, 2020<span> | </span><span class="category"><a href="/categories/%E7%AE%97%E6%B3%95%E7%90%86%E8%AE%BA/">算法理论</a></span><span id="busuanzi_container_page_pv"> | <span id="busuanzi_value_page_pv"></span><span> 阅读</span></span><span class="post-time"><span class="post-meta-item-text"> | </span><span class="post-meta-item-icon"><i class="fa fa-keyboard-o"></i><span class="post-count"> 3.7k</span><span class="post-meta-item-text"> 字</span></span></span><span class="post-time"> | <span class="post-meta-item-icon"><i class="fa fa-hourglass-half"></i><span class="post-count"> 13</span><span class="post-meta-item-text"> 分钟</span></span></span></div><a class="disqus-comment-count" href="/2020/11/07/theory/%E5%88%86%E5%B8%83%E5%BC%8F%E4%B8%80%E8%87%B4%E6%80%A7%E5%8D%8F%E8%AE%AE%20-%20CAP%E3%80%81BASE%E3%80%81NWR/#vcomment"><span class="valine-comment-count" data-xid="/2020/11/07/theory/%E5%88%86%E5%B8%83%E5%BC%8F%E4%B8%80%E8%87%B4%E6%80%A7%E5%8D%8F%E8%AE%AE%20-%20CAP%E3%80%81BASE%E3%80%81NWR/"></span><span> 条评论</span></a><div class="post-content"><p>这篇文章<strong>着重点不在于科普</strong>，毕竟关于CAP、BASE的理论的文章，网上很多。所以本文科普篇幅尽量小（只包含概念描述）。主要从几个侧面的问题来描述CAP，进而描述ACID、BASE理念。然后加入一点点调料，如何动态的切换一致性强度。</p>
+<p>本文通过以下几个问题，从侧面描述。文中个人观点较多，看官理性对待。</p>
+<ul>
+<li>为什么CAP三者不可兼得？</li>
+<li>为什么总把ACID与CP、BASE与AP放在一起，它们有什么关联？</li>
+<li>eureka属于AP系统吗？它明明没有放弃一致性啊？</li>
+<li>不考虑一致性的系统，有什么存在的意义呢？</li>
+</ul>
+<h3 id="CAP定理科普"><a href="#CAP定理科普" class="headerlink" title="CAP定理科普"></a>CAP定理科普</h3><p>CAP定理，指的是在一个分布式系统中，一致性（Consistency）、可用性（Availability）、分区容错性（Partition tolerance）。这三个要素最多只能同时实现两点，不可能三者兼顾。</p>
+<ul>
+<li>一致性（C）：这里是指强一致性。在分布式系统中的所有数据备份，在同一时刻是否同样的值。并不是指整个系统能提供最新的一致的数据。</li>
+<li>可用性（A）：这里是指100%可用性。客户端无论访问到哪个没有宕机的节点上，都能在<strong>有限的时间</strong>内<strong>返回结果</strong>，并不是指整个系统处于可用状态。</li>
+<li>分区容错性（P）：网络中允许丢失一个节点发给另一个节点的任意多的消息，即对网络分区的容忍。在发生网络分区时，能继续保持可用性或者一致性。<br>一个系统要求在运行过程中不能发生网络分区，那么这个系统就不具备分区容错性。</li>
+</ul>
+<p>CAP定理中的可用性和一致性与用户感知的可用性和一致性不是一个概念。我们追求的应该是用户感知的可用性，CAP中可用性和一致性给我们只是起到指导性的作用。</p>
+<p>2017 年，Google 公司的第一代 Spanner 系统已经诞生。Brewer 写了一篇文章讲述了 Google 公司的 Spanner 系统，并且近一步阐述了按照 CAP 定理 Spanner 是一个什么样特性的系统。在文中，Brewer 指出 Spanner 系统说是”实际上的 CA”（effectively CA）系统。从架构上来讲，Spanner 是一个 CP 系统，也就是说当出现网络分区时，Spanner 选择的是保证数据的一致性，放弃可用性的。但实际上，Spanner 是具有非常高可用性效果的一个系统，从架构上 Spanner 没有达到 CAP 定理要求的那种完全可用性，但是也达到非常高的可用性，由于采用多副本的设计，个别副本出现网络分区，并不影响用户能感知到的可用性。按 CAP 定理的定义，当这些个别副本出现网络分区时，这些节点是不可用的，也就是系统没有达到完全可用性。但是此时的用户请求是可以被其他副本服务的，此时服务是可用的，也就是说用户仍然感知到 Spanner 是可用的。所以说用户感知的可用性和 CAP 定理中的可用性不是一个概念。我们追求的应该是用户感知的可用性。</p>
+<h3 id="BASE定理科普"><a href="#BASE定理科普" class="headerlink" title="BASE定理科普"></a>BASE定理科普</h3><p>BASE是对一致性和可用性权衡所得的结果。其核心思想是：在某些场景中，无需做到强一致性，以保证系统的可用性，同时每个应用可以采用适当的方式使系统数据达到最终一致性。</p>
+<p>BASE分别是指：Basically Available, Soft State, Eventual Consistency</p>
+<ul>
+<li>基本可用（Basically Available）：分布式系统在出现故障的时候，允许损失部分可用性，但不等于系统不可用。例如：响应时间的损失，功能上降级。</li>
+<li>软状态（Soft State）：允许系统中的数据存在中间状态，并认为该状态不会影响系统整体可用性。即允许节点之间数据同步存在延时</li>
+<li>最终一致性（Eventually Consistent）：本质是指系统需要使数据最终达到一致性，而不需要实时使数据达到一致性</li>
+</ul>
+<h3 id="ACID科普"><a href="#ACID科普" class="headerlink" title="ACID科普"></a>ACID科普</h3><p>对于ACID中一致性描述，可能理解都不一样，需要先统一下概念。</p>
+<p>ACID中的C（一致性）的定义是：如果事务执行前数据库处于一致状态，那么当事务结束的时候，数据库也会处于一致性状态。这个一致性状态包含两层意思：</p>
+<ul>
+<li>第一层意思是指，数据库内部的完整性，包含实体完整性、域完整性、参照完整性、用户自定义完整性。使用外键、检查约束等，来保证事务执行中不会产生违背数据完整性的数据。例如：使用唯一约束的列不会出现两个一样的值。<br>A transaction must preserve database consistency - if a transaction is run atomically in isolation starting from a consistent database, the database must again be consistent at the end of the transaction.</li>
+<li>第二层意思是对开发者的要求，数据库中的每一行和每个值必须与其所描述的现实保持一致。例如：银行转账，不能只一方扣钱或者一方加钱，我们的代码应该是，一方加钱一方扣钱。<br>Ensuring consistency for an individual transaction is the responsibility of the application programmer who codes the transaction.</li>
+</ul>
+<h3 id="为什么CAP三者不可兼得？"><a href="#为什么CAP三者不可兼得？" class="headerlink" title="为什么CAP三者不可兼得？"></a>为什么CAP三者不可兼得？</h3><p>在分布式系统中，各个组建必然部署在不同的节点上，因此必然出现子网络，同时网络本身又是不可靠的，一定存在延迟和数据丢失，即网络分区是必然存在的。所以P（分区容错性）是分布式系统必须要面对和解决的问题（你无法要求在永远不发生网络分区的环境下运行分布式系统）。</p>
+<p>因此CAP三者不可兼得，变成如何在C（一致性）、A（可用性）二者进行抉择，可以举个例子来说明：在分布式环境中，为了确保系统可用性，通常会采用将数据复制到多个备份节点，而复制的过程需要通过网络交互。当发生网络分区时，你将面临两个选择：</p>
+<ol>
+<li>如果坚持保持各节点之间的数据一致性（选择C），你需要等待网络分区恢复后，将数据复制完成，才可以向外部提供服务。期间发生网络分区将不能对外提供服务，因为它保证不了数据一致性。</li>
+<li>如果选择可用性（选择A），发生网络分区的节点，依然需要向外提供服务。但是由于网络分区，它同步不了最新的数据，所以它返回数据，可能不是最新的（与其他节点不一致的）数据。</li>
+</ol>
+<p>这里需要<strong>强调一句</strong>，CAP三者不可兼得，仅仅是指在发生网络分区情况下，我们才需要在A和C之间进行抉择，选择保证数据一致还是服务可用。而集群正常运行时，A和C是都可以保证的。</p>
+<ul>
+<li>CP架构在当发生网络分区时，为了保证返回给客户端数据准确性，为了不破坏一致性，可能会因为无法响应最新数据，而拒绝响应。在网络分区恢复后，完成数据同步，才可处理客户端请求。</li>
+<li>AP架构在发生网络分区时，发生分区的节点不需要等待数据完成同步，便可处理客户端请求，将尽可能的给用户返回相对新的数据。在网络分区恢复后，完成数据同步。</li>
+</ul>
+<h3 id="ACID与CP、BASE与AP，它们的关联关系？"><a href="#ACID与CP、BASE与AP，它们的关联关系？" class="headerlink" title="ACID与CP、BASE与AP，它们的关联关系？"></a>ACID与CP、BASE与AP，它们的关联关系？</h3><p>根据上一小节C、A二者不可兼得的原因，我们可以总结AP和CP架构的特性。可以发现<strong>CP、AP两者其实是对ACID、BASE的延伸</strong>。是在发生网络分区情况下ACID、BASE的表现。</p>
+<ul>
+<li>CP和ACID都是为了保证数据准确性（两者对准确性定义不同，参考前文科普）。但是两者解决的问题不一样：CP描述的是在发生网络分区时，保证数据准确性。ACID解决的是多个事务并发下，保证数据准确性。</li>
+<li>AP和BASE都是对可用性的研究，BASE要求的只是基本可用，而AP对一致性的要求更低，所以能保证的可用性更高。</li>
+</ul>
+<h4 id="ACID与CP区别"><a href="#ACID与CP区别" class="headerlink" title="ACID与CP区别"></a>ACID与CP区别</h4><p>ACID解决的问题是数据库系统中并发执行多个事务时的问题，是数据库领域的传统问题。那么多个事务并发会存在哪些问题？</p>
+<ul>
+<li>脏读： 事务T1读取了T2更改的x，但是T2在实际存储数据时可能出错回滚了，这时T1读取的实际是无效的数据，这种情况下就是脏读</li>
+<li>不可重复读：是说在T1读取x时，由于中间T2更改了x，所以T1前后两次读取的x值不相同，这就是所谓的不可重复读</li>
+<li>幻读：在T1读取符合某个条件的所有记录时，T2增加了一条符合该条件的记录，这就导致T1执行过程中前后读取的记录可能不一致，即T2之后读取时会多出一条记录。</li>
+</ul>
+<p>为了解决这些问题，事务提出四种隔离级别来规避上述问题。而解决的就是ACID中的C（一致性），所以ACID中的C（一致性）可以理解为不出现脏读、幻读、不可重复读的问题。可以把它称为“内部一致性”，解决的是数据库内部的一致性问题。</p>
+<p>CP中的C（一致性），相对好理解，我把它理解为“外部一致性”。就分布式系统而言的，针对客户端的请求，无论访问那个节点，都能获得最新的相同的值。</p>
+<h4 id="BASE与AP区别"><a href="#BASE与AP区别" class="headerlink" title="BASE与AP区别"></a>BASE与AP区别</h4><p>BASE强调的是基本可用，允许损失部分可用性。这里的损失是指：</p>
+<ul>
+<li>响应时间上的损失：在发生故障时，允许在限定时间之外给用户响应。搜索引擎正常工作0.5秒内给用户返回数据。在部分机房故障后，查询时间增加到1-2秒。</li>
+<li>功能上的损失：在请求高峰时，可以选择一部分请求降级。</li>
+</ul>
+<p>AP则强调是高可用，对数据一致性要求更低。eureka作为AP系统的代表，在发生网络分区时，eureka会移除注册列表中长时间没有心跳的服务，但是当丢失过多客户端时，该节点会进入自我保护，将不会移除过期的服务，并同时接收新服务注册，但不会同步到其他节点。在该种模式下，eureka集群剩下最后一个节点，也可以向外提供服务。</p>
+<h3 id="eureka属于AP系统吗？它明明没有放弃一致性啊？"><a href="#eureka属于AP系统吗？它明明没有放弃一致性啊？" class="headerlink" title="eureka属于AP系统吗？它明明没有放弃一致性啊？"></a>eureka属于AP系统吗？它明明没有放弃一致性啊？</h3><p>描述AP和CP时，通常都会以eureka和zookeeper来具体。eureka是AP的代表作，zookeeper则是CP的代表作。二者之所以这样归类，是因为：</p>
+<ul>
+<li>eureka各节点互相独立、平等的，各节点都提供查询和注册服务（读、写请求）。当发生网络分区，eureka各节点依旧可以接收和注册服务。并且当丢失过多客户端时，节点会进入自我保护（接收新服务注册、不删除过期服务）。在该种模式下，eureka集群剩下最后一个节点，也可以向外提供服务。尽管向外提供的数据可能是过期的数据。</li>
+<li>zookeeper采用的过半原则，由leader处理写请求。当发生网络分区时，leader由于丢失过半的follower，从而处理不了客户端的请求，需要重新选举新leader，期间服务将不可用。糟糕的是，如果集群中没有过半的节点存活，将选举不出新leader，服务将一直处于不可用状态。</li>
+</ul>
+<p>回答eureka没有放弃一致性的问题，还得回顾A、C之间的抉择。这二者需要二选一的情况下，一定是发生了网络分区的情况。eureka集群正常运行时，各节点之间可以正常通讯、保持心跳、复制数据，以此保持数据的一致性。但发生网络分区时，eureka确实选择了可用性，而放弃了一致性。</p>
+<h3 id="NWR"><a href="#NWR" class="headerlink" title="NWR"></a>NWR</h3><p>NWR是一种在分布式存储系统中用于控制一致性级别的一种策略。这个三个字母分别代表着：</p>
+<ul>
+<li>N：分布式系统中，一个有多少个副本数据</li>
+<li>W：处理一次写请求，需要更新多少个副本数据</li>
+<li>R：处理一次读请求，需要读取多少个副本数据</li>
+</ul>
+<p>NWR分别设置不同的值时，将会产生不同的一致性效果。</p>
+<ul>
+<li>W+R&gt;N，整个系统对于客户端的请求能保证强一致性。因为写请求和读请求一定存在一个相交的副本，读取的时候返回该副本的数据即可。</li>
+<li>W+R&lt;=N，整个系统对于客户端的请求则不能保证强一致性。</li>
+</ul>
+<p>基于NWR的性质，我们可以动态的调节系统的一致性效果。还可以根据业务场景动态调整响应速度。以5节点集群为例，在保证强一致性的情况下，需要提高读请求的效率，则可以设置R=2、W=4或者R=1、W=5。当需要提高写请求效率时，则可以设置W=2、R=4或者W=1、R=5。</p>
+<p>W、R的大小，直接影响其对应的处理效率。主要注意，读写请求的效率取决于最慢的副本处理速度。</p>
+<h3 id="建议阅读"><a href="#建议阅读" class="headerlink" title="建议阅读"></a>建议阅读</h3><p>CAP争论及历史：<a href="https://blog.csdn.net/chen77716/article/details/30635543" target="_blank" rel="noopener">https://blog.csdn.net/chen77716/article/details/30635543</a></p>
+<p>CAP，ACID，我们能做什么：<a href="http://hcoona.github.io/Tips/CAP-ACID-what-can-we-do/" target="_blank" rel="noopener">http://hcoona.github.io/Tips/CAP-ACID-what-can-we-do/</a></p>
+<p>理解数据库的事务，ACID，CAP和一致性：<a href="https://www.jianshu.com/p/2c30d1fe5c4e" target="_blank" rel="noopener">https://www.jianshu.com/p/2c30d1fe5c4e</a></p>
+<p>nosql不应该放弃一致性：<a href="https://www.infoq.cn/article/rhzs0KI2G*Y2r9PMdeNv" target="_blank" rel="noopener">https://www.infoq.cn/article/rhzs0KI2G*Y2r9PMdeNv</a></p>
+<h3 id="做几个小题目吧"><a href="#做几个小题目吧" class="headerlink" title="做几个小题目吧"></a>做几个小题目吧</h3><pre><code>paxos算法，可以容忍少数集合节点宕机，我们可以认为paxos提供了比较高的可用性服务，同时又实现了一致性。那么是不是和CAP定理违背了呢？
+
+没有违背。CAP定理中可用性是100%可用。
+当发生网络分区，使paxos集群形成一个多数派集群和一个少数派集群时。
+当客户端访问多数派节点时，虽然能收到正常的反馈，但是少数派集群的节点则不能。</code></pre></div><iframe src="/donate/?AliPayQR=null&amp;WeChatQR=/img/WeChatQR.jpg&amp;GitHub=https://github.com/farawayliu&amp;BTCQR=null&amp;BTCKEY=null&amp;PayPal=null" style="overflow-x:hidden; overflow-y:hidden; border:0xp none #fff; min-height:240px; width:100%;" frameborder="0" scrolling="no"></iframe><div><ul class="post-copyright"><li class="post-copyright-author"><strong>本文作者：</strong>far</li><li class="post-copyright-link"><strong>本文链接：</strong><a href="/2020/11/07/theory/分布式一致性协议 - CAP、BASE、NWR/">https://www.ofcoder.com/2020/11/07/theory/%E5%88%86%E5%B8%83%E5%BC%8F%E4%B8%80%E8%87%B4%E6%80%A7%E5%8D%8F%E8%AE%AE%20-%20CAP%E3%80%81BASE%E3%80%81NWR/</a></li><li class="post-copyright-license"><strong>版权声明：</strong>Copyright © 2021 ofcoder. Author by far.</li></ul></div><br><script type="text/javascript" src="/js/share.js?v=0.0.0" async></script><a class="article-share-link" data-url="https://www.ofcoder.com/2020/11/07/theory/%E5%88%86%E5%B8%83%E5%BC%8F%E4%B8%80%E8%87%B4%E6%80%A7%E5%8D%8F%E8%AE%AE%20-%20CAP%E3%80%81BASE%E3%80%81NWR/" data-id="ckt6ou277000ou8j1drij9bj5" data-qrcode="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAASYAAAEmCAAAAADqr2IGAAAEiklEQVR42u3aS27cMBAFQN//0hMgqwCOx69fy/BQU1oZsUyRxQBkfz4+4ufx98l//mqEz+98HuHzm89HTsafjlY+mDBhwoTpJZkeT5/ni7kKNFlevuxkw/K1Y8KECROmezBNh8un/pw1HyHfkmQDpn+FCRMmTJjegSkPOPPDvkPvLgd5GIwJEyZMmN6TaTr17jBO8qv5O3lIjwkTJkyY7s2UDJcfwMk4HUT3lSkiJkyYMGG6E9NPNO6c8vMv9zdhwoQJE6YfZnoMn82YXcC8T/jmx/+XM8eECRMmTMcyJSXApNA4DWhX4WVcKN0EyYOPYcKECROmF2bq2lwGO1AVMvNSaJ5uHv/f+fe3mDBhwoTpcKbNtLqmny403bTp5KF4lCHAhAkTJkyHMO3TstMIMQ99p9+dbkbUlnpV9hoTJkyYMP0qU3eEbxLBeVo5X1i+bdNrByZMmDBhuhNTVwicFianoWyynZu/HawIEyZMmDAdyJSEi107Tnd16C4KyQHftSVhwoQJE6Zzmbqi477YmRcvpyMkfNPmHkyYMGHCdC7T5mDummD24WiX8M2vOx/5n2HChAkTpkOYusRrfpnYHOHdBaJ7BxMmTJgwvQPTtGVnE7Ju2ms6gvznqOqLCRMmTJgOYeoO1+6w79LHeZA8LXwOksKYMGHChOlApn1id5PSnQbY+zbT7nKACRMmTJhOZ5oW/5IDvku/7ltdp6FyFJZjwoQJE6bDmTbtLN370291Ye3+K5gwYcKE6d5M0491ZcVpgri7HHRbhQkTJkyYTmfKQ9w8QN0sL2+jyQ/+rn0nutFgwoQJE6aXZ+o6faZXhJxmc4TnV5DxujBhwoQJ042YNunahKNLDe8LohckeTFhwoQJ04FM3avT8mE35vOJbtLE3fuYMGHChOl0pmlhLw8g83B0f/xPy6LJnDFhwoQJ07lMm8VMU7f5wrrS5rTsmvzLIBuNCRMmTJhemKnDShKp0zens7oqafvN9mPChAkTpmOZ9qHstWHzVVuYb8a4CIoJEyZMmA5k6ppvpoFxXlbsUrqb0cYBMCZMmDBhOoSpa7LJbxnl3SR4M5/5JtGMCRMmTJjuxLRpdunSsnlYG3UeDd/PC5+YMGHChOkeTF1LzbTRJx8zD7nz60jeDIQJEyZMmO7HdFWomQei0/e7jcwpvylkYsKECROmA5mmTTxRoFilgPeL78qWmDBhwoTp3kx5WrZrl0l+myRnr2obSmbyn/lgwoQJE6ZbMHUoecPNNPk7TeDm14jx/DFhwoQJ07FMVwWQXaK2C8Kn392XPzFhwoQJ07lMj+EzbYvZBM95Wjkh61LYmDBhwoTpdKZpgXNzbHcNNB1Nlw6ezhkTJkyYMJ3CNA0v82M7TxNPLwTXhtMJKCZMmDBhOp0pOUSvotwkXhOaay8lmDBhwoTpfZimRc3uyJ8CXTWHqFkHEyZMmDC9AVNeYkxKifvWn+loXTkWEyZMmDCdzjRNy+blxm6K++vIFPSbVWDChAkTpmOZugRo10zTtfh0Bc5p2vpj/2DChAkTptdi+gPJ80T1heJUHgAAAABJRU5ErkJggg==">分享</a><div class="tags"><a href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E4%BA%8B%E5%8A%A1/">分布式事务</a><a href="/tags/CAP/">CAP</a><a href="/tags/BASE/">BASE</a><a href="/tags/NWR/">NWR</a></div><div class="post-nav"><a class="pre" href="/2020/11/24/theory/%E5%88%86%E5%B8%83%E5%BC%8F%E4%B8%80%E8%87%B4%E6%80%A7%E5%8D%8F%E8%AE%AE%20-%20Gossip/">分布式一致性协议 - Gossip</a><a class="next" href="/2020/10/31/theory/%E5%88%86%E5%B8%83%E5%BC%8F%E4%B8%80%E8%87%B4%E6%80%A7%E5%8D%8F%E8%AE%AE%20-%20Raft/">分布式一致性协议 - Raft</a></div><div id="vcomment"></div><script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script><script src="//unpkg.com/valine@latest/dist/Valine.min.js"></script><script>var notify = 'true' == true ? true : false;
+var verify = 'false' == true ? true : false;
+var GUEST_INFO = ['nick','mail','link'];
+var guest_info = 'nick,mail,link'.split(',').filter(function(item){
+  return GUEST_INFO.indexOf(item) > -1
+});
+guest_info = guest_info.length == 0 ? GUEST_INFO :guest_info;
+window.valine = new Valine({
+  el:'#vcomment',
+  notify:notify,
+  verify:verify,
+  appId:'s8pJruGkXvi5Skd0e6EaMQ5X-gzGzoHsz',
+  appKey:'K3NjnXxqhPNwUw5pmqOzoO4i',
+  placeholder:'说出你的故事...',
+  avatar:'mm',
+  guest_info:guest_info,
+  pageSize:'10'
+})</script></div></div></div><div class="pure-u-1-4 hidden_mid_and_down"><div id="sidebar-toc"><div class="stoc-article" id="sidebar-stoc"><strong class="stoc-title"><i class="fa fa-blind"> Contents </i></strong><div class="toc-nav" id="stoc"><ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#CAP定理科普"><span class="toc-number">1.</span> <span class="toc-text">CAP定理科普</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#BASE定理科普"><span class="toc-number">2.</span> <span class="toc-text">BASE定理科普</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#ACID科普"><span class="toc-number">3.</span> <span class="toc-text">ACID科普</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#为什么CAP三者不可兼得？"><span class="toc-number">4.</span> <span class="toc-text">为什么CAP三者不可兼得？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#ACID与CP、BASE与AP，它们的关联关系？"><span class="toc-number">5.</span> <span class="toc-text">ACID与CP、BASE与AP，它们的关联关系？</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#ACID与CP区别"><span class="toc-number">5.1.</span> <span class="toc-text">ACID与CP区别</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#BASE与AP区别"><span class="toc-number">5.2.</span> <span class="toc-text">BASE与AP区别</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#eureka属于AP系统吗？它明明没有放弃一致性啊？"><span class="toc-number">6.</span> <span class="toc-text">eureka属于AP系统吗？它明明没有放弃一致性啊？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#NWR"><span class="toc-number">7.</span> <span class="toc-text">NWR</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#建议阅读"><span class="toc-number">8.</span> <span class="toc-text">建议阅读</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#做几个小题目吧"><span class="toc-number">9.</span> <span class="toc-text">做几个小题目吧</span></a></li></ol></div></div></div></div><div class="pure-u-1 pure-u-md-3-4"><div id="footer">Copyright © 2021 <a href="/." rel="nofollow">并发笔记 - ofcoder.com | </a><a href="http://www.beian.miit.gov.cn" rel="nofollow" target="_blank">粤ICP备18053760号</a><div>本站访客 <span id="busuanzi_value_site_uv"></span>人次 | 总访问 <span id="busuanzi_value_site_pv"></span>次<img src="https://s04.flagcounter.com/count/MnzJ/bg_FFFFFF/txt_000000/border_726EE0/columns_2/maxflags_10/viewers_0/labels_1/pageviews_1/flags_0/percent_0/" style="display: none;"/></div></div></div></div><a class="show" id="rocket" href="#top"></a><script type="text/javascript" src="/js/totop.js?v=0.0.0" async></script><script type="text/javascript" src="//cdn.bootcss.com/fancybox/3.3.5/jquery.fancybox.min.js" async></script><script type="text/javascript" src="/js/fancybox.js?v=0.0.0" async></script><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/fancybox/3.3.5/jquery.fancybox.min.css"><script type="text/javascript" src="/js/search.js?v=0.0.0"></script><script>var search_path = 'search.xml';
+if (search_path.length == 0) {
+   search_path = 'search.xml';
+}
+var path = '/' + search_path;
+searchFunc(path, 'local-search-input', 'local-search-result');
+</script><script type="text/javascript" color="100,99,98" opacity="0.7" zIndex="-1" count="5" src="//cdn.bootcss.com/canvas-nest.js/1.0.1/canvas-nest.min.js"></script><script type="text/javascript" src="/js/codeblock-resizer.js?v=0.0.0"></script><script type="text/javascript" src="/js/smartresize.js?v=0.0.0"></script></div></body></html><script type="text/javascript" src="/js/toc.js?v=0.0.0" async></script><script src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" async></script>

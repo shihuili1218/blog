@@ -1,0 +1,690 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <title>并发笔记 - ofcoder.com</title>
+  
+  <subtitle>一位后端开发的养肝历程，护发经验</subtitle>
+  <link href="/atom.xml" rel="self"/>
+  
+  <link href="https://www.ofcoder.com/"/>
+  <updated>2021-07-29T13:14:39.232Z</updated>
+  <id>https://www.ofcoder.com/</id>
+  
+  <author>
+    <name>far.liu</name>
+    
+  </author>
+  
+  <generator uri="https://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>PaddleOCR - PaddleServing部署</title>
+    <link href="https://www.ofcoder.com/2021/07/29/machinelearn/PaddleOCR-PaddleServing%E9%83%A8%E7%BD%B2/"/>
+    <id>https://www.ofcoder.com/2021/07/29/machinelearn/PaddleOCR-PaddleServing%E9%83%A8%E7%BD%B2/</id>
+    <published>2021-07-29T15:31:39.000Z</published>
+    <updated>2021-07-29T13:14:39.232Z</updated>
+    
+    <summary type="html">
+    
+      
+      
+        
+        
+          &lt;h3 id=&quot;PaddleOCR&quot;&gt;&lt;a href=&quot;#PaddleOCR&quot; class=&quot;headerlink&quot; title=&quot;PaddleOCR&quot;&gt;&lt;/a&gt;PaddleOCR&lt;/h3&gt;&lt;p&gt;PaddleOCR提供2种服务部署方式：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;基于PaddleHub Serving的部署：代码路径为”./deploy/hubserving”，按照本教程使用；&lt;ul&gt;
+&lt;li&gt;deploy: &lt;a href=&quot;https://github.com/PaddlePaddle/PaddleOCR/tree/release/2.1/deploy/hubserving&quot; target=&quot;_blank&quot; rel=&quot;noopener&quot;&gt;https://github.com/PaddlePaddle/PaddleOCR/tree/release/2.1/deploy/hubserving&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;(简单，用于多客户端)
+        
+      
+    
+    </summary>
+    
+    
+      <category term="机器学习" scheme="https://www.ofcoder.com/categories/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/"/>
+    
+    
+      <category term="干货" scheme="https://www.ofcoder.com/tags/%E5%B9%B2%E8%B4%A7/"/>
+    
+      <category term="PaddleOCR" scheme="https://www.ofcoder.com/tags/PaddleOCR/"/>
+    
+      <category term="OCR" scheme="https://www.ofcoder.com/tags/OCR/"/>
+    
+      <category term="Paddle" scheme="https://www.ofcoder.com/tags/Paddle/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>分布式一致性协议 - 温故知新</title>
+    <link href="https://www.ofcoder.com/2021/01/26/theory/%E5%88%86%E5%B8%83%E5%BC%8F%E4%B8%80%E8%87%B4%E6%80%A7%E5%8D%8F%E8%AE%AE%20-%20%E6%B8%A9%E6%95%85%E7%9F%A5%E6%96%B0/"/>
+    <id>https://www.ofcoder.com/2021/01/26/theory/%E5%88%86%E5%B8%83%E5%BC%8F%E4%B8%80%E8%87%B4%E6%80%A7%E5%8D%8F%E8%AE%AE%20-%20%E6%B8%A9%E6%95%85%E7%9F%A5%E6%96%B0/</id>
+    <published>2021-01-26T12:35:38.000Z</published>
+    <updated>2021-01-26T15:10:48.227Z</updated>
+    
+    <summary type="html">
+    
+      
+      
+        
+        
+          &lt;h3 id=&quot;Paxos&quot;&gt;&lt;a href=&quot;#Paxos&quot; class=&quot;headerlink&quot; title=&quot;Paxos&quot;&gt;&lt;/a&gt;Paxos&lt;/h3&gt;&lt;h4 id=&quot;关注的点&quot;&gt;&lt;a href=&quot;#关注的点&quot; class=&quot;headerlink&quot; title=&quot;关注的点&quot;&gt;&lt;/a&gt;关注的点&lt;/h4&gt;&lt;p&gt;选取提案的规则：&lt;/p&gt;
+&lt;p&gt;如果acceptor通过提案[M,
+        
+      
+    
+    </summary>
+    
+    
+      <category term="算法理论" scheme="https://www.ofcoder.com/categories/%E7%AE%97%E6%B3%95%E7%90%86%E8%AE%BA/"/>
+    
+    
+      <category term="分布式事务" scheme="https://www.ofcoder.com/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E4%BA%8B%E5%8A%A1/"/>
+    
+      <category term="paxos" scheme="https://www.ofcoder.com/tags/paxos/"/>
+    
+      <category term="Raft" scheme="https://www.ofcoder.com/tags/Raft/"/>
+    
+      <category term="ZAB" scheme="https://www.ofcoder.com/tags/ZAB/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>分布式一致性协议 - EPaxos</title>
+    <link href="https://www.ofcoder.com/2020/12/21/theory/%E5%88%86%E5%B8%83%E5%BC%8F%E4%B8%80%E8%87%B4%E6%80%A7%E5%8D%8F%E8%AE%AE%20-%20EPaxos/"/>
+    <id>https://www.ofcoder.com/2020/12/21/theory/%E5%88%86%E5%B8%83%E5%BC%8F%E4%B8%80%E8%87%B4%E6%80%A7%E5%8D%8F%E8%AE%AE%20-%20EPaxos/</id>
+    <published>2020-12-21T14:29:26.000Z</published>
+    <updated>2021-01-07T12:59:25.535Z</updated>
+    
+    <summary type="html">
+    
+      
+      
+        
+        
+          &lt;h3 id=&quot;总结&quot;&gt;&lt;a href=&quot;#总结&quot; class=&quot;headerlink&quot;
+        
+      
+    
+    </summary>
+    
+    
+      <category term="算法理论" scheme="https://www.ofcoder.com/categories/%E7%AE%97%E6%B3%95%E7%90%86%E8%AE%BA/"/>
+    
+    
+      <category term="分布式事务" scheme="https://www.ofcoder.com/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E4%BA%8B%E5%8A%A1/"/>
+    
+      <category term="paxos" scheme="https://www.ofcoder.com/tags/paxos/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>分布式一致性协议 - Gossip</title>
+    <link href="https://www.ofcoder.com/2020/11/24/theory/%E5%88%86%E5%B8%83%E5%BC%8F%E4%B8%80%E8%87%B4%E6%80%A7%E5%8D%8F%E8%AE%AE%20-%20Gossip/"/>
+    <id>https://www.ofcoder.com/2020/11/24/theory/%E5%88%86%E5%B8%83%E5%BC%8F%E4%B8%80%E8%87%B4%E6%80%A7%E5%8D%8F%E8%AE%AE%20-%20Gossip/</id>
+    <published>2020-11-24T11:50:11.000Z</published>
+    <updated>2020-11-30T15:15:20.783Z</updated>
+    
+    <summary type="html">
+    
+      
+      
+        
+        
+          &lt;p&gt;前面我们讲过CAP定理、Paxos、Raft，那么试想几个场景：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;我们要实现一个完全的AP系统。即集群中只有一个节点存活，也能向外提供服务。在此基础上，我们如何保证数据最终一致性？&lt;/li&gt;
+&lt;li&gt;在一个庞大的集群中，对某个数据修改后，如何同步到其他节点？&lt;/li&gt;
+&lt;li&gt;在一个去中心化的集群中，各节点都是对等节点。如何同步数据，使保证各节点数据达到一致？&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;答案就是gossip协议，gossip是一种去中心化的分布式协议，用于实现节点之间的信息交换，大名鼎鼎的bitcoin也使用了gossip来传播交易和区块信息。在分布式系统中，也用它来实现最终一致性，比如cassandra、redis。&lt;/p&gt;
+&lt;h3 id=&quot;六度分隔理论&quot;&gt;&lt;a href=&quot;#六度分隔理论&quot; class=&quot;headerlink&quot;
+        
+      
+    
+    </summary>
+    
+    
+      <category term="算法理论" scheme="https://www.ofcoder.com/categories/%E7%AE%97%E6%B3%95%E7%90%86%E8%AE%BA/"/>
+    
+    
+      <category term="分布式事务" scheme="https://www.ofcoder.com/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E4%BA%8B%E5%8A%A1/"/>
+    
+      <category term="gossip" scheme="https://www.ofcoder.com/tags/gossip/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>分布式一致性协议 - CAP、BASE、NWR</title>
+    <link href="https://www.ofcoder.com/2020/11/07/theory/%E5%88%86%E5%B8%83%E5%BC%8F%E4%B8%80%E8%87%B4%E6%80%A7%E5%8D%8F%E8%AE%AE%20-%20CAP%E3%80%81BASE%E3%80%81NWR/"/>
+    <id>https://www.ofcoder.com/2020/11/07/theory/%E5%88%86%E5%B8%83%E5%BC%8F%E4%B8%80%E8%87%B4%E6%80%A7%E5%8D%8F%E8%AE%AE%20-%20CAP%E3%80%81BASE%E3%80%81NWR/</id>
+    <published>2020-11-06T16:00:12.000Z</published>
+    <updated>2020-11-16T12:02:31.399Z</updated>
+    
+    <summary type="html">
+    
+      
+      
+        
+        
+          &lt;p&gt;这篇文章&lt;strong&gt;着重点不在于科普&lt;/strong&gt;，毕竟关于CAP、BASE的理论的文章，网上很多。所以本文科普篇幅尽量小（只包含概念描述）。主要从几个侧面的问题来描述CAP，进而描述ACID、BASE理念。然后加入一点点调料，如何动态的切换一致性强度。&lt;/p&gt;
+&lt;p&gt;本文通过以下几个问题，从侧面描述。文中个人观点较多，看官理性对待。&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;为什么CAP三者不可兼得？&lt;/li&gt;
+&lt;li&gt;为什么总把ACID与CP、BASE与AP放在一起，它们有什么关联？&lt;/li&gt;
+&lt;li&gt;eureka属于AP系统吗？它明明没有放弃一致性啊？&lt;/li&gt;
+&lt;li&gt;不考虑一致性的系统，有什么存在的意义呢？&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&quot;CAP定理科普&quot;&gt;&lt;a href=&quot;#CAP定理科普&quot; class=&quot;headerlink&quot; title=&quot;CAP定理科普&quot;&gt;&lt;/a&gt;CAP定理科普&lt;/h3&gt;&lt;p&gt;CAP定理，指的是在一个分布式系统中，一致性（Consistency）、可用性（Availability）、分区容错性（Partition
+        
+      
+    
+    </summary>
+    
+    
+      <category term="算法理论" scheme="https://www.ofcoder.com/categories/%E7%AE%97%E6%B3%95%E7%90%86%E8%AE%BA/"/>
+    
+    
+      <category term="分布式事务" scheme="https://www.ofcoder.com/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E4%BA%8B%E5%8A%A1/"/>
+    
+      <category term="CAP" scheme="https://www.ofcoder.com/tags/CAP/"/>
+    
+      <category term="BASE" scheme="https://www.ofcoder.com/tags/BASE/"/>
+    
+      <category term="NWR" scheme="https://www.ofcoder.com/tags/NWR/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>分布式一致性协议 - Raft</title>
+    <link href="https://www.ofcoder.com/2020/10/31/theory/%E5%88%86%E5%B8%83%E5%BC%8F%E4%B8%80%E8%87%B4%E6%80%A7%E5%8D%8F%E8%AE%AE%20-%20Raft/"/>
+    <id>https://www.ofcoder.com/2020/10/31/theory/%E5%88%86%E5%B8%83%E5%BC%8F%E4%B8%80%E8%87%B4%E6%80%A7%E5%8D%8F%E8%AE%AE%20-%20Raft/</id>
+    <published>2020-10-31T03:05:16.000Z</published>
+    <updated>2020-11-26T12:21:20.678Z</updated>
+    
+    <summary type="html">
+    
+      
+      
+        
+        
+          &lt;p&gt;学习raft之前，给大家推荐一个网站，这个网站动画描述raft运行过程。在看文章时对照该网站，可以帮助更好的理解raft。&lt;br&gt;&lt;a href=&quot;http://thesecretlivesofdata.com/raft/&quot; target=&quot;_blank&quot; rel=&quot;noopener&quot;&gt;http://thesecretlivesofdata.com/raft/&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;相比于paxos，我们更应掌握raft。raft作为现在分布式系统首选的共识算法。zookeeper、cubby、oceanbase等系统都是在raft诞生之前开发的，所以都是使用了paxos或者对其进行改进。而后来的大多系统都选择了raft，比如consul、etcd等。&lt;/p&gt;
+&lt;p&gt;raft相比paxos的优点是:容易理解，容易实现。之所以说容易，是因为raft流程清晰、关键处给出了伪代码描述。相反，可真正用于工程实现的multi-paxos，lamport宗师只提出了个大概。&lt;/p&gt;
+&lt;h3 id=&quot;Raft术语科普以及总结&quot;&gt;&lt;a href=&quot;#Raft术语科普以及总结&quot;
+        
+      
+    
+    </summary>
+    
+    
+      <category term="算法理论" scheme="https://www.ofcoder.com/categories/%E7%AE%97%E6%B3%95%E7%90%86%E8%AE%BA/"/>
+    
+    
+      <category term="分布式事务" scheme="https://www.ofcoder.com/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E4%BA%8B%E5%8A%A1/"/>
+    
+      <category term="Raft" scheme="https://www.ofcoder.com/tags/Raft/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>深入理解jvm03 - 垃圾收集器与内存分配策略</title>
+    <link href="https://www.ofcoder.com/2020/09/22/java/jvm/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3jvm03%20-%20%E5%9E%83%E5%9C%BE%E6%94%B6%E9%9B%86%E5%99%A8%E4%B8%8E%E5%86%85%E5%AD%98%E5%88%86%E9%85%8D%E7%AD%96%E7%95%A5/"/>
+    <id>https://www.ofcoder.com/2020/09/22/java/jvm/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3jvm03%20-%20%E5%9E%83%E5%9C%BE%E6%94%B6%E9%9B%86%E5%99%A8%E4%B8%8E%E5%86%85%E5%AD%98%E5%88%86%E9%85%8D%E7%AD%96%E7%95%A5/</id>
+    <published>2020-09-22T13:45:58.000Z</published>
+    <updated>2020-10-15T14:33:35.764Z</updated>
+    
+    <summary type="html">
+    
+      
+      
+        
+        
+          &lt;p&gt;本系列博客为《深入理解Java虚拟机 - JVM高级特性与最佳实践》读书笔记。本书大量干货，适合初学jvm的人员，也适合为应付面试人员，比较推荐的一本书。本系列只为记录书中精髓，方便查阅与记忆。如有错误，欢迎指出 O(∩_∩)O &lt;/p&gt;
+&lt;p&gt;基于书中第二章总结，程序计数器、java虚拟机栈、本地方法栈随线程的生命周期创建和销毁，自然不用过多的考虑进行垃圾回收。而java堆、方法区则不一样，这一块的分配和回收是动态的，那本章的内容也是基于这两块的内容。&lt;/p&gt;
+&lt;h3 id=&quot;对象已死吗？&quot;&gt;&lt;a href=&quot;#对象已死吗？&quot; class=&quot;headerlink&quot; title=&quot;对象已死吗？&quot;&gt;&lt;/a&gt;对象已死吗？&lt;/h3&gt;&lt;p&gt;垃圾回收第一步就是要确定那些对象可回收（已死），那些不可回收（活着）。书中介绍两种算法来确定对象是否存活&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;引用计数法&lt;/li&gt;
+&lt;li&gt;可达性分析法&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h4 id=&quot;引用计数法&quot;&gt;&lt;a href=&quot;#引用计数法&quot; class=&quot;headerlink&quot;
+        
+      
+    
+    </summary>
+    
+    
+      <category term="jvm" scheme="https://www.ofcoder.com/categories/jvm/"/>
+    
+    
+      <category term="jvm" scheme="https://www.ofcoder.com/tags/jvm/"/>
+    
+      <category term="垃圾回收" scheme="https://www.ofcoder.com/tags/%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>深入理解jvm02 - java内存区域与内存泄露异常</title>
+    <link href="https://www.ofcoder.com/2020/09/05/java/jvm/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3jvm02%20-%20java%E5%86%85%E5%AD%98%E5%8C%BA%E5%9F%9F%E4%B8%8E%E5%86%85%E5%AD%98%E6%B3%84%E9%9C%B2%E5%BC%82%E5%B8%B8/"/>
+    <id>https://www.ofcoder.com/2020/09/05/java/jvm/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3jvm02%20-%20java%E5%86%85%E5%AD%98%E5%8C%BA%E5%9F%9F%E4%B8%8E%E5%86%85%E5%AD%98%E6%B3%84%E9%9C%B2%E5%BC%82%E5%B8%B8/</id>
+    <published>2020-09-05T13:45:58.000Z</published>
+    <updated>2020-09-06T15:35:27.431Z</updated>
+    
+    <summary type="html">
+    
+      
+      
+        
+        
+          &lt;p&gt;本系列博客为《深入理解Java虚拟机 - JVM高级特性与最佳实践》读书笔记。本书大量干货，适合初学jvm的人员，也适合为应付面试人员，比较推荐的一本书。本系列只为记录书中精髓，方便查阅与记忆。如有错误，欢迎指出 O(∩_∩)O &lt;/p&gt;
+&lt;h3 id=&quot;运行时数据区域&quot;&gt;&lt;a href=&quot;#运行时数据区域&quot; class=&quot;headerlink&quot; title=&quot;运行时数据区域&quot;&gt;&lt;/a&gt;运行时数据区域&lt;/h3&gt;&lt;p&gt;在启动java程序时，我们会给jvm分配指定的内存大小。而jvm则对该部分内存划分为若干区域。其中有的区域以来用户线程的启动和结束而建立和销毁，有的区域随jvm进程的启动而存在。&lt;br&gt;&lt;img src=&quot;/images/java/jvm/understanding_jvm_02_1.png&quot;
+        
+      
+    
+    </summary>
+    
+    
+      <category term="jvm" scheme="https://www.ofcoder.com/categories/jvm/"/>
+    
+    
+      <category term="jvm" scheme="https://www.ofcoder.com/tags/jvm/"/>
+    
+      <category term="内存泄露" scheme="https://www.ofcoder.com/tags/%E5%86%85%E5%AD%98%E6%B3%84%E9%9C%B2/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>分布式一致性协议 - ZAB</title>
+    <link href="https://www.ofcoder.com/2020/08/12/theory/%E5%88%86%E5%B8%83%E5%BC%8F%E4%B8%80%E8%87%B4%E6%80%A7%E5%8D%8F%E8%AE%AE%20-%20ZAB/"/>
+    <id>https://www.ofcoder.com/2020/08/12/theory/%E5%88%86%E5%B8%83%E5%BC%8F%E4%B8%80%E8%87%B4%E6%80%A7%E5%8D%8F%E8%AE%AE%20-%20ZAB/</id>
+    <published>2020-08-12T14:45:01.000Z</published>
+    <updated>2021-01-26T15:09:32.318Z</updated>
+    
+    <summary type="html">
+    
+      
+      
+        
+        
+          &lt;h3 id=&quot;ZAB-背景&quot;&gt;&lt;a href=&quot;#ZAB-背景&quot; class=&quot;headerlink&quot; title=&quot;ZAB 背景&quot;&gt;&lt;/a&gt;ZAB 背景&lt;/h3&gt;&lt;p&gt;学习ZAB，非常有必要聊聊它诞生的背景。因为在paxos的光芒下，还有必要折腾这样类似的算法吗？这个问题是我们初步了解ZAB关键。&lt;/p&gt;
+&lt;p&gt;看到这里，我断定大家都使用过zookeeper，并且知道zookeeper的核心就是ZAB协议。如果没有的话，需要先学习下zookeeper。毕竟基础不牢，地动山摇。&lt;/p&gt;
+&lt;p&gt;这里多提一句，ZAB的作者说ZAB不是paxos，但是后面我们又把ZAB归纳为paxos。这里我认为啊，这两个说法都对，只是他们描述的时间不一致。在ZAB诞生的时候，它解决了paxos不能保证顺序执行的问题，从某些角度来说ZAB是要paxos优秀的，说它不是paxos也没问题。但是后来随来越来越多分布式算法诞生，例如raft，因为他们都类似paxos执行逻辑，所以将这类算法归纳为paxos的变种。&lt;/p&gt;
+&lt;h4 id=&quot;为何不使用paxos来实现zookeeper&quot;&gt;&lt;a
+        
+      
+    
+    </summary>
+    
+    
+      <category term="算法理论" scheme="https://www.ofcoder.com/categories/%E7%AE%97%E6%B3%95%E7%90%86%E8%AE%BA/"/>
+    
+    
+      <category term="分布式事务" scheme="https://www.ofcoder.com/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E4%BA%8B%E5%8A%A1/"/>
+    
+      <category term="ZAB" scheme="https://www.ofcoder.com/tags/ZAB/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>分布式一致性协议 - Paxos</title>
+    <link href="https://www.ofcoder.com/2020/07/07/theory/%E5%88%86%E5%B8%83%E5%BC%8F%E4%B8%80%E8%87%B4%E6%80%A7%E5%8D%8F%E8%AE%AE%20-%20Paxos/"/>
+    <id>https://www.ofcoder.com/2020/07/07/theory/%E5%88%86%E5%B8%83%E5%BC%8F%E4%B8%80%E8%87%B4%E6%80%A7%E5%8D%8F%E8%AE%AE%20-%20Paxos/</id>
+    <published>2020-07-07T14:45:01.000Z</published>
+    <updated>2021-01-26T13:19:28.611Z</updated>
+    
+    <summary type="html">
+    
+      
+      
+        
+        
+          &lt;h3 id=&quot;paxos-科普&quot;&gt;&lt;a href=&quot;#paxos-科普&quot; class=&quot;headerlink&quot; title=&quot;paxos 科普&quot;&gt;&lt;/a&gt;paxos
+        
+      
+    
+    </summary>
+    
+    
+      <category term="算法理论" scheme="https://www.ofcoder.com/categories/%E7%AE%97%E6%B3%95%E7%90%86%E8%AE%BA/"/>
+    
+    
+      <category term="分布式事务" scheme="https://www.ofcoder.com/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E4%BA%8B%E5%8A%A1/"/>
+    
+      <category term="paxos" scheme="https://www.ofcoder.com/tags/paxos/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>分布式一致性协议 - 2PC, 3PC</title>
+    <link href="https://www.ofcoder.com/2020/07/05/theory/%E5%88%86%E5%B8%83%E5%BC%8F%E4%B8%80%E8%87%B4%E6%80%A7%E5%8D%8F%E8%AE%AE%20-%202PC,%203PC/"/>
+    <id>https://www.ofcoder.com/2020/07/05/theory/%E5%88%86%E5%B8%83%E5%BC%8F%E4%B8%80%E8%87%B4%E6%80%A7%E5%8D%8F%E8%AE%AE%20-%202PC,%203PC/</id>
+    <published>2020-07-05T14:45:01.000Z</published>
+    <updated>2021-02-04T15:01:49.774Z</updated>
+    
+    <summary type="html">
+    
+      
+      
+        
+        
+          &lt;p&gt;在分布式系统中，每一个机器节点虽然都能明确的知道自己在事务操作中的结果是成功或失败，但无法直接获取其他节点的操作结果。因此在分布式环境中，为了保持事务的ACID特性，就需要增加一个“协调者”来管理其他节点（“参与者”）事务的提交和回滚。基于这个思想，衍生出二阶段提交和三阶段提交两种协议。&lt;/p&gt;
+&lt;h3 id=&quot;2PC-简述&quot;&gt;&lt;a href=&quot;#2PC-简述&quot; class=&quot;headerlink&quot; title=&quot;2PC 简述&quot;&gt;&lt;/a&gt;2PC 简述&lt;/h3&gt;&lt;p&gt;二阶段提交(Two-Phase Commit)，是一个非常经典的&lt;strong&gt;强一致&lt;/strong&gt;、&lt;strong&gt;中心化的原子提交协议&lt;/strong&gt;。目前，绝大多数关系型数据库都采用二阶段提交协议来完成分布式事务处理（例如mysql的XA协议）。因此二阶段提交协议也被广泛运用到分布式系统中。&lt;/p&gt;
+&lt;p&gt;顾名思义，算法流程就是分为两个阶段提交某一操作，其分为准备阶段、提交阶段。为了更好描述算法过程，为此定义了两种角色：协调者（Coordinator）、参与者（Participant）。&lt;/p&gt;
+&lt;h4
+        
+      
+    
+    </summary>
+    
+    
+      <category term="算法理论" scheme="https://www.ofcoder.com/categories/%E7%AE%97%E6%B3%95%E7%90%86%E8%AE%BA/"/>
+    
+    
+      <category term="分布式事务" scheme="https://www.ofcoder.com/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E4%BA%8B%E5%8A%A1/"/>
+    
+      <category term="2PC" scheme="https://www.ofcoder.com/tags/2PC/"/>
+    
+      <category term="3PC" scheme="https://www.ofcoder.com/tags/3PC/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>谈谈mysql索引实现-B+ Tree</title>
+    <link href="https://www.ofcoder.com/2019/04/01/theory/%E8%B0%88%E8%B0%88mysql%E7%B4%A2%E5%BC%95%E5%AE%9E%E7%8E%B0-B+Tree/"/>
+    <id>https://www.ofcoder.com/2019/04/01/theory/%E8%B0%88%E8%B0%88mysql%E7%B4%A2%E5%BC%95%E5%AE%9E%E7%8E%B0-B+Tree/</id>
+    <published>2019-04-01T15:14:18.000Z</published>
+    <updated>2020-09-05T13:42:57.089Z</updated>
+    
+    <summary type="html">
+    
+      
+      
+        
+        
+          &lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;本文记录学习mysql索引时，了解到一系列知识点。先从二叉树，到平衡二叉树，再到多路平衡树(B-Tree)，最后到加强版多路平衡查找树(B+Tree)，也就是Mysql默认使用的索引结构。分别解析各自的优缺点。以及最后为什么Mysql选择B+Tree。最后总结对日常开发的影响。&lt;/p&gt;
+&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;树，这种数据结构诞生的原因，想必都说腻了。也就是，当你在一堆数据中要查询某个值的时候，你是不是得去遍历所有数据，找到你要的那一个，对不对。当你数据量很大的时候，遍历的成本是非常高。假如你要从一百万个数值中查找你要的值，你有可能就得比较一百万次。那么这个时候树的结构就诞生了。它按照一定规则存储数据，当你查询的时候，按照一定的规则查找数据。它的时间复杂度比你直接遍历要降低数倍。&lt;/p&gt;
+&lt;h4 id=&quot;二叉查找树-Binary-Search-Tree&quot;&gt;&lt;a href=&quot;#二叉查找树-Binary-Search-Tree&quot; class=&quot;headerlink&quot; title=&quot;二叉查找树(Binary
+        
+      
+    
+    </summary>
+    
+    
+      <category term="算法理论" scheme="https://www.ofcoder.com/categories/%E7%AE%97%E6%B3%95%E7%90%86%E8%AE%BA/"/>
+    
+    
+      <category term="mysql" scheme="https://www.ofcoder.com/tags/mysql/"/>
+    
+      <category term="B-Tree" scheme="https://www.ofcoder.com/tags/B-Tree/"/>
+    
+      <category term="索引" scheme="https://www.ofcoder.com/tags/%E7%B4%A2%E5%BC%95/"/>
+    
+      <category term="树" scheme="https://www.ofcoder.com/tags/%E6%A0%91/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>自定义注解3-组合注解</title>
+    <link href="https://www.ofcoder.com/2018/10/20/java/%E8%87%AA%E5%AE%9A%E4%B9%89%E6%B3%A8%E8%A7%A33-%E7%BB%84%E5%90%88%E6%B3%A8%E8%A7%A3/"/>
+    <id>https://www.ofcoder.com/2018/10/20/java/%E8%87%AA%E5%AE%9A%E4%B9%89%E6%B3%A8%E8%A7%A33-%E7%BB%84%E5%90%88%E6%B3%A8%E8%A7%A3/</id>
+    <published>2018-10-20T05:33:11.000Z</published>
+    <updated>2019-11-20T14:01:31.641Z</updated>
+    
+    <summary type="html">
+    
+      
+      
+        
+        
+          &lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;组合注解用处很多，只是我们有时没注意而已，比如RestController，PostMapping，GetMapping等。他们的意义在于将多个注解组合在一起，写一个注解就够了。&lt;/p&gt;
+&lt;h4 id=&quot;定义组合注解&quot;&gt;&lt;a href=&quot;#定义组合注解&quot; class=&quot;headerlink&quot; title=&quot;定义组合注解&quot;&gt;&lt;/a&gt;定义组合注解&lt;/h4&gt;&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;本节目的在于，组合Cacheable注解，将它的cacheNames写成默认的default（想想第一节最后的讨论）。&lt;/p&gt;
+&lt;figure class=&quot;highlight less&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;2&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;3&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;4&lt;/span&gt;&lt;br&gt;&lt;span
+        
+      
+    
+    </summary>
+    
+    
+      <category term="java" scheme="https://www.ofcoder.com/categories/java/"/>
+    
+    
+      <category term="干货" scheme="https://www.ofcoder.com/tags/%E5%B9%B2%E8%B4%A7/"/>
+    
+      <category term="API设计" scheme="https://www.ofcoder.com/tags/API%E8%AE%BE%E8%AE%A1/"/>
+    
+      <category term="注解" scheme="https://www.ofcoder.com/tags/%E6%B3%A8%E8%A7%A3/"/>
+    
+      <category term="组合注解" scheme="https://www.ofcoder.com/tags/%E7%BB%84%E5%90%88%E6%B3%A8%E8%A7%A3/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>自定义注解2-动态修改注解的属性值</title>
+    <link href="https://www.ofcoder.com/2018/10/20/java/%E8%87%AA%E5%AE%9A%E4%B9%89%E6%B3%A8%E8%A7%A32-%E5%8A%A8%E6%80%81%E4%BF%AE%E6%94%B9%E6%B3%A8%E8%A7%A3%E7%9A%84%E5%B1%9E%E6%80%A7%E5%80%BC/"/>
+    <id>https://www.ofcoder.com/2018/10/20/java/%E8%87%AA%E5%AE%9A%E4%B9%89%E6%B3%A8%E8%A7%A32-%E5%8A%A8%E6%80%81%E4%BF%AE%E6%94%B9%E6%B3%A8%E8%A7%A3%E7%9A%84%E5%B1%9E%E6%80%A7%E5%80%BC/</id>
+    <published>2018-10-20T03:12:44.000Z</published>
+    <updated>2019-11-20T14:01:25.175Z</updated>
+    
+    <summary type="html">
+    
+      
+      
+        
+        
+          &lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;经过上一节的，我们可以自己解析spel表达式。那么我现在的想法是，在注解的第一层aop中解析spel，然后将解析后的值设置到属性中，那么在之后的aop中就不用解析了。&lt;/p&gt;
+&lt;h4 id=&quot;找出注解中值存放位置&quot;&gt;&lt;a href=&quot;#找出注解中值存放位置&quot; class=&quot;headerlink&quot; title=&quot;找出注解中值存放位置&quot;&gt;&lt;/a&gt;找出注解中值存放位置&lt;/h4&gt;&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;继续上一节的代码，在上一节的AOP中添加注解@Order(0)，再新增一个注解，添加@Order(1)。注意order这个注解有坑的，最好先百度完再使用。&lt;/p&gt;
+&lt;figure class=&quot;highlight kotlin&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;2&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;3&lt;/span&gt;&lt;br&gt;&lt;span
+        
+      
+    
+    </summary>
+    
+    
+      <category term="java" scheme="https://www.ofcoder.com/categories/java/"/>
+    
+    
+      <category term="干货" scheme="https://www.ofcoder.com/tags/%E5%B9%B2%E8%B4%A7/"/>
+    
+      <category term="API设计" scheme="https://www.ofcoder.com/tags/API%E8%AE%BE%E8%AE%A1/"/>
+    
+      <category term="注解" scheme="https://www.ofcoder.com/tags/%E6%B3%A8%E8%A7%A3/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>自定义注解1-实现spel表达式</title>
+    <link href="https://www.ofcoder.com/2018/10/19/java/%E8%87%AA%E5%AE%9A%E4%B9%89%E6%B3%A8%E8%A7%A31-%E5%AE%9E%E7%8E%B0spel%E8%A1%A8%E8%BE%BE%E5%BC%8F/"/>
+    <id>https://www.ofcoder.com/2018/10/19/java/%E8%87%AA%E5%AE%9A%E4%B9%89%E6%B3%A8%E8%A7%A31-%E5%AE%9E%E7%8E%B0spel%E8%A1%A8%E8%BE%BE%E5%BC%8F/</id>
+    <published>2018-10-19T15:14:18.000Z</published>
+    <updated>2019-11-20T14:01:18.556Z</updated>
+    
+    <summary type="html">
+    
+      
+      
+        
+        
+          &lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;开发中多多少少会使用spel，spel是Spring3引入了Spring表达式语言（Spring Expression Language,SpEL），在一些配置中，注解中经常用到，可谓是神器。比如说spring中的@Cacheable注解，其中key、unless等属性都支持Spel。举个例子：&lt;/p&gt;
+&lt;figure class=&quot;highlight reasonml&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;2&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;3&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;4&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;@&lt;span class=&quot;constructor&quot;&gt;Cacheable(&lt;span
+        
+      
+    
+    </summary>
+    
+    
+      <category term="java" scheme="https://www.ofcoder.com/categories/java/"/>
+    
+    
+      <category term="干货" scheme="https://www.ofcoder.com/tags/%E5%B9%B2%E8%B4%A7/"/>
+    
+      <category term="API设计" scheme="https://www.ofcoder.com/tags/API%E8%AE%BE%E8%AE%A1/"/>
+    
+      <category term="SpEL" scheme="https://www.ofcoder.com/tags/SpEL/"/>
+    
+      <category term="注解" scheme="https://www.ofcoder.com/tags/%E6%B3%A8%E8%A7%A3/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>SQL反模式15-模棱两可的分组</title>
+    <link href="https://www.ofcoder.com/2018/10/08/sql/antipatterns/15-%E6%A8%A1%E6%A3%B1%E4%B8%A4%E5%8F%AF%E7%9A%84%E5%88%86%E7%BB%84/"/>
+    <id>https://www.ofcoder.com/2018/10/08/sql/antipatterns/15-%E6%A8%A1%E6%A3%B1%E4%B8%A4%E5%8F%AF%E7%9A%84%E5%88%86%E7%BB%84/</id>
+    <published>2018-10-08T12:16:02.000Z</published>
+    <updated>2018-10-20T01:31:50.450Z</updated>
+    
+    <summary type="html">
+    
+      
+      
+        
+        
+          &lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;假如你的老板想知道哪些项目还处于活跃状态，哪些项目已经停止了。他让你生成一个每个项目最后一个bug提交日期的报表。你查询根据product分组的dete_report的最大值，如下：&lt;/p&gt;
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;product&lt;/th&gt;
+&lt;th&gt;latest&lt;/th&gt;
+&lt;th&gt;bug_id&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;&lt;tr&gt;
+&lt;td&gt;USQL&lt;/td&gt;
+&lt;td&gt;2010-06-01&lt;/td&gt;
+&lt;td&gt;1234&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Open
+        
+      
+    
+    </summary>
+    
+    
+      <category term="SQL反模式" scheme="https://www.ofcoder.com/categories/SQL%E5%8F%8D%E6%A8%A1%E5%BC%8F/"/>
+    
+    
+      <category term="SQL" scheme="https://www.ofcoder.com/tags/SQL/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>SQL反模式14-对未知的恐惧</title>
+    <link href="https://www.ofcoder.com/2018/09/10/sql/antipatterns/14-%E5%AF%B9%E6%9C%AA%E7%9F%A5%E7%9A%84%E6%81%90%E6%83%A7/"/>
+    <id>https://www.ofcoder.com/2018/09/10/sql/antipatterns/14-%E5%AF%B9%E6%9C%AA%E7%9F%A5%E7%9A%84%E6%81%90%E6%83%A7/</id>
+    <published>2018-09-10T12:54:59.000Z</published>
+    <updated>2019-04-17T13:38:44.568Z</updated>
+    
+    <summary type="html">
+    
+      
+      
+        
+        
+          &lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;你的account表中有first_name, last_name两个字段，现在有需求要你显示一个完整名字。&lt;/p&gt;
+&lt;figure class=&quot;highlight sql&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;2&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;select&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;concat&lt;/span&gt;(first_name, last_name)&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt; &lt;span class=&quot;keyword&quot;&gt;as&lt;/span&gt; &lt;span class=&quot;string&quot;&gt;&#39;full_name&#39;&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;from&lt;/span&gt;
+        
+      
+    
+    </summary>
+    
+    
+      <category term="SQL反模式" scheme="https://www.ofcoder.com/categories/SQL%E5%8F%8D%E6%A8%A1%E5%BC%8F/"/>
+    
+    
+      <category term="SQL" scheme="https://www.ofcoder.com/tags/SQL/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>SQL反模式13-乱用索引</title>
+    <link href="https://www.ofcoder.com/2018/09/02/sql/antipatterns/13-%E4%B9%B1%E7%94%A8%E7%B4%A2%E5%BC%95/"/>
+    <id>https://www.ofcoder.com/2018/09/02/sql/antipatterns/13-%E4%B9%B1%E7%94%A8%E7%B4%A2%E5%BC%95/</id>
+    <published>2018-09-02T06:08:48.000Z</published>
+    <updated>2018-09-02T09:12:28.754Z</updated>
+    
+    <summary type="html">
+    
+      
+      
+        
+        
+          &lt;h4 id=&quot;目的：优化性能&quot;&gt;&lt;a href=&quot;#目的：优化性能&quot; class=&quot;headerlink&quot; title=&quot;目的：优化性能&quot;&gt;&lt;/a&gt;目的：优化性能&lt;/h4&gt;&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;改善性能最好的技术就是合理使用数据库中的索引。索引也是数据结构，他可以帮助快速定位到相应的行，而不需要野蛮的自上而下全表遍历。&lt;/p&gt;
+&lt;h4 id=&quot;反模式：无规划的使用索引&quot;&gt;&lt;a href=&quot;#反模式：无规划的使用索引&quot; class=&quot;headerlink&quot; title=&quot;反模式：无规划的使用索引&quot;&gt;&lt;/a&gt;反模式：无规划的使用索引&lt;/h4&gt;&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;软件开发人员通常猜测的来选择索引，那么就不可避免的犯一些错误&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;不使用索引或索引不足&lt;/li&gt;
+&lt;li&gt;使用了太多索引或者使用了一些无效的索引&lt;/li&gt;
+&lt;li&gt;执行一些让索引无能为力的查询&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h5 id=&quot;无索引&quot;&gt;&lt;a href=&quot;#无索引&quot; class=&quot;headerlink&quot;
+        
+      
+    
+    </summary>
+    
+    
+      <category term="SQL反模式" scheme="https://www.ofcoder.com/categories/SQL%E5%8F%8D%E6%A8%A1%E5%BC%8F/"/>
+    
+    
+      <category term="SQL" scheme="https://www.ofcoder.com/tags/SQL/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>SQL反模式12-幽灵文件</title>
+    <link href="https://www.ofcoder.com/2018/08/30/sql/antipatterns/12-%E5%B9%BD%E7%81%B5%E6%96%87%E4%BB%B6/"/>
+    <id>https://www.ofcoder.com/2018/08/30/sql/antipatterns/12-%E5%B9%BD%E7%81%B5%E6%96%87%E4%BB%B6/</id>
+    <published>2018-08-30T13:44:30.000Z</published>
+    <updated>2018-08-30T15:09:38.478Z</updated>
+    
+    <summary type="html">
+    
+      
+      
+        
+        
+          &lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;在一次灾难中，你的服务器硬件机架整个倾倒，导致大量硬盘损坏，庆幸的是IT部分灾备做的比较好，你们有一份和上次备份一样的完整副本。但是在冒烟测试中你们发现所有的图片都不能加载，这是才想起来所有的文件都存在/var目录下。&lt;/p&gt;
+&lt;h4 id=&quot;目的：存储图片或其他媒体大文件&quot;&gt;&lt;a href=&quot;#目的：存储图片或其他媒体大文件&quot; class=&quot;headerlink&quot; title=&quot;目的：存储图片或其他媒体大文件&quot;&gt;&lt;/a&gt;目的：存储图片或其他媒体大文件&lt;/h4&gt;&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;本章的目标就是要存储这些图片并且将其和数据库实体管理起来，当查询这些实体时，我们需要确保同时能获取与其关联的图片。&lt;/p&gt;
+&lt;h4 id=&quot;反模式：假设你必须使用文件系统&quot;&gt;&lt;a href=&quot;#反模式：假设你必须使用文件系统&quot; class=&quot;headerlink&quot;
+        
+      
+    
+    </summary>
+    
+    
+      <category term="SQL反模式" scheme="https://www.ofcoder.com/categories/SQL%E5%8F%8D%E6%A8%A1%E5%BC%8F/"/>
+    
+    
+      <category term="SQL" scheme="https://www.ofcoder.com/tags/SQL/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>SQL反模式11-每日新花样(限定列的有效值)</title>
+    <link href="https://www.ofcoder.com/2018/08/22/sql/antipatterns/11-%E6%AF%8F%E6%97%A5%E6%96%B0%E8%8A%B1%E6%A0%B7(%E9%99%90%E5%AE%9A%E5%88%97%E7%9A%84%E6%9C%89%E6%95%88%E5%80%BC)/"/>
+    <id>https://www.ofcoder.com/2018/08/22/sql/antipatterns/11-%E6%AF%8F%E6%97%A5%E6%96%B0%E8%8A%B1%E6%A0%B7(%E9%99%90%E5%AE%9A%E5%88%97%E7%9A%84%E6%9C%89%E6%95%88%E5%80%BC)/</id>
+    <published>2018-08-22T12:21:49.000Z</published>
+    <updated>2018-08-23T13:14:59.812Z</updated>
+    
+    <summary type="html">
+    
+      
+      
+        
+        
+          &lt;h4 id=&quot;目标：限定列的有效值&quot;&gt;&lt;a href=&quot;#目标：限定列的有效值&quot; class=&quot;headerlink&quot; title=&quot;目标：限定列的有效值&quot;&gt;&lt;/a&gt;目标：限定列的有效值&lt;/h4&gt;&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;限定列的有效值是非常有用的，比如bug表的status，我们定义check约束，让它只允许保存(“NEW”,”IN PROGRESS”,”FIXED”)，那么它就会拒绝所有不存在以上集合中的无效值。但是定义check约束，我们日后改如何修改限定有效值呢？这就是本章所讲的反模式。&lt;/p&gt;
+&lt;h4 id=&quot;反模式：在列定义上指定可选值-约束&quot;&gt;&lt;a href=&quot;#反模式：在列定义上指定可选值-约束&quot; class=&quot;headerlink&quot; title=&quot;反模式：在列定义上指定可选值(约束)&quot;&gt;&lt;/a&gt;反模式：在列定义上指定可选值(约束)&lt;/h4&gt;&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;很多数据库设计人员趋向于在定义列的时候指定所有可选的有效值。如下DDL：&lt;/p&gt;
+&lt;figure class=&quot;highlight
+        
+      
+    
+    </summary>
+    
+    
+      <category term="SQL反模式" scheme="https://www.ofcoder.com/categories/SQL%E5%8F%8D%E6%A8%A1%E5%BC%8F/"/>
+    
+    
+      <category term="SQL" scheme="https://www.ofcoder.com/tags/SQL/"/>
+    
+  </entry>
+  
+</feed>

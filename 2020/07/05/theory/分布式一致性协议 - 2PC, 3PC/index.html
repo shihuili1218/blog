@@ -1,0 +1,126 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta http-equiv="content-type" content="text/html; charset=utf-8"><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport"><meta content="yes" name="apple-mobile-web-app-capable"><meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"><meta content="telephone=no" name="format-detection"><meta name="description"><title>分布式一致性协议 - 2PC, 3PC | 并发笔记 - ofcoder.com</title><link rel="stylesheet" type="text/css" href="/css/style.css?v=0.0.0"><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/normalize/8.0.0/normalize.min.css"><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/pure/1.0.0/pure-min.css"><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/pure/1.0.0/grids-responsive-min.css"><link rel="stylesheet" href="//cdn.bootcss.com/font-awesome/4.7.0/css/font-awesome.min.css"><script type="text/javascript" src="//cdn.bootcss.com/jquery/3.3.1/jquery.min.js"></script><link rel="Shortcut Icon" type="image/x-icon" href="/favicon.ico"><link rel="apple-touch-icon" href="/apple-touch-icon.png"><link rel="apple-touch-icon-precomposed" href="/apple-touch-icon.png"><!-- 顶部加载进度条 --><script type="text/javascript" src="//cdn.bootcss.com/pace/1.0.2/pace.min.js"></script><link rel="stylesheet" href="//cdn.bootcss.com/pace/1.0.2/themes/pink/pace-theme-flash.css"><link rel="alternate" type="application/atom+xml" href="/atom.xml"><meta name="generator" content="Hexo 4.2.1"></head><body><div class="body_container"><div id="header"><div class="site-name"><h1 class="hidden">分布式一致性协议 - 2PC, 3PC</h1><a id="logo" href="/.">并发笔记 - ofcoder.com</a><p class="description">一位后端开发的养肝历程，护发经验</p></div><div id="nav-menu"><a class="current" href="/."><i class="fa fa-home"> 首页</i></a><a href="/tags/"><i class="fa fa-tags"> 标签</i></a><a href="/usql/"><i class="fa fa-database"> usql</i></a><a href="/book/"><i class="fa fas fa-book"> book</i></a><a href="/atom.xml"><i class="fa fa-rss"> 订阅</i></a></div></div><div class="pure-g-g" id="layout"><div class="pure-u-1 pure-u-md-3-4"><div class="content_container"><div class="post"><h1 class="post-title">分布式一致性协议 - 2PC, 3PC</h1><div class="post-meta">Jul 5, 2020<span> | </span><span class="category"><a href="/categories/%E7%AE%97%E6%B3%95%E7%90%86%E8%AE%BA/">算法理论</a></span><span id="busuanzi_container_page_pv"> | <span id="busuanzi_value_page_pv"></span><span> 阅读</span></span><span class="post-time"><span class="post-meta-item-text"> | </span><span class="post-meta-item-icon"><i class="fa fa-keyboard-o"></i><span class="post-count"> 3.7k</span><span class="post-meta-item-text"> 字</span></span></span><span class="post-time"> | <span class="post-meta-item-icon"><i class="fa fa-hourglass-half"></i><span class="post-count"> 12</span><span class="post-meta-item-text"> 分钟</span></span></span></div><a class="disqus-comment-count" href="/2020/07/05/theory/%E5%88%86%E5%B8%83%E5%BC%8F%E4%B8%80%E8%87%B4%E6%80%A7%E5%8D%8F%E8%AE%AE%20-%202PC,%203PC/#vcomment"><span class="valine-comment-count" data-xid="/2020/07/05/theory/%E5%88%86%E5%B8%83%E5%BC%8F%E4%B8%80%E8%87%B4%E6%80%A7%E5%8D%8F%E8%AE%AE%20-%202PC,%203PC/"></span><span> 条评论</span></a><div class="post-content"><p>在分布式系统中，每一个机器节点虽然都能明确的知道自己在事务操作中的结果是成功或失败，但无法直接获取其他节点的操作结果。因此在分布式环境中，为了保持事务的ACID特性，就需要增加一个“协调者”来管理其他节点（“参与者”）事务的提交和回滚。基于这个思想，衍生出二阶段提交和三阶段提交两种协议。</p>
+<h3 id="2PC-简述"><a href="#2PC-简述" class="headerlink" title="2PC 简述"></a>2PC 简述</h3><p>二阶段提交(Two-Phase Commit)，是一个非常经典的<strong>强一致</strong>、<strong>中心化的原子提交协议</strong>。目前，绝大多数关系型数据库都采用二阶段提交协议来完成分布式事务处理（例如mysql的XA协议）。因此二阶段提交协议也被广泛运用到分布式系统中。</p>
+<p>顾名思义，算法流程就是分为两个阶段提交某一操作，其分为准备阶段、提交阶段。为了更好描述算法过程，为此定义了两种角色：协调者（Coordinator）、参与者（Participant）。</p>
+<h4 id="阶段一：准备阶段"><a href="#阶段一：准备阶段" class="headerlink" title="阶段一：准备阶段"></a>阶段一：准备阶段</h4><p><img src="/images/theory/distributed/2pc_1.png" alt="2pc 准备阶段"><br>准备阶段，又被称为投票阶段（Vote Request），由协调者向参与者发送请求，询问当前事务能否处理成功。参与者则开启本地数据库事务，开始执行数据库操作，但是并不会提交。根据操作结果，返回给协调者“yes/no”，表示事务是否可以提交。</p>
+<ul>
+<li>事务询问<br>协调者向所有参与者发送<strong>事务内容</strong>，询问是否可以执行事务的提交操作，并等待各参与者的响应</li>
+<li>执行事务<br>各参与者执行事务操作，准备好事务资源，记录undo、redo信息</li>
+<li>反馈询问结果<br>如果参与者成功执行了事务操作，那么返回给协调者yes（表示当前事务可以提交），否者返回给协调者no（表示当前事务不能执行）</li>
+</ul>
+<h4 id="阶段二：提交阶段"><a href="#阶段二：提交阶段" class="headerlink" title="阶段二：提交阶段"></a>阶段二：提交阶段</h4><p>在准备阶段，由于参与者可以返回yes/no，则在提交阶段也会出现两种可能，即全局提交事务、全局回滚事务。</p>
+<h5 id="全局提交事务"><a href="#全局提交事务" class="headerlink" title="全局提交事务"></a>全局提交事务</h5><p><img src="/images/theory/distributed/2pc_2.png" alt="2pc 提交阶段"><br>当准备阶段所有参与者都返回yes的响应后，协调者将发起全局提交事务请求。</p>
+<ul>
+<li>发送提交请求<br>由协调者向所有参与者发送global_commit请求，要求提交当前事务</li>
+<li>事务提交<br>当参与者收到global_commit请求后，则执行事务提交操作，并释放整个分布式事务期间占用的事务资源</li>
+<li>反馈提交结果<br>参与在执行完事务提交后，向协调者返回ack消息</li>
+<li>完成事务提交<br>协调者收到所有参与者反馈的ack消息后，给客户端返回结果，完成本次事务</li>
+</ul>
+<h5 id="全局回滚事务"><a href="#全局回滚事务" class="headerlink" title="全局回滚事务"></a>全局回滚事务</h5><p><img src="/images/theory/distributed/2pc_3.png" alt="2pc 提交阶段"><br>当准备阶段有一个参与者都返回no的响应后，实际场景中，协调者还会怎加等待响应时间，如果超时后，则协调者将发起全局回滚事务请求，中断事务。</p>
+<ul>
+<li>发送回滚请求<br>由协调者向所有参与者发送global_rollback请求，要求中断当前事务</li>
+<li>事务回滚<br>当参与者收到global_rollback请求后，会利用准备阶段记录的undo信息来进行回滚，并释放整个分布式事务期间占用的事务资源</li>
+<li>反馈回滚结果<br>参与在执行完事务提交后，向协调者返回ack消息</li>
+<li>中断事务<br>协调者收到所有参与者反馈的ack消息后，给客户端返回结果，完成中断事务</li>
+</ul>
+<h4 id="宕机（故障）恢复"><a href="#宕机（故障）恢复" class="headerlink" title="宕机（故障）恢复"></a>宕机（故障）恢复</h4><p>2PC宕机故障，分为多种情况。部分参与者宕机、协调者宕机、部分参与者和协调者都宕机。</p>
+<ul>
+<li>部分参与者宕机<br>参与者恢复后询问协调者宕机期间处理情况便可完成一致性</li>
+<li>协调者宕机<br>新选一个协调者替换，询问所有参与者最后那条事务执行情况，然后决定进行commit/rollback，或者不处理。</li>
+<li>部分参与者和协调者都宕机<br>新竞选的协调者询问所有参与者最后那条事务执行情况。则又分为几种情况：<ul>
+<li>如果有参与者第一阶段返回no，或者第二阶段执行了rollback。则协调者命令所有参与者执行rollback</li>
+<li>如果所有参与者第一阶段返回yes，第二阶段有参与者执行了commit，则协调者命令所有参与者执行commit</li>
+<li>如果所有参与者第一阶段返回yes，第二阶段没有参与者执行任何操作，此时协调者则不知道宕机的参与者执行了commit/rollback。即不能明确的恢复过来。</li>
+</ul>
+</li>
+</ul>
+<h4 id="优缺点"><a href="#优缺点" class="headerlink" title="优缺点"></a>优缺点</h4><p>2PC协议明显的优点就是：原理简单、容易实现。但是它的缺点更加明显：</p>
+<ul>
+<li>同步阻塞<br>每个参与者都需要等待协调者的消息，才能继续下一阶段。当协调者在发送第二阶段的消息之前宕机，那么所有参与者将一直锁定准备阶段的事务资源，事务推进不下去了，造成事务阻塞。只有等到协调者恢复，事务才能继续进行。</li>
+<li>数据不一致<br>在第二阶段，如果出现网络异常导致一部分参与者收到了commit请求，一部分参与者没有收到commit请求，结果会是一部分参与者提交了事务，一部分参与者无法进行事务提交。</li>
+<li>宕机恢复，上一小节描述的部分情况下不能保证一致性</li>
+<li>单点问题/脑裂<br>协调者在2PC中，太过重要，当协调者宕机，整个集群将不可用。脑裂是指因为网络原因，出现多个协调者。</li>
+<li>太过保守<br>任何一个节点故障，都会导致整个事务协调失败，换句话说没有完善的容错机制。</li>
+</ul>
+<h3 id="3PC"><a href="#3PC" class="headerlink" title="3PC"></a>3PC</h3><p>上面小节讲解了二阶段提交协议的原理，也指出了它所存在的问题，三阶段提交协议则是为了解决2PC的同步阻塞、数据不一致的问题而诞生。</p>
+<p>在2PC的基础上，3PC将准备阶段一分为二，形成由 <strong>CanCommit、PreCommit、DoCommit</strong>三个阶段组成的事务提交协议。并且在3PC<strong>参与者也增加超时机制</strong>（2PC只有协调者拥有超时机制），避免了参与者长时间无法与协调者节点通讯（协调者宕机）的情况下，无法释放资源的问题。在参与者超时后，会自动进行本地commit/abort从而进行释放资源。</p>
+<p>但是3PC并没有完美解决2PC的问题，例如：</p>
+<ul>
+<li>同步阻塞，3PC只是减少了阻塞范围，这里的阻塞包含两方面：<ul>
+<li>参与者在长时间无法与协调者通讯，无法释放资源阻塞的问题。参与者等待协调者消息超时后，自行commit/abort来释放资源。</li>
+<li>协调者和参与者都宕机情况下的阻塞。新晋升的协调者不知道宕机的参与者执行了什么操作，依然不能释放事务资源，而造成的阻塞问题。</li>
+</ul>
+</li>
+<li>数据不一致，也只解决了一部分情况下的不一致。<br>比如第三阶段，部分参与者没有收到DoCommit消息，根据规定会自行提交，最后达成一致。但是如果第三阶段需要abort，部分参与者没有收到abort消息，根据规定也会自行提交，最后数据不一致。</li>
+<li>宕机恢复，解决了2PC中协调者和参与者在第二阶段宕机不能恢复一致性的问题</li>
+</ul>
+<p>可以看出3PC提出的解决方案，自身本就引入了新的问题，比如自动提交后造成的数据不一致。还有增加了一轮通讯，增加了复杂度和协商效率。所以实际上，很少会有系统实现3PC，多数情况下，通过状态机复制来解决2PC的同步阻塞的问题。</p>
+<h4 id="阶段一：CanCommit"><a href="#阶段一：CanCommit" class="headerlink" title="阶段一：CanCommit"></a>阶段一：CanCommit</h4><p><img src="/images/theory/distributed/3pc_1.png" alt="3pc CanCommit"></p>
+<ul>
+<li>事务询问<br>由协调者向所有参与者发送一个<strong>包含事务内容</strong>的canCommit请求，询问是否可以执行事务提交操作，并等待参与者响应</li>
+<li>反馈询问响应<br>参与者收到canCommit请求后，根据自身逻辑判断是否可以顺利执行事务，那么反馈yes，否则反馈no。说白了就是检查下自身状态的健康性，看有没有能力进行事务操作。</li>
+</ul>
+<h4 id="阶段二：PreCommit"><a href="#阶段二：PreCommit" class="headerlink" title="阶段二：PreCommit"></a>阶段二：PreCommit</h4><p>在阶段一结果中，如果所有参与者都返回yes，则执行事务预提交，协调者发起PreCommit请求。如果有任何一个参与者节点返回的结果是no，或者协调者在等待参与者节点反馈的过程中超时，整个分布式事务就会中断，协调者就会向所有的参与者发送“abort”请求。</p>
+<p><strong>注意：</strong>上面所说的参与者增加超时时间，在该阶段就可以派上用场了。在该阶段开始之前，如果协调者宕机，参与者在等待超时时间后，各自选择中断事务，最终达成一致。但是协调者在发出一部分preCommit请求后宕机，有一部分没有收到preCommit请求，那情况则是：一部分参与者执行了preCommit操作，一部分参与者没有执行preCommit操作，最终导致各节点之间数据不一致。</p>
+<h5 id="执行事务预提交"><a href="#执行事务预提交" class="headerlink" title="执行事务预提交"></a>执行事务预提交</h5><p><img src="/images/theory/distributed/3pc_2.png" alt="3pc PreCommit"></p>
+<ul>
+<li>发送preCommit请求<br>由协调者向所有参与者发送preCommit请求，并等待参与者响应</li>
+<li>事务预提交<br>参与者收到preCommit请求后，会执行事务操作，将undo和redo信息写入事务日志中</li>
+<li>反馈执行响应<br>参与者将执行结果反馈给协调者，同时等待最终指令提交（commit）或终止（abort）</li>
+</ul>
+<h5 id="中断事务"><a href="#中断事务" class="headerlink" title="中断事务"></a>中断事务</h5><p>该阶段中断事务相比阶段三中断事务要简单，只需要由协调者向所有参与者发送abort请求，通知中断事务。期间参与者在等待协调者的preCommit请求超时后也会主动中断本地事务。</p>
+<h4 id="阶段三：DoCommit"><a href="#阶段三：DoCommit" class="headerlink" title="阶段三：DoCommit"></a>阶段三：DoCommit</h4><p>同样，根据上一阶段的结果，该阶段也会存在两种情况。阶段二所有参与者成功反馈，则执行提交事务请求，否则中断事务。</p>
+<p><strong>注意：</strong>参与者增加的超时时间，在该阶段也有所体现。在该阶段，无论是协调者宕机了，还是网络原因导致参与者没有收到该阶段的（提交/中断）请求，参与者都会执行本地事务提交。倘若在该阶段，协调者需要发送的是提交事务请求，参与者自动提交本地事务，最后能达到一致性。倘若在该阶段，协调者需要发送的是中断事务请求，如果参与者没有收到该请求，则参与者也会自动提交本地事务，最终导致各节点之间数据不一致。</p>
+<h5 id="提交事务"><a href="#提交事务" class="headerlink" title="提交事务"></a>提交事务</h5><p><img src="/images/theory/distributed/3pc_3.png" alt="3pc DoCommit"></p>
+<ul>
+<li>发送提交请求<br>协调者就会从“预提交状态”变为“提交状态”。然后向所有的参与者节点发送”global_commit”请求</li>
+<li>事务提交<br>参与者收到global_commit请求后，将执行本地事务提交操作，并释放整个事务执行期间占用的事务资源</li>
+<li>反馈提交结果<br>参与者向协调者反馈ack提交结果</li>
+<li>完成事务<br>协调者收到所有参与者的ack消息后，完成事务</li>
+</ul>
+<h5 id="中断事务-1"><a href="#中断事务-1" class="headerlink" title="中断事务"></a>中断事务</h5><ul>
+<li>发送中断请求<br>协调者向所有参与者发送abort请求</li>
+<li>事务回滚<br>参与者根据阶段二中记录的undo信息，来执行回滚操作，并释放占用事务资源</li>
+<li>反馈回滚结果<br>参与者向协调者反馈ack回滚结果</li>
+<li>中断事务<br>协调者收到所有参与者的ack消息后，中断事务</li>
+</ul>
+<h4 id="宕机（故障）恢复-1"><a href="#宕机（故障）恢复-1" class="headerlink" title="宕机（故障）恢复"></a>宕机（故障）恢复</h4><p>直接分析2PC中的协调者和参与者都宕机情况下，新晋升的协调者怎么恢复一致性的。</p>
+<p>这种情况下，新晋升的协调者同样会询问所有的参与者事务处理情况。这看上去和2PC一样啊？但是深入分析下就会发现不一样。</p>
+<p>我们假设第三阶段，协调者和参与者宕机了，并且参与者执行了第三阶段的操作，没人知道它执行了什么，也就存在两种可能：</p>
+<ul>
+<li>宕机的参与者没执行第三阶段任何操作或者执行了第三阶段的commit操作。那么协调者在询问所有的参与者事务执行情况时，得到的ACK响应一定是，所有参与者处于第二阶段成功完成的状态或者第三阶段执行了commit操作的状态。据此，协调者如果收到这样的回复，那一定可以断定宕机的参与者执行了commit操作或者没执行第三阶段的操作，那么协调者可以大胆的发送DoCommit消息。</li>
+<li>宕机的参与者执行第三阶段的abort操作。那么协调者在询问所有的参与者事务执行情况时，得到的ACK响应一定是，一定存在一个参与者的第二阶段的响应是no，否则第三阶段不会发起abort操作。据此，协调者如果收到存在一个参与者处于第二阶段的abort状态时，则可以大胆的发送abort操作给所有的参与者。</li>
+</ul>
+<h4 id="优缺点-1"><a href="#优缺点-1" class="headerlink" title="优缺点"></a>优缺点</h4><p>相比于2PC，3PC最大的优点就是：</p>
+<ul>
+<li>通过增加超时和自动提交，减少了参与者的阻塞范围。</li>
+<li>通过增加PreCommit阶段，能在协调者和参与者都宕机情况下，新晋升的协调者能够使数据达成一致。（维基百科中描述的则是：当协调者和参与者都宕机后，新晋升的协调者可以自信的完成后续的事务操作。）</li>
+</ul>
+<p>3PC的缺点：</p>
+<ul>
+<li>在某些情况下，因为自动提交/中断本地事务的约定，必然会造成数据的不一致性。</li>
+<li>增加一轮消息，增加了复杂度和协商效率。</li>
+</ul>
+</div><iframe src="/donate/?AliPayQR=null&amp;WeChatQR=/img/WeChatQR.jpg&amp;GitHub=https://github.com/farawayliu&amp;BTCQR=null&amp;BTCKEY=null&amp;PayPal=null" style="overflow-x:hidden; overflow-y:hidden; border:0xp none #fff; min-height:240px; width:100%;" frameborder="0" scrolling="no"></iframe><div><ul class="post-copyright"><li class="post-copyright-author"><strong>本文作者：</strong>far</li><li class="post-copyright-link"><strong>本文链接：</strong><a href="/2020/07/05/theory/分布式一致性协议 - 2PC, 3PC/">https://www.ofcoder.com/2020/07/05/theory/%E5%88%86%E5%B8%83%E5%BC%8F%E4%B8%80%E8%87%B4%E6%80%A7%E5%8D%8F%E8%AE%AE%20-%202PC,%203PC/</a></li><li class="post-copyright-license"><strong>版权声明：</strong>Copyright © 2021 ofcoder. Author by far.</li></ul></div><br><script type="text/javascript" src="/js/share.js?v=0.0.0" async></script><a class="article-share-link" data-url="https://www.ofcoder.com/2020/07/05/theory/%E5%88%86%E5%B8%83%E5%BC%8F%E4%B8%80%E8%87%B4%E6%80%A7%E5%8D%8F%E8%AE%AE%20-%202PC,%203PC/" data-id="ckt6ou277000nu8j18pj135xi" data-qrcode="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAASYAAAEmCAAAAADqr2IGAAAEeUlEQVR42u3aS27bQBAFQN//0g6QbSLlvW4q1lDFlQGT0kxRwPTv6yu+vn9fz/9+9N/Z/Y+uP5/N73m0hssuTJgwYcL0lkzJspLNPFpWiztbWw6RvxhMmDBhwnQnpvbjnh+69SLKsGN2z+YpTJgwYcL0CUzPD+z8v5sD/qrUGhMmTJgwYbpq6S19kgDn9+QpPSZMmDBhujdTfkhvDt08RJgVZ5+vIUfEhAkTJkx3YrpqcOfEv39gvgkTJkyYMP1Hpu/yypuFs6W/ouCbH/8Pd40JEyZMmI5lSlqACUGb0K7Sy9FLmr2GYgIIEyZMmDC9MVOypfzIb5PndtynHdnZoEQVcUyYMGHC9MZMeeJXDLiMWphtc3E2ptOm35gwYcKE6XSmJPXdpKyb1DdvRuags1eOCRMmTJhOZ0q+LNleEkwkh/Qm7MhLwG3ogAkTJkyY7sGUbL5NkmcbyIOV/bP5DwUTJkyYMJ3INEsF2xJqPgY0CxSSA342loQJEyZMmM5lykuf+0O6faq9c/NS/5GcY8KECROmY5n2B/OstVkvsWzEbkrVX6+IXzBhwoQJ048yzQqvs2Lr7J5Zs3O2WkyYMGHCdCemNvnMW4B5mXXT2tyM8hSjRZgwYcKE6XZMeWF0Vt7NKfPNzBqf0c8FEyZMmDAdzpQ0EdskOf/M2f15WjsLCP4yuIMJEyZMmA5k2hRJ2+JsQrkPHfKrTp4xYcKECdPhTLNxlnZjs++apbX7b8GECRMmTPdgmqWRSfswL8jmIcIsOJi9KkyYMGHCdA+mtiTapsSbUZ58q5u2aDQYhAkTJkyYDmSatQbzlLKl2Rzhefm43hcmTJgwYTqcqS3svqKcuvnGNlipi7yYMGHChOlYprwxOVvubNFtcbktE8/ux4QJEyZM92CapY7RUVoewLPjP09r87QfEyZMmDCdyzQTbVPcdiRo1tps2645IiZMmDBhOp2pTRfzHt8+nc6T4fZbcmhMmDBhwnQu06xJORusSZLbPCyYNUovK0ZjwoQJE6ajmK6iaTewKem2n5B/GiZMmDBhuhNT+1ibGLdH8iY0mZWSI1ZMmDBhwnQs0/4wbluJm4Gbq4Zy2sYnJkyYMGE6nak9JtsU9KoNt8ND+6YsJkyYMGE6nSkv1LbH5ywRzYeK2heZt1eHWTgmTJgwYXp7pnYQJ099Z0M87eZnSTsmTJgwYfoEpk3zb9YgzMOLPEzJy831jwATJkyYMN2CKUdpC7Wz0dK2gNuWpPNABxMmTJgwncuUJ5BtkXeYZC6Ge4YjOGWLFBMmTJgwncW0T1bbcZk8yMjLym2huW7fYsKECROmY5ny66rGZDtAM6OZlYPzxBsTJkyYMJ3F1KaXm3bmvnn5inQ6AcWECRMmTKcz5cf8BquNUIptlMltHjRgwoQJE6bPYcoLr7Plzo7qdg11KIAJEyZMmDCVIzuzEZz2ZWyCiaLOjQkTJkyYDmHal2XzluFsKGf/Ime7w4QJEyZMpzPNBnfabcwS0WvhNmk5JkyYMGE6kOkX0/O1dqdweYMAAAAASUVORK5CYII=">分享</a><div class="tags"><a href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E4%BA%8B%E5%8A%A1/">分布式事务</a><a href="/tags/2PC/">2PC</a><a href="/tags/3PC/">3PC</a></div><div class="post-nav"><a class="pre" href="/2020/07/07/theory/%E5%88%86%E5%B8%83%E5%BC%8F%E4%B8%80%E8%87%B4%E6%80%A7%E5%8D%8F%E8%AE%AE%20-%20Paxos/">分布式一致性协议 - Paxos</a><a class="next" href="/2019/04/01/theory/%E8%B0%88%E8%B0%88mysql%E7%B4%A2%E5%BC%95%E5%AE%9E%E7%8E%B0-B+Tree/">谈谈mysql索引实现-B+ Tree</a></div><div id="vcomment"></div><script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script><script src="//unpkg.com/valine@latest/dist/Valine.min.js"></script><script>var notify = 'true' == true ? true : false;
+var verify = 'false' == true ? true : false;
+var GUEST_INFO = ['nick','mail','link'];
+var guest_info = 'nick,mail,link'.split(',').filter(function(item){
+  return GUEST_INFO.indexOf(item) > -1
+});
+guest_info = guest_info.length == 0 ? GUEST_INFO :guest_info;
+window.valine = new Valine({
+  el:'#vcomment',
+  notify:notify,
+  verify:verify,
+  appId:'s8pJruGkXvi5Skd0e6EaMQ5X-gzGzoHsz',
+  appKey:'K3NjnXxqhPNwUw5pmqOzoO4i',
+  placeholder:'说出你的故事...',
+  avatar:'mm',
+  guest_info:guest_info,
+  pageSize:'10'
+})</script></div></div></div><div class="pure-u-1-4 hidden_mid_and_down"><div id="sidebar-toc"><div class="stoc-article" id="sidebar-stoc"><strong class="stoc-title"><i class="fa fa-blind"> Contents </i></strong><div class="toc-nav" id="stoc"><ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#2PC-简述"><span class="toc-number">1.</span> <span class="toc-text">2PC 简述</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#阶段一：准备阶段"><span class="toc-number">1.1.</span> <span class="toc-text">阶段一：准备阶段</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#阶段二：提交阶段"><span class="toc-number">1.2.</span> <span class="toc-text">阶段二：提交阶段</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#全局提交事务"><span class="toc-number">1.2.1.</span> <span class="toc-text">全局提交事务</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#全局回滚事务"><span class="toc-number">1.2.2.</span> <span class="toc-text">全局回滚事务</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#宕机（故障）恢复"><span class="toc-number">1.3.</span> <span class="toc-text">宕机（故障）恢复</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#优缺点"><span class="toc-number">1.4.</span> <span class="toc-text">优缺点</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3PC"><span class="toc-number">2.</span> <span class="toc-text">3PC</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#阶段一：CanCommit"><span class="toc-number">2.1.</span> <span class="toc-text">阶段一：CanCommit</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#阶段二：PreCommit"><span class="toc-number">2.2.</span> <span class="toc-text">阶段二：PreCommit</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#执行事务预提交"><span class="toc-number">2.2.1.</span> <span class="toc-text">执行事务预提交</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#中断事务"><span class="toc-number">2.2.2.</span> <span class="toc-text">中断事务</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#阶段三：DoCommit"><span class="toc-number">2.3.</span> <span class="toc-text">阶段三：DoCommit</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#提交事务"><span class="toc-number">2.3.1.</span> <span class="toc-text">提交事务</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#中断事务-1"><span class="toc-number">2.3.2.</span> <span class="toc-text">中断事务</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#宕机（故障）恢复-1"><span class="toc-number">2.4.</span> <span class="toc-text">宕机（故障）恢复</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#优缺点-1"><span class="toc-number">2.5.</span> <span class="toc-text">优缺点</span></a></li></ol></li></ol></div></div></div></div><div class="pure-u-1 pure-u-md-3-4"><div id="footer">Copyright © 2021 <a href="/." rel="nofollow">并发笔记 - ofcoder.com | </a><a href="http://www.beian.miit.gov.cn" rel="nofollow" target="_blank">粤ICP备18053760号</a><div>本站访客 <span id="busuanzi_value_site_uv"></span>人次 | 总访问 <span id="busuanzi_value_site_pv"></span>次<img src="https://s04.flagcounter.com/count/MnzJ/bg_FFFFFF/txt_000000/border_726EE0/columns_2/maxflags_10/viewers_0/labels_1/pageviews_1/flags_0/percent_0/" style="display: none;"/></div></div></div></div><a class="show" id="rocket" href="#top"></a><script type="text/javascript" src="/js/totop.js?v=0.0.0" async></script><script type="text/javascript" src="//cdn.bootcss.com/fancybox/3.3.5/jquery.fancybox.min.js" async></script><script type="text/javascript" src="/js/fancybox.js?v=0.0.0" async></script><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/fancybox/3.3.5/jquery.fancybox.min.css"><script type="text/javascript" src="/js/search.js?v=0.0.0"></script><script>var search_path = 'search.xml';
+if (search_path.length == 0) {
+   search_path = 'search.xml';
+}
+var path = '/' + search_path;
+searchFunc(path, 'local-search-input', 'local-search-result');
+</script><script type="text/javascript" color="100,99,98" opacity="0.7" zIndex="-1" count="5" src="//cdn.bootcss.com/canvas-nest.js/1.0.1/canvas-nest.min.js"></script><script type="text/javascript" src="/js/codeblock-resizer.js?v=0.0.0"></script><script type="text/javascript" src="/js/smartresize.js?v=0.0.0"></script></div></body></html><script type="text/javascript" src="/js/toc.js?v=0.0.0" async></script><script src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" async></script>

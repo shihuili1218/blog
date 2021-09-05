@@ -1,0 +1,85 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta http-equiv="content-type" content="text/html; charset=utf-8"><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport"><meta content="yes" name="apple-mobile-web-app-capable"><meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"><meta content="telephone=no" name="format-detection"><meta name="description"><title>分布式一致性协议 - 温故知新 | 并发笔记 - ofcoder.com</title><link rel="stylesheet" type="text/css" href="/css/style.css?v=0.0.0"><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/normalize/8.0.0/normalize.min.css"><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/pure/1.0.0/pure-min.css"><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/pure/1.0.0/grids-responsive-min.css"><link rel="stylesheet" href="//cdn.bootcss.com/font-awesome/4.7.0/css/font-awesome.min.css"><script type="text/javascript" src="//cdn.bootcss.com/jquery/3.3.1/jquery.min.js"></script><link rel="Shortcut Icon" type="image/x-icon" href="/favicon.ico"><link rel="apple-touch-icon" href="/apple-touch-icon.png"><link rel="apple-touch-icon-precomposed" href="/apple-touch-icon.png"><!-- 顶部加载进度条 --><script type="text/javascript" src="//cdn.bootcss.com/pace/1.0.2/pace.min.js"></script><link rel="stylesheet" href="//cdn.bootcss.com/pace/1.0.2/themes/pink/pace-theme-flash.css"><link rel="alternate" type="application/atom+xml" href="/atom.xml"><meta name="generator" content="Hexo 4.2.1"></head><body><div class="body_container"><div id="header"><div class="site-name"><h1 class="hidden">分布式一致性协议 - 温故知新</h1><a id="logo" href="/.">并发笔记 - ofcoder.com</a><p class="description">一位后端开发的养肝历程，护发经验</p></div><div id="nav-menu"><a class="current" href="/."><i class="fa fa-home"> 首页</i></a><a href="/tags/"><i class="fa fa-tags"> 标签</i></a><a href="/usql/"><i class="fa fa-database"> usql</i></a><a href="/book/"><i class="fa fas fa-book"> book</i></a><a href="/atom.xml"><i class="fa fa-rss"> 订阅</i></a></div></div><div class="pure-g-g" id="layout"><div class="pure-u-1 pure-u-md-3-4"><div class="content_container"><div class="post"><h1 class="post-title">分布式一致性协议 - 温故知新</h1><div class="post-meta">Jan 26, 2021<span> | </span><span class="category"><a href="/categories/%E7%AE%97%E6%B3%95%E7%90%86%E8%AE%BA/">算法理论</a></span><span id="busuanzi_container_page_pv"> | <span id="busuanzi_value_page_pv"></span><span> 阅读</span></span><span class="post-time"><span class="post-meta-item-text"> | </span><span class="post-meta-item-icon"><i class="fa fa-keyboard-o"></i><span class="post-count"> 1.2k</span><span class="post-meta-item-text"> 字</span></span></span><span class="post-time"> | <span class="post-meta-item-icon"><i class="fa fa-hourglass-half"></i><span class="post-count"> 4</span><span class="post-meta-item-text"> 分钟</span></span></span></div><a class="disqus-comment-count" href="/2021/01/26/theory/%E5%88%86%E5%B8%83%E5%BC%8F%E4%B8%80%E8%87%B4%E6%80%A7%E5%8D%8F%E8%AE%AE%20-%20%E6%B8%A9%E6%95%85%E7%9F%A5%E6%96%B0/#vcomment"><span class="valine-comment-count" data-xid="/2021/01/26/theory/%E5%88%86%E5%B8%83%E5%BC%8F%E4%B8%80%E8%87%B4%E6%80%A7%E5%8D%8F%E8%AE%AE%20-%20%E6%B8%A9%E6%95%85%E7%9F%A5%E6%96%B0/"></span><span> 条评论</span></a><div class="post-content"><h3 id="Paxos"><a href="#Paxos" class="headerlink" title="Paxos"></a>Paxos</h3><h4 id="关注的点"><a href="#关注的点" class="headerlink" title="关注的点"></a>关注的点</h4><p>选取提案的规则：</p>
+<p>如果acceptor通过提案[M, ]的prepare请求，则向proposer保证以下承诺：</p>
+<ol>
+<li>acceptor承诺不再通过编号小于等于M的提案的prepare请求</li>
+<li>acceptor承诺不再通过编号小于M的提案的accept请求，也就是不再通过编号小于M的提案</li>
+<li>如果acceptor已经通过某一提案，则承诺在prepare请求的响应中返回已经通过的最大编号的提案内容。如果没有通过任何提案，则在prepare请求的响应中返回空值</li>
+</ol>
+<p>proposer在发起accept请求时，提案值由prepare响应决定。如果prepare响应有返回已通过的提案值，该accept请求则使用prepare响应中的值。如果prepare响应没有已通过的提案值，则有该proposer任意指定。</p>
+<h3 id="ZAB"><a href="#ZAB" class="headerlink" title="ZAB"></a>ZAB</h3><h4 id="消息广播模式"><a href="#消息广播模式" class="headerlink" title="消息广播模式"></a>消息广播模式</h4><p>消息广播模式是一个类似于二阶段提交（2PC）过程，<strong>与2PC不同的是，ZAB移除了第二阶段的中断逻辑。所有的Follower要么接收该Proposal，要么抛弃Leader服务器</strong>。这意味着Leader收到过半的Ack响应后就可以提交该事务了，而不需要等待所有的Follower都返回Ack。</p>
+<ol>
+<li>客户端发起事务请求，由Leader进行处理</li>
+<li>Leader将该请求转换为事务Proposal，同时为Proposal分配一个全局的ID，即zxid</li>
+<li>Leader为每个Follower维护一个FIFO队列，将上一步生成的Proposal放入队列中，进行广播</li>
+<li>Follower收到Proposal后，会首先将其以事务日志的方式写入本地磁盘中，写入成功后向Leader反馈一个响应消息</li>
+<li>Leader收到过半的Ack响应后，自己完成对该Proposal的提交后，向每个Follower的队列中，写入Commit消息进行广播</li>
+<li>Follower接收到Commit消息后，会将上一条事务提交</li>
+</ol>
+<p>zxid，用于提交提案的先后顺序。Leader提交提案是有顺序性的，按照zxid的大小，按顺序提交提案，如果前一个提案未提交，此时是不会提交后一个提案的。</p>
+<h4 id="崩溃恢复模式"><a href="#崩溃恢复模式" class="headerlink" title="崩溃恢复模式"></a>崩溃恢复模式</h4><p>约定：</p>
+<ol>
+<li>ZAB需要确保那些已经在Leader上提交的事务最终被所有服务器都提交。</li>
+<li>ZAB需要确保丢弃那些仅仅只在Leader上被提出的事务。</li>
+</ol>
+<h5 id="Leader选举（ELECTION）"><a href="#Leader选举（ELECTION）" class="headerlink" title="Leader选举（ELECTION）"></a>Leader选举（ELECTION）</h5><p>Leader选举PK的规则包含以下几个方面：</p>
+<ul>
+<li>任期编号（epoch），优先判断epoch，epoch大的节点当选Leader</li>
+<li>事务标示符（zxid），epoch相同，则比较zxid，zxid大的当选Leader</li>
+<li>节点ID，epoch、zxid都一致，则比较节点ID（在myid文件中指定的值）</li>
+</ul>
+<ol>
+<li>leader宕机，各个follower开始leader选举PK</li>
+<li>各个follower都投票给自己，封装一个选票信息，广播给其他的follower。选票信息包含：<ul>
+<li>自己所提议的节点ID</li>
+<li>自己所提议节点所处leader周期</li>
+<li>自己所提议节点拥有最大的zxid</li>
+<li>投票节点标示</li>
+</ul>
+</li>
+<li>其他节点收到选票信息后，根据上述规则开始和自己所提议的节点进行PK。如果选票有更新，当前节点则继续广播自己更新之后的选票信息</li>
+<li>最后各节点的选票池，都有过半的选票支持某一节点，该节点晋升为准leader，完成选举</li>
+<li>各节点分别修改自己的状态，准leader修改为LEADING，其余修改为FOLLOWING</li>
+</ol>
+<h5 id="发现（DISCOVERY）"><a href="#发现（DISCOVERY）" class="headerlink" title="发现（DISCOVERY）"></a>发现（DISCOVERY）</h5><p>该阶段用于确立Leader的领导关系，由Follower会主动联系准Leader。</p>
+<ol>
+<li>Follower将自己最后接受的事务Proposal的epoch值发送给准Leader，记作FOLLOWERINFO。</li>
+<li>准Leader收到来自过半（包含B节点自己）的FOLLOWERINFO消息后，选取最大的epoch值，对其进行加1，作为新的epoch值，并封装成LEADERINFO消息发给这些过半的Follower。</li>
+<li>Follower收到LEADERINFO消息后<ul>
+<li>更新自己的epoch</li>
+<li>将自己的运行状态变更为SYNCHRONIZATION</li>
+<li>返回ACKEPOCH给准Leader。</li>
+</ul>
+</li>
+<li>准Leader收到过半的ACKEPOCH消息后，也将自己的运行状态修改为SYNCHRONIZATION。至此完成发现阶段的工作，集群确立Leader的领导关系。</li>
+</ol>
+<h5 id="数据同步（SYNCHRONIZATION）"><a href="#数据同步（SYNCHRONIZATION）" class="headerlink" title="数据同步（SYNCHRONIZATION）"></a>数据同步（SYNCHRONIZATION）</h5><p>该阶段是实现崩溃恢复的关键步骤，由Leader发送数据给Follower处理。数据内容分三种：DIFF、TRUNC、SNAP。</p>
+<ol>
+<li>Leader根据Follower的最大zxid选择同步方式</li>
+<li>Leader将同步方式和需要同步的数据，一起封装为NEWLEADER消息发给Follower</li>
+<li>Follower在收到NEWLEADER消息后，进行修复不一致数据，并返回给Leader响应Ack消息</li>
+<li>Leader在收到过半Ack消息后，则完成数据同步阶段，将自己运行状态修改为BROADCARST（广播状态），并发送UPTODATE消息给过半的Follower，通知他们完成数据同步，修改运行状态修改为BROADCARST</li>
+</ol>
+<h3 id="Raft"><a href="#Raft" class="headerlink" title="Raft"></a>Raft</h3><h4 id="leader选举"><a href="#leader选举" class="headerlink" title="leader选举"></a>leader选举</h4><h4 id="日志同步"><a href="#日志同步" class="headerlink" title="日志同步"></a>日志同步</h4></div><iframe src="/donate/?AliPayQR=null&amp;WeChatQR=/img/WeChatQR.jpg&amp;GitHub=https://github.com/farawayliu&amp;BTCQR=null&amp;BTCKEY=null&amp;PayPal=null" style="overflow-x:hidden; overflow-y:hidden; border:0xp none #fff; min-height:240px; width:100%;" frameborder="0" scrolling="no"></iframe><div><ul class="post-copyright"><li class="post-copyright-author"><strong>本文作者：</strong>far</li><li class="post-copyright-link"><strong>本文链接：</strong><a href="/2021/01/26/theory/分布式一致性协议 - 温故知新/">https://www.ofcoder.com/2021/01/26/theory/%E5%88%86%E5%B8%83%E5%BC%8F%E4%B8%80%E8%87%B4%E6%80%A7%E5%8D%8F%E8%AE%AE%20-%20%E6%B8%A9%E6%95%85%E7%9F%A5%E6%96%B0/</a></li><li class="post-copyright-license"><strong>版权声明：</strong>Copyright © 2021 ofcoder. Author by far.</li></ul></div><br><script type="text/javascript" src="/js/share.js?v=0.0.0" async></script><a class="article-share-link" data-url="https://www.ofcoder.com/2021/01/26/theory/%E5%88%86%E5%B8%83%E5%BC%8F%E4%B8%80%E8%87%B4%E6%80%A7%E5%8D%8F%E8%AE%AE%20-%20%E6%B8%A9%E6%95%85%E7%9F%A5%E6%96%B0/" data-id="ckt6ou27c000tu8j1eh1v4ohl" data-qrcode="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAT4AAAE+CAAAAAAxUyPsAAAFPElEQVR42u3aQW7bQBAEQP3/0845CEh2zyyNACqdAkcWl0UD6u3Zzyd+/Vy88v+9+syrn9x/5r/vufqtzfuPvfDhw4cPH76A5orgflk5X/K/7QO4fwzJ+nMTfPjw4cOHb8M3W8TmK799SG30mQWv+oHhw4cPHz58v8J3dtO+rwySB5mUFPjw4cOHD9//w5ff8OyT9zHlHjoJNPjw4cOHD9/v8M0G4Um4md3qqU+bxaxXZh348OHDhw9fWax/z78Pv/Dhw4cPH77g67k9srapEvZhog0uefV/eRV8+PDhw4dv4lAX8e1gO//dWZCajQHykfzD48eHDx8+fPhivtmX/dlavB1XzwbbmxB2+djw4cOHDx++Q3z3P2+PjiWfMxuiv3c0LQpA+PDhw4cP34hvE1aKr/ny5vOr57PsFugh6ODDhw8fPnwlX77QvGLIi/JZuMlDUltwtKUJPnz48OHD1/LtsdryfTYIfzt85MP+AggfPnz48OG7vYt8uZuIkx8sm9XuZ2uLIuLgw4cPHz58AV9OkGzU2637T/lqcTfBK4pf+PDhw4cPX8mXVN6zLfqsFJht/meD8030wYcPHz58+GafOVtQUs2fGre35Xt7tO7YrAMfPnz48OEr57z513+y9IR+Fo82h+T20afOgPjw4cOHD1/5/dsGhT3WrL7Pq4c8ALV1CT58+PDhw5fw5cvaDLBnoWR/oK2NU3mhgA8fPnz48M348rCyHy23j+HUO9s/iGFZjw8fPnz48MVj8vYAWR4LhmX3Yg1t+BgOAPDhw4cPH77J7HiFOLuxHGsWpHKs9ueH/wbx4cOHD9+X8W1utd1470NMDp0P49trDfsVfPjw4cOHb3QEbbbBTsbSbQRpi/tkbfX94sOHDx8+fCO+WUFw30PkRfmsmGgr+FPrx4cPHz58+N7mm1Xk+c3f/7yYOZSrOnBdfPjw4cOHbz0mnxXo+XZ9U9y35cVsJQcqe3z48OHDh+/i/Xn9nY/VkyK+HdVvwkqOXg/78eHDhw8fvhFfG032h8k2m/y2ys+vWB8FwIcPHz58+BZ8m8Ne7U22ZXrOtA8oRZmCDx8+fPjwlXx5lGmDS0K5WWhS+s+umxwUeJh74MOHDx8+fMEJqzY0zMJHPgBob7itFfIQ9vC7+PDhw4cP34gv32zPxt5vb/v3dXzyh7I6N4cPHz58+L6er738DHcTHdoba+nbAf9fv4sPHz58+PCt+ZISfFOXzwqIs0X/qWoDHz58+PDha/k2A/IkvrS/lW/sZ0XArP4oehd8+PDhw4fvli8PCpuNej6QnnFsqod8ndGAHB8+fPjw4Sv58rH3bMSebOzbNbTBK2d6GPnjw4cPHz58a77Ndnrzv6sAUcaXtqooTvbhw4cPHz58Md+sjs8X2o6l27K+PQa3L0rw4cOHDx++li+/7VlNvx/Gb0bvSVTaByZ8+PDhw4evnfPOavH9Aa88cORFf/uYN4EJHz58+PDhm/HNjoW1W/o2juSv9rG1ce3ynfjw4cOHD9+aL6nCZ7FjP7qexab8vuqROT58+PDhw7c4bZVvwttY0Bbls8Nt7ei9HZB/Ni98+PDhw4cv/oJv39MucRMg8vH52eviw4cPHz58e772i7wNBHncaavzWT3RXv3yKvjw4cOHD99rfHlkyQv3U1X+ZpyQ/1lcTjzw4cOHDx++F/ja41+nBtuzGNRWHu3a8OHDhw8fvg1fXtbnA/V9TEkiyCw85dXAw9Xx4cOHDx++kq/90NkGPg8os0AzrNoXq8KHDx8+fPjKVf0BEhF9HIMP6EAAAAAASUVORK5CYII=">分享</a><div class="tags"><a href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E4%BA%8B%E5%8A%A1/">分布式事务</a><a href="/tags/paxos/">paxos</a><a href="/tags/Raft/">Raft</a><a href="/tags/ZAB/">ZAB</a></div><div class="post-nav"><a class="pre" href="/2021/07/29/machinelearn/PaddleOCR-PaddleServing%E9%83%A8%E7%BD%B2/">PaddleOCR - PaddleServing部署</a><a class="next" href="/2020/12/21/theory/%E5%88%86%E5%B8%83%E5%BC%8F%E4%B8%80%E8%87%B4%E6%80%A7%E5%8D%8F%E8%AE%AE%20-%20EPaxos/">分布式一致性协议 - EPaxos</a></div><div id="vcomment"></div><script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script><script src="//unpkg.com/valine@latest/dist/Valine.min.js"></script><script>var notify = 'true' == true ? true : false;
+var verify = 'false' == true ? true : false;
+var GUEST_INFO = ['nick','mail','link'];
+var guest_info = 'nick,mail,link'.split(',').filter(function(item){
+  return GUEST_INFO.indexOf(item) > -1
+});
+guest_info = guest_info.length == 0 ? GUEST_INFO :guest_info;
+window.valine = new Valine({
+  el:'#vcomment',
+  notify:notify,
+  verify:verify,
+  appId:'s8pJruGkXvi5Skd0e6EaMQ5X-gzGzoHsz',
+  appKey:'K3NjnXxqhPNwUw5pmqOzoO4i',
+  placeholder:'说出你的故事...',
+  avatar:'mm',
+  guest_info:guest_info,
+  pageSize:'10'
+})</script></div></div></div><div class="pure-u-1-4 hidden_mid_and_down"><div id="sidebar-toc"><div class="stoc-article" id="sidebar-stoc"><strong class="stoc-title"><i class="fa fa-blind"> Contents </i></strong><div class="toc-nav" id="stoc"><ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#Paxos"><span class="toc-number">1.</span> <span class="toc-text">Paxos</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#关注的点"><span class="toc-number">1.1.</span> <span class="toc-text">关注的点</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#ZAB"><span class="toc-number">2.</span> <span class="toc-text">ZAB</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#消息广播模式"><span class="toc-number">2.1.</span> <span class="toc-text">消息广播模式</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#崩溃恢复模式"><span class="toc-number">2.2.</span> <span class="toc-text">崩溃恢复模式</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#Leader选举（ELECTION）"><span class="toc-number">2.2.1.</span> <span class="toc-text">Leader选举（ELECTION）</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#发现（DISCOVERY）"><span class="toc-number">2.2.2.</span> <span class="toc-text">发现（DISCOVERY）</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#数据同步（SYNCHRONIZATION）"><span class="toc-number">2.2.3.</span> <span class="toc-text">数据同步（SYNCHRONIZATION）</span></a></li></ol></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Raft"><span class="toc-number">3.</span> <span class="toc-text">Raft</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#leader选举"><span class="toc-number">3.1.</span> <span class="toc-text">leader选举</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#日志同步"><span class="toc-number">3.2.</span> <span class="toc-text">日志同步</span></a></li></ol></li></ol></div></div></div></div><div class="pure-u-1 pure-u-md-3-4"><div id="footer">Copyright © 2021 <a href="/." rel="nofollow">并发笔记 - ofcoder.com | </a><a href="http://www.beian.miit.gov.cn" rel="nofollow" target="_blank">粤ICP备18053760号</a><div>本站访客 <span id="busuanzi_value_site_uv"></span>人次 | 总访问 <span id="busuanzi_value_site_pv"></span>次<img src="https://s04.flagcounter.com/count/MnzJ/bg_FFFFFF/txt_000000/border_726EE0/columns_2/maxflags_10/viewers_0/labels_1/pageviews_1/flags_0/percent_0/" style="display: none;"/></div></div></div></div><a class="show" id="rocket" href="#top"></a><script type="text/javascript" src="/js/totop.js?v=0.0.0" async></script><script type="text/javascript" src="//cdn.bootcss.com/fancybox/3.3.5/jquery.fancybox.min.js" async></script><script type="text/javascript" src="/js/fancybox.js?v=0.0.0" async></script><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/fancybox/3.3.5/jquery.fancybox.min.css"><script type="text/javascript" src="/js/search.js?v=0.0.0"></script><script>var search_path = 'search.xml';
+if (search_path.length == 0) {
+   search_path = 'search.xml';
+}
+var path = '/' + search_path;
+searchFunc(path, 'local-search-input', 'local-search-result');
+</script><script type="text/javascript" color="100,99,98" opacity="0.7" zIndex="-1" count="5" src="//cdn.bootcss.com/canvas-nest.js/1.0.1/canvas-nest.min.js"></script><script type="text/javascript" src="/js/codeblock-resizer.js?v=0.0.0"></script><script type="text/javascript" src="/js/smartresize.js?v=0.0.0"></script></div></body></html><script type="text/javascript" src="/js/toc.js?v=0.0.0" async></script><script src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" async></script>

@@ -1,0 +1,121 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta http-equiv="content-type" content="text/html; charset=utf-8"><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport"><meta content="yes" name="apple-mobile-web-app-capable"><meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"><meta content="telephone=no" name="format-detection"><meta name="description"><title>分布式一致性协议 - EPaxos | 并发笔记 - ofcoder.com</title><link rel="stylesheet" type="text/css" href="/css/style.css?v=0.0.0"><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/normalize/8.0.0/normalize.min.css"><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/pure/1.0.0/pure-min.css"><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/pure/1.0.0/grids-responsive-min.css"><link rel="stylesheet" href="//cdn.bootcss.com/font-awesome/4.7.0/css/font-awesome.min.css"><script type="text/javascript" src="//cdn.bootcss.com/jquery/3.3.1/jquery.min.js"></script><link rel="Shortcut Icon" type="image/x-icon" href="/favicon.ico"><link rel="apple-touch-icon" href="/apple-touch-icon.png"><link rel="apple-touch-icon-precomposed" href="/apple-touch-icon.png"><!-- 顶部加载进度条 --><script type="text/javascript" src="//cdn.bootcss.com/pace/1.0.2/pace.min.js"></script><link rel="stylesheet" href="//cdn.bootcss.com/pace/1.0.2/themes/pink/pace-theme-flash.css"><link rel="alternate" type="application/atom+xml" href="/atom.xml"><meta name="generator" content="Hexo 4.2.1"></head><body><div class="body_container"><div id="header"><div class="site-name"><h1 class="hidden">分布式一致性协议 - EPaxos</h1><a id="logo" href="/.">并发笔记 - ofcoder.com</a><p class="description">一位后端开发的养肝历程，护发经验</p></div><div id="nav-menu"><a class="current" href="/."><i class="fa fa-home"> 首页</i></a><a href="/tags/"><i class="fa fa-tags"> 标签</i></a><a href="/usql/"><i class="fa fa-database"> usql</i></a><a href="/book/"><i class="fa fas fa-book"> book</i></a><a href="/atom.xml"><i class="fa fa-rss"> 订阅</i></a></div></div><div class="pure-g-g" id="layout"><div class="pure-u-1 pure-u-md-3-4"><div class="content_container"><div class="post"><h1 class="post-title">分布式一致性协议 - EPaxos</h1><div class="post-meta">Dec 21, 2020<span> | </span><span class="category"><a href="/categories/%E7%AE%97%E6%B3%95%E7%90%86%E8%AE%BA/">算法理论</a></span><span id="busuanzi_container_page_pv"> | <span id="busuanzi_value_page_pv"></span><span> 阅读</span></span><span class="post-time"><span class="post-meta-item-text"> | </span><span class="post-meta-item-icon"><i class="fa fa-keyboard-o"></i><span class="post-count"> 3.1k</span><span class="post-meta-item-text"> 字</span></span></span><span class="post-time"> | <span class="post-meta-item-icon"><i class="fa fa-hourglass-half"></i><span class="post-count"> 12</span><span class="post-meta-item-text"> 分钟</span></span></span></div><a class="disqus-comment-count" href="/2020/12/21/theory/%E5%88%86%E5%B8%83%E5%BC%8F%E4%B8%80%E8%87%B4%E6%80%A7%E5%8D%8F%E8%AE%AE%20-%20EPaxos/#vcomment"><span class="valine-comment-count" data-xid="/2020/12/21/theory/%E5%88%86%E5%B8%83%E5%BC%8F%E4%B8%80%E8%87%B4%E6%80%A7%E5%8D%8F%E8%AE%AE%20-%20EPaxos/"></span><span> 条评论</span></a><div class="post-content"><h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p>epaxos作为paxos族中的一员，并不是单独存在的。所以我在文中开篇给出总结，罗列与basic-paxos、mutli-paxos之间的区别。带着目的学习，可能相对容易理解一些。</p>
+<p>回顾paxos的局限性，总结来说存在三个问题：</p>
+<ol>
+<li>basic-paxos，多个proposal提出时，容易形成活锁，影响整个算法的活性。</li>
+<li>mutli-paxos，通过只允许leader提出proposal，解决活锁问题，同时影响了吞吐量（性能局限于leader）、可扩展性（必须要leader发起提案）、可用性（leader宕机服务不可用）。</li>
+<li>paxos，各提案乱序提交，不能明确各提案之间的依赖关系。</li>
+<li>raft，通过实现对日志项进行编号，解决日志项之间依赖关系，但是又不支持乱序提交。</li>
+<li>paxos、raft，client跨地域请求leader，延迟增大。</li>
+</ol>
+<p>paxos存在的活锁、提案依赖关系的问题。从某个角度来说：mutli-paxos、raft采用“曲线救国”的方案对问题进行规避，通过引入leader和事先对日志项编号来避免，或多或少都降低了可用性和吞吐量。而epaxos则是直面冲突，并给出了自己的解决冲突的方案。</p>
+<h3 id="epaxos简介"><a href="#epaxos简介" class="headerlink" title="epaxos简介"></a>epaxos简介</h3><h4 id="epaxos特性"><a href="#epaxos特性" class="headerlink" title="epaxos特性"></a>epaxos特性</h4><p>在epaxos开篇介绍时，都会提到一个词“leaderless”，这确实是epaxos最值得骄傲的特性了。leaderless描述的是：没有leader，各节点对等，任何节点都可处理事务请求（写请求）。</p>
+<p>在“leaderless”特性下，epaxos的优势很明显：</p>
+<ol>
+<li>epaxos省略了leader选举的开销，同时没有leader瓶颈限制的问题。</li>
+<li>各节点都能处理事务请求（写请求），拥有更高的性能。</li>
+<li>在跨地域场景下，不需要额外的同步（学习）的阶段。</li>
+<li>客户端可选择最近的副本提供服务，具有更小的延迟。</li>
+</ol>
+<h4 id="epaxos的答卷"><a href="#epaxos的答卷" class="headerlink" title="epaxos的答卷"></a>epaxos的答卷</h4><p>面对paxos遗留的两个问题：活锁、提案依赖关系。epaxos又是如何解决的呢？</p>
+<p>epxos将协议拆分为两部分，一部分是commit协议，一部分是恢复阶段。前者是处理写请求，在各副本中选择（提交）command并确定command附加的属性值（当前command依赖其他command的顺序）。后者是集群中某个副本异常时，其他副本尝试恢复其数据。</p>
+<p>在commit协议中，又具体分为三个阶段：</p>
+<ul>
+<li>阶段一：Establish ordering constraints，建立约束关系</li>
+<li>阶段二：Paxos-Accept，达成一致</li>
+<li>阶段三：commit阶段，一般异步提交，通常被大家一笔带过</li>
+</ul>
+<p>commit协议中提出日志冲突的概念，阶段一也就是为了解决日志冲突而存在的。当多个command（写请求）对同一个值进行修改时，epaxos则认为发生冲突，需要先建立command之间的约束关系（command之间顺序）。</p>
+<p>对于是否冲突，commit协议给出不同达成一致的方案：fast-path, slow-path，二者分别对应没有冲突和有冲突的写请求。fast-path是指在没有冲突的写请求中，执行阶段一即可进行提交。slow-path是指在发生冲突的写请求中，需要执行两个阶段才能进行提交。</p>
+<p><img src="/images/theory/distributed/epaxos_1.png" alt="fast-path, slow-path"></p>
+<p>这张经典的图，还是得看，清晰的描述了fast-path, slow-path二者的不同之处。R1, R2,…R5是五个副本。C1, C2, C3, C4是command（即更新操作），R1和R5分别记为C1和C2的command-leader。为了清晰起见，我们省略了异步提交消息。</p>
+<p>左图中C1对obj_A修改，C2对obj_B修改，即两者不会发生冲突，因此两者都可以在fast-path上提交。</p>
+<ol>
+<li>R1收到update obj_A请求，将其发给多数派副本</li>
+<li>各副本在收该请求后，由于没有其他请求发生冲突，则返回成功R1</li>
+<li>异步提交</li>
+<li>R5同上</li>
+</ol>
+<p>右图中C3和C4同时对obj_A修改，相互干扰，因此一个C3将在slow-path上执行。</p>
+<ol>
+<li>R1和R5分别收到update obj_A请求，将其分别封装为C3和C4发送其他多数派副本</li>
+<li>R3为多数派相交的副本，C4比C3先到到达R3</li>
+<li>R3在处理C4时，没有请求与之冲突，则提供通过fast-path提交</li>
+<li>R3在收到C3时，由于C4和C3发生冲突，则返回C3→C4，表示C3获得了对C4的依赖</li>
+<li>R1收到R3的响应，则将依赖关系整理后，发起accept给多数派</li>
+<li>多数派没有继续发生冲突，则返回成功</li>
+<li>异步提交</li>
+</ol>
+<h4 id="quorum特殊要求"><a href="#quorum特殊要求" class="headerlink" title="quorum特殊要求"></a>quorum特殊要求</h4><p>需要注意，与paxos不同的是：paxos只需要多数派的副本正常响应后，便能正常提交。而对epaxos则略有差异：</p>
+<ul>
+<li>论文中指出在fast-path中，quorum数量为：$F+\lfloor(F+1)/2\rfloor$，其中F表示最大容忍的出错副本数量。即：command-leader需要收到$F+\lfloor(F+1)/2\rfloor$个副本（包含command-leader）的正常响应。在上面案例中，5副本的集群，最大容忍出错副本数量为2，则需要与2+[(2+1)/2] = 3.5，向下取整，即3个副本的正常响应。</li>
+<li>在slow-path中，quorum数量为：F+1，其中F表示最大容忍的出错副本数量。在上面案例中，5副本的集群，最大容忍出错副本数量为2，则需要收到2+1=3个副本的正常响应。</li>
+</ul>
+<p>为了解释这个特殊要求，我们看下面的案列，存在7个副本，大于等于4则为多数派，3个容错数量。R1收到修改x=1，R2收到修改x=2，二者分别发起epaxos。<br><img src="/images/theory/distributed/epaxos_2.png" alt="quorum特殊要求"><br>R4, R5在fast-path先收到x=1再收到x=2。R6, R7在fast-path先收到x=2再收到x=1。如果R3是先收到x=1，那么R1、R3、R4、R5构成多数派，确定提交顺序为先提交x=1再提交x=2。如果R3是先收到x=2，那么R2、R3、R6、R7构成多数派，确定提交顺序为先提交x=2再提交x=1。<br>那么如果此时R1, R2, R3宕机，那么剩下的副本将不知道是先提交x=1还是先提交x=2。所以在epxos中fast-path需要quorum数量为$F+\lfloor(F+1)/2\rfloor$，即：$3+\lfloor(3+1)/2\rfloor=5$。</p>
+<h3 id="commit协议"><a href="#commit协议" class="headerlink" title="commit协议"></a>commit协议</h3><p>正如上文提到，epaxos分为两部分，commit协议是指：</p>
+<p>当副本L收到来自客户端写请求时，将其封装为command γ（念：伽玛），并称为γ的command-leader，command-leader开始γ的提交过程。进入第一阶段，command-leader定义γ的初始属性deps, seq。</p>
+<ul>
+<li>deps：定义所有包含与γ冲突的command（不一定是已提交的command）的列表，也称为γ依赖于这些command。</li>
+<li>seq：用于execute算法过程中，打破循环依赖的序列号。取值为所有冲突command的最大的seq。</li>
+</ul>
+<p>command-leader将γ和γ的初始属性deps, seq<strong>至少</strong>发送给fast-path所要求的quorum数量（$F+\lfloor(F+1)/2\rfloor$），论文中称之为PreAccept-Message。各副本收到PreAccept-Message后，再<strong>根据自己本地的cmds-log更新γ的deps, seq值</strong>，并在自己的cmds-log中新增一条用来记录γ。将更新的γ返回给command-leader。</p>
+<p>如果command-leader收到足够多的响应，并且所有响应中的γ的属性都相同，即构成fast-path，便发送Commit-Message进行异步提交。<br>如果command-leader没有收到足够多的响应，或者所有响应中的γ的属性存在不一致，即构成slow-path，command-leader需要基于所有响应更新γ的值（合并所有的deps作为新的deps，取最大的seq作为新的seq）。进入第二阶段，将新的γ<strong>至少</strong>发送给$\lfloor N/2 \rfloor$个副本，这个过程类似经典的paxos，在本轮结束之后，如果收到大多数$\lfloor N/2 \rfloor$响应（包含command-leader）即可给客户端返回成功，并发送Commit-Message进行异步提交。</p>
+<h4 id="commit伪代码"><a href="#commit伪代码" class="headerlink" title="commit伪代码"></a>commit伪代码</h4><p><img src="/images/theory/distributed/epaxos_3.png" alt="commit伪代码"><br>论文中提供了伪代码，我们简单来看看，副本L收到来自客户端的请求γ，成为γ的commandleader</p>
+<ol>
+<li>自增L的instance id $i_L$ ← $i_L$ + 1。</li>
+<li>$seq_γ$表示γ的seq，取值为：副本L已记录的command中最大的seq的值+1，与{0}取并集，是在没有command情况下，取0+1作为seq的值。</li>
+<li>$deps_γ$表示γ的deps，取值为：副本L中与γ冲突的command集合。</li>
+<li>副本L将 $ (γ,seq_γ,deps_γ,pre-accepted) $ 记录到自己 $cmds_L$ ，pre-accepted表示γ的状态。</li>
+<li>发送$ PreAccept(γ,seq_γ,deps_γ,L.i_L) $给所有副本，$L.i_L$即第一步自增的instance id。</li>
+</ol>
+<p>副本R收到PreAccept请求后<br>6. 更新γ的seq值，取值为：副本R中已记录的command中最大的$seq+1$后与原来seq值，取最大。<br>7. 更新γ的deps值，取值为：取副本R中与γ冲突集合和原本deps的并集。<br>8. 副本R将$ (γ,seq_γ,deps_γ,pre-accepted) $记录到自己$cmds_R$，pre-accepted表示γ的状态。<br>9. 回复PreAcceptOK给副本L。</p>
+<p>副本L收到最少$\lfloor N/2 \rfloor$个PreAcceptOK的响应后。（这里的$\lfloor N/2 \rfloor$感觉有问题）<br>10. 如果所有副本响应中$seq_γ$, $deps_γ$都相同<br>11. 副本L执行commit阶段，跳转至21步<br>12. 如果存在不相同的 $seq_γ$, $deps_γ$<br>13. 更新$deps_γ$，取值为：整合所有响应中的deps<br>14. 更新$seq_γ$，取值为：所有响应中最大seq<br>15. 副本L执行paxos-accept阶段</p>
+<p>副本L开始paxos-accept阶段<br>16. 副本L将$(γ,seq_γ,deps_γ,accepted)$记录到自己$cmds_L$，accepted表示γ的状态。<br>17. 发送$Accept(γ,seq_γ,deps_γ,L.i)$给至少$\lfloor N/2 \rfloor$个副本</p>
+<p>副本R收到Accept请求后<br>18. 副本R将$(γ,seq_γ,deps_γ,accepted)$记录到自己$cmds_R$，accepted表示γ的状态。<br>19. 回复AcceptOK给副本L。</p>
+<p>副本L收到至少$\lfloor N/2 \rfloor$个AcceptOK响应后<br>20. 开始commit阶段，跳转至21步</p>
+<p>副本L开始commit阶段<br>21. 副本L将$(γ,seq_γ,deps_γ,commited)$记录到自己$cmds_L$，commited表示γ的状态。<br>22. 回复客户端已提交的响应<br>23. 发送$Commit(γ,seq_γ,deps_γ,L.i)$给其他的副本</p>
+<p>副本R收到commit请求<br>24. 副本R将$(γ,seq_γ,deps_γ,commited)$记录到自己$cmds_R$，commited表示γ的状态。</p>
+<h3 id="Explicit-Prepare"><a href="#Explicit-Prepare" class="headerlink" title="Explicit Prepare"></a>Explicit Prepare</h3><p>这一部分，论文描述的篇幅相对较少，因此也没有被大家重视，epaxos称之为Explicit Prepare，用于恢复异常副本所处理的command。这一部分在论文中也用于执行command。如要要在一个副本上执行command γ，需要经过以下几个步骤：</p>
+<ol>
+<li>等待副本提交，或者显示调用Explicit Prepare</li>
+<li>构建γ所依赖的command的依赖图，对所有依赖command都进行Explicit Prepare</li>
+<li>找到紧密连接的组件（command），对它们进行拓扑排序</li>
+<li>以逆拓扑顺序，对于每个强烈连接的组件（command），执行:<ol>
+<li>按顺序将强连接组件中的所有命令排序；</li>
+<li>以递增的编号顺序执行每个未执行的命令，将其标记为已执行</li>
+</ol>
+</li>
+</ol>
+<h4 id="Explicit-Prepare伪代码"><a href="#Explicit-Prepare伪代码" class="headerlink" title="Explicit Prepare伪代码"></a>Explicit Prepare伪代码</h4><p>在看伪代码之前，需要先描述一个概念。在经典的paxos中，每个proposal都有一个ballot，用于标示proposal唯一性，也用于表示proposal的先后顺序，epaxos当然也需要。为了保证ballot唯一性，所以ballot需要包含副本ID。同时新的周期要优先于旧的周期，所有还需要epoch值。最后ballot的格式为：epoch.b.R。</p>
+<p><img src="/images/theory/distributed/epaxos_4.png" alt="Explicit Prepare"></p>
+<p>副本Q怀疑L失效，尝试去恢复L.i这个instance。<br>25. 自增ballot，取值为epoch.(b+1).Q。（epoch.b.Q为副本Q最大的投票编号）<br>26. 发送$Prepare(epoch.(b+1).Q,L.i)$ 给所有副本，并等待$\lfloor N/2 \rfloor+1$个回复。<br>27. 假设所有回应中最大ballot的是$ballot_max$，定义R是所有回应中ballot等于$ballot_max$的响应的集合。<br>28,29. 如果R包含$(γ,seq_γ,deps_γ,commited)$，执行commit阶段<br>30,31. 如果R包含$(γ,seq_γ,deps_γ,acceprted)$，执行paxos-accept阶段<br>32,33. 如果R包含至少$\lfloor N/2 \rfloor$一致的回复$(γ,seq_γ,deps_γ,pre-accepted)$，且这些回复都不是来自L，执行paxos-accept阶段<br>34,35. 如果R至少包含一个$(γ,seq_γ,deps_γ,pre-accepted)$，执行第一阶段<br>36,37. 如果R没有关于这个instance id的任何信息，那么推出退出恢复阶段，副本Q对L.i实例尝试去commit no-op</p>
+<p>副本R收到来自副本Q的Prepare(epoch.b.Q,L.i)请求<br>38,39. R已接收来自L.i的最大的ballot为epoch.x.Y，如果epoch.b.Q大于epoch.x.Y，回复$PrepareOK(cmds_R,epoch.x.Y,L.i)$<br>40,41.否则回复NACK</p>
+<h3 id="存在的问题"><a href="#存在的问题" class="headerlink" title="存在的问题"></a>存在的问题</h3><ol>
+<li>论文中强调的Executing和Commiting是两个不同的action，但是几乎没有提交关于Execution Algorithm的内容。</li>
+</ol>
+</div><iframe src="/donate/?AliPayQR=null&amp;WeChatQR=/img/WeChatQR.jpg&amp;GitHub=https://github.com/farawayliu&amp;BTCQR=null&amp;BTCKEY=null&amp;PayPal=null" style="overflow-x:hidden; overflow-y:hidden; border:0xp none #fff; min-height:240px; width:100%;" frameborder="0" scrolling="no"></iframe><div><ul class="post-copyright"><li class="post-copyright-author"><strong>本文作者：</strong>far</li><li class="post-copyright-link"><strong>本文链接：</strong><a href="/2020/12/21/theory/分布式一致性协议 - EPaxos/">https://www.ofcoder.com/2020/12/21/theory/%E5%88%86%E5%B8%83%E5%BC%8F%E4%B8%80%E8%87%B4%E6%80%A7%E5%8D%8F%E8%AE%AE%20-%20EPaxos/</a></li><li class="post-copyright-license"><strong>版权声明：</strong>Copyright © 2021 ofcoder. Author by far.</li></ul></div><br><script type="text/javascript" src="/js/share.js?v=0.0.0" async></script><a class="article-share-link" data-url="https://www.ofcoder.com/2020/12/21/theory/%E5%88%86%E5%B8%83%E5%BC%8F%E4%B8%80%E8%87%B4%E6%80%A7%E5%8D%8F%E8%AE%AE%20-%20EPaxos/" data-id="ckt6ou278000qu8j17qr6fkvf" data-qrcode="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAASYAAAEmCAAAAADqr2IGAAAEhklEQVR42u3aS24jORAFQN//0h5gVtNwt+a9TBotlqNWhiVVkSEBzN/HR3x9/nv99++v19dXX98hv3N7z6/vSd554MKECRMmTG/JlCzr9WZeL+v1//NN7snaLwYTJkyYMD2Jqb1dsrhiEXHQMAsI9p/ChAkTJkw/gSk/yJOF5slzEprkKJgwYcKECVP+gE2Kmxdb82Di9ToxYcKECdNPZsoP6ZxvhjtLxdtVfWMtHBMmTJgwvRnTbHDnGX9/+3wTJkyYMGH6q0yf5fX6Dm37cBNwzJLzz9GFCRMmTJjuZUo2lqC0Ce0qvYwbpRvK4mGYMGHChOmNmTbHc5tM5u9/jd4GIrN25i+vYsKECROmy5nyAz7ZcDscM2subsZ08h8HJkyYMGG6nakd4pwBJe+cNVDb9LseS03iC0yYMGHC9PZMbQk1n3KZpbX5BvI2at7OrOEwYcKECdNVTKeSzE0bsh0D2n82T/sxYcKECdONTJtNtslwm5S26XFbpC7WgwkTJkyYLmSaFWQ3SWa+yX0QsNndb35HmDBhwoTpQqYZxGbR7X/agvJsYOhj/zBMmDBhwvTGTPuBmORon4HmWzq1EkyYMGHC9CSmNvnME8h84Ob1hpMDvk106yQZEyZMmDBdznTqaG9T2U2z8yzi/+waEyZMmDBdy3Tq+EyChk2C3W747I4wYcKECdO9TEmJ81Rx9jO+NqHD5imYMGHChOl5TMfGWQ61SPP75N3GzVMwYcKECdOzmdpDdDam07YwZ8HB7KvChAkTJky3M22SwCQNbrfXjuDM0uZ8zcN4BBMmTJgwvQ3TLCDIU8qWZnOEb4rRxb4wYcKECdNVTLOSaFtUjYqncRG2TW7zJ/5xnZgwYcKE6VqmZOn5ATxLktvgYFYm3pSVMWHChAnT85hmA6azxLgNNfKCb7KjZL+YMGHChOlepllzsU2MZyXdtrXZhiM5IiZMmDBhup2pvVFeFJ6lx3lj9UDRNvkpYMKECROma5naY3gfKJwKC/Ii8qn7YMKECROme5nyIuksHf2Oku7ZpmY0hIQJEyZMmC5kGsYOi0ChbXbug4ZZExQTJkyYMD2Dqd1AQpAnxu3ATT6+k/9/WCHAhAkTJkwXMs2SyaSYO0PJG5B5OzMPFzBhwoQJ0/OY2g/MUtO2/NqGCLMma/5+TJgwYcJ0F1NbwM2ZZkvcbP7UF4YJEyZMmJ7KlJdQT11JgTUPU9qBnvxHgAkTJkyYnsHUHvZ5mzAfrElaqrNUvC3s/vIqJkyYMGG6lmmW9Oatx01i3DZBhyM4ZYsUEyZMmDDdxbRPVjeF41mi+/poT9bZJtWYMGHChOlepvzKFzcLAvI09VTrtE2JMWHChAnTvUxtetkmxmebl9+RTiegmDBhwoTpdqY2CMgT3U2EUmxjVKou7owJEyZMmH4A0+aQzlHao7pNxetQABMmTJgw/TCmtjHZvprAzcrK+RdfzPVgwoQJE6ZLmPLttdtoS8Nn39+WmP94N0yYMGHCdC3TpgDaJrptIrqB2zdQD8w3YcKECROmv8n0DzGI/S7wu2JbAAAAAElFTkSuQmCC">分享</a><div class="tags"><a href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E4%BA%8B%E5%8A%A1/">分布式事务</a><a href="/tags/paxos/">paxos</a></div><div class="post-nav"><a class="pre" href="/2021/01/26/theory/%E5%88%86%E5%B8%83%E5%BC%8F%E4%B8%80%E8%87%B4%E6%80%A7%E5%8D%8F%E8%AE%AE%20-%20%E6%B8%A9%E6%95%85%E7%9F%A5%E6%96%B0/">分布式一致性协议 - 温故知新</a><a class="next" href="/2020/11/24/theory/%E5%88%86%E5%B8%83%E5%BC%8F%E4%B8%80%E8%87%B4%E6%80%A7%E5%8D%8F%E8%AE%AE%20-%20Gossip/">分布式一致性协议 - Gossip</a></div><div id="vcomment"></div><script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script><script src="//unpkg.com/valine@latest/dist/Valine.min.js"></script><script>var notify = 'true' == true ? true : false;
+var verify = 'false' == true ? true : false;
+var GUEST_INFO = ['nick','mail','link'];
+var guest_info = 'nick,mail,link'.split(',').filter(function(item){
+  return GUEST_INFO.indexOf(item) > -1
+});
+guest_info = guest_info.length == 0 ? GUEST_INFO :guest_info;
+window.valine = new Valine({
+  el:'#vcomment',
+  notify:notify,
+  verify:verify,
+  appId:'s8pJruGkXvi5Skd0e6EaMQ5X-gzGzoHsz',
+  appKey:'K3NjnXxqhPNwUw5pmqOzoO4i',
+  placeholder:'说出你的故事...',
+  avatar:'mm',
+  guest_info:guest_info,
+  pageSize:'10'
+})</script></div></div></div><div class="pure-u-1-4 hidden_mid_and_down"><div id="sidebar-toc"><div class="stoc-article" id="sidebar-stoc"><strong class="stoc-title"><i class="fa fa-blind"> Contents </i></strong><div class="toc-nav" id="stoc"><ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#总结"><span class="toc-number">1.</span> <span class="toc-text">总结</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#epaxos简介"><span class="toc-number">2.</span> <span class="toc-text">epaxos简介</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#epaxos特性"><span class="toc-number">2.1.</span> <span class="toc-text">epaxos特性</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#epaxos的答卷"><span class="toc-number">2.2.</span> <span class="toc-text">epaxos的答卷</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#quorum特殊要求"><span class="toc-number">2.3.</span> <span class="toc-text">quorum特殊要求</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#commit协议"><span class="toc-number">3.</span> <span class="toc-text">commit协议</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#commit伪代码"><span class="toc-number">3.1.</span> <span class="toc-text">commit伪代码</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Explicit-Prepare"><span class="toc-number">4.</span> <span class="toc-text">Explicit Prepare</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#Explicit-Prepare伪代码"><span class="toc-number">4.1.</span> <span class="toc-text">Explicit Prepare伪代码</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#存在的问题"><span class="toc-number">5.</span> <span class="toc-text">存在的问题</span></a></li></ol></div></div></div></div><div class="pure-u-1 pure-u-md-3-4"><div id="footer">Copyright © 2021 <a href="/." rel="nofollow">并发笔记 - ofcoder.com | </a><a href="http://www.beian.miit.gov.cn" rel="nofollow" target="_blank">粤ICP备18053760号</a><div>本站访客 <span id="busuanzi_value_site_uv"></span>人次 | 总访问 <span id="busuanzi_value_site_pv"></span>次<img src="https://s04.flagcounter.com/count/MnzJ/bg_FFFFFF/txt_000000/border_726EE0/columns_2/maxflags_10/viewers_0/labels_1/pageviews_1/flags_0/percent_0/" style="display: none;"/></div></div></div></div><a class="show" id="rocket" href="#top"></a><script type="text/javascript" src="/js/totop.js?v=0.0.0" async></script><script type="text/javascript" src="//cdn.bootcss.com/fancybox/3.3.5/jquery.fancybox.min.js" async></script><script type="text/javascript" src="/js/fancybox.js?v=0.0.0" async></script><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/fancybox/3.3.5/jquery.fancybox.min.css"><script type="text/javascript" src="/js/search.js?v=0.0.0"></script><script>var search_path = 'search.xml';
+if (search_path.length == 0) {
+   search_path = 'search.xml';
+}
+var path = '/' + search_path;
+searchFunc(path, 'local-search-input', 'local-search-result');
+</script><script type="text/javascript" color="100,99,98" opacity="0.7" zIndex="-1" count="5" src="//cdn.bootcss.com/canvas-nest.js/1.0.1/canvas-nest.min.js"></script><script type="text/x-mathjax-config">MathJax.Hub.Config({
+  tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}
+  });
+</script><script type="text/javascript" src="//cdn.bootcss.com/mathjax/2.7.4/MathJax.js?config=TeX-MML-AM_CHTML" async></script><script type="text/javascript" src="/js/codeblock-resizer.js?v=0.0.0"></script><script type="text/javascript" src="/js/smartresize.js?v=0.0.0"></script></div></body></html><script type="text/javascript" src="/js/toc.js?v=0.0.0" async></script><script src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" async></script>
