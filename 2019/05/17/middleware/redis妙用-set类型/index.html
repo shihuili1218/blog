@@ -1,0 +1,113 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta http-equiv="content-type" content="text/html; charset=utf-8"><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport"><meta content="yes" name="apple-mobile-web-app-capable"><meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"><meta content="telephone=no" name="format-detection"><meta name="description"><title>redis妙用-set类型 | 并发笔记 - ofcoder.com</title><link rel="stylesheet" type="text/css" href="/css/style.css?v=0.0.0"><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/normalize/8.0.0/normalize.min.css"><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/pure/1.0.0/pure-min.css"><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/pure/1.0.0/grids-responsive-min.css"><link rel="stylesheet" href="//cdn.bootcss.com/font-awesome/4.7.0/css/font-awesome.min.css"><script type="text/javascript" src="//cdn.bootcss.com/jquery/3.3.1/jquery.min.js"></script><link rel="Shortcut Icon" type="image/x-icon" href="/favicon.ico"><link rel="apple-touch-icon" href="/apple-touch-icon.png"><link rel="apple-touch-icon-precomposed" href="/apple-touch-icon.png"><!-- 顶部加载进度条 --><script type="text/javascript" src="//cdn.bootcss.com/pace/1.0.2/pace.min.js"></script><link rel="stylesheet" href="//cdn.bootcss.com/pace/1.0.2/themes/pink/pace-theme-flash.css"><link rel="alternate" type="application/atom+xml" href="/atom.xml"><meta name="generator" content="Hexo 4.2.1"></head><body><div class="body_container"><div id="header"><div class="site-name"><h1 class="hidden">redis妙用-set类型</h1><a id="logo" href="/.">并发笔记 - ofcoder.com</a><p class="description">一位后端开发的养肝历程，护发经验</p></div><div id="nav-menu"><a class="current" href="/."><i class="fa fa-home"> 首页</i></a><a href="/tags/"><i class="fa fa-tags"> 标签</i></a><a href="/usql/"><i class="fa fa-database"> usql</i></a><a href="/book/"><i class="fa fas fa-book"> book</i></a><a href="/atom.xml"><i class="fa fa-rss"> 订阅</i></a></div></div><div class="pure-g-g" id="layout"><div class="pure-u-1 pure-u-md-3-4"><div class="content_container"><div class="post"><h1 class="post-title">redis妙用-set类型</h1><div class="post-meta">May 17, 2019<span> | </span><span class="category"><a href="/categories/%E4%B8%AD%E9%97%B4%E4%BB%B6/">中间件</a></span><span id="busuanzi_container_page_pv"> | <span id="busuanzi_value_page_pv"></span><span> 阅读</span></span><span class="post-time"><span class="post-meta-item-text"> | </span><span class="post-meta-item-icon"><i class="fa fa-keyboard-o"></i><span class="post-count"> 764</span><span class="post-meta-item-text"> 字</span></span></span><span class="post-time"> | <span class="post-meta-item-icon"><i class="fa fa-hourglass-half"></i><span class="post-count"> 3</span><span class="post-meta-item-text"> 分钟</span></span></span></div><a class="disqus-comment-count" href="/2019/05/17/middleware/redis%E5%A6%99%E7%94%A8-set%E7%B1%BB%E5%9E%8B/#vcomment"><span class="valine-comment-count" data-xid="/2019/05/17/middleware/redis%E5%A6%99%E7%94%A8-set%E7%B1%BB%E5%9E%8B/"></span><span> 条评论</span></a><div class="post-content"><p>set类型，在redis中是非常强大的存在，但是我们一般不会想到用它。所以我最想分享的也就是set类型，想让大家对set引起重视。因为在互联网中其实也有很多set的身影，只是我们不难么容易联想到而已。比如</p>
+<ul>
+<li>抽奖活动</li>
+<li>点赞、签到</li>
+<li>好友关注模型</li>
+<li>电商商品筛选</li>
+<li>大数据量对账</li>
+</ul>
+<h3 id="api"><a href="#api" class="headerlink" title="api"></a>api</h3><h4 id="基本操作"><a href="#基本操作" class="headerlink" title="基本操作"></a>基本操作</h4><div class="table-container">
+<table>
+<thead>
+<tr>
+<th>命令</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>SADD key member[member…]</td>
+<td>存储元素</td>
+</tr>
+<tr>
+<td>SREM key member[member…]</td>
+<td>从集合中删除元素</td>
+</tr>
+<tr>
+<td>SMEMBERS key</td>
+<td>获取集合中所有元素</td>
+</tr>
+<tr>
+<td>SCARD key</td>
+<td>获取集合的元素个数</td>
+</tr>
+<tr>
+<td>SISMEMBER key member</td>
+<td>判断{member}是否存在集合中</td>
+</tr>
+<tr>
+<td>SRANDMEMBER key [count]</td>
+<td>从集合中随机选出{count}个元素，不删除</td>
+</tr>
+<tr>
+<td>SPOP key [count]</td>
+<td>从集合中随机选出{count}个元素，删除</td>
+</tr>
+</tbody>
+</table>
+</div>
+<h4 id="集合运算操作"><a href="#集合运算操作" class="headerlink" title="集合运算操作"></a>集合运算操作</h4><div class="table-container">
+<table>
+<thead>
+<tr>
+<th>命令</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>SINTER key [key…]</td>
+<td>交集运算</td>
+</tr>
+<tr>
+<td>SUNION key [key…]</td>
+<td>并集运算</td>
+</tr>
+<tr>
+<td>SDIFF key [key…]</td>
+<td>差集运算</td>
+</tr>
+<tr>
+<td>SINTERSTORE {resultKey} key [key…]</td>
+<td>交集运算，保存到resultKey中</td>
+</tr>
+<tr>
+<td>SUNIONSTORE {resultKey} key [key…]</td>
+<td>并集运算，保存到resultKey中</td>
+</tr>
+<tr>
+<td>SDIFFSTORE {resultKey} key [key…]</td>
+<td>差集运算，保存到resultKey中</td>
+</tr>
+</tbody>
+</table>
+</div>
+<h3 id="应用场景"><a href="#应用场景" class="headerlink" title="应用场景"></a>应用场景</h3><h4 id="抽奖活动"><a href="#抽奖活动" class="headerlink" title="抽奖活动"></a>抽奖活动</h4><figure class="highlight gauss"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta"># 刷礼物或转发，将用户加入到抽奖集合中</span></span><br><span class="line">SADD <span class="built_in">key</span> &#123;userId&#125; </span><br><span class="line"></span><br><span class="line"><span class="meta"># 抽取中奖用户</span></span><br><span class="line">SPOP/SRANDMEMBER <span class="built_in">key</span> [count]</span><br></pre></td></tr></table></figure>
+<h4 id="点赞、签到"><a href="#点赞、签到" class="headerlink" title="点赞、签到"></a>点赞、签到</h4><p><img src="/images/middleware/redis_set_1.png" alt="set实现点赞"><br><figure class="highlight axapta"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">SADD <span class="keyword">like</span>::&#123;articleId&#125; &#123;userId&#125;  <span class="meta"># 点赞</span></span><br><span class="line">SREM <span class="keyword">like</span>::&#123;articleId&#125; &#123;userId&#125;  <span class="meta"># 取消赞</span></span><br><span class="line">SISMEMBER <span class="keyword">like</span>::&#123;articleId&#125; &#123;userId&#125;  <span class="meta"># 检查用户是否点过赞</span></span><br><span class="line">SMEMBERS <span class="keyword">like</span>::&#123;articleId&#125;  <span class="meta"># 获取所有点赞用户列表</span></span><br><span class="line">SCARD <span class="keyword">like</span>::&#123;articleId&#125;  <span class="meta"># 获取点赞用户数</span></span><br></pre></td></tr></table></figure></p>
+<h4 id="好友关注模型"><a href="#好友关注模型" class="headerlink" title="好友关注模型"></a>好友关注模型</h4><p><img src="/images/middleware/redis_set_2.png" alt="set关注列表"><br><figure class="highlight xl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="title">far</span>关注的人：farsub -&gt;</span> &#123;<span class="string">"jayden"</span>, <span class="string">"james"</span>, <span class="string">"mic"</span>&#125;</span><br><span class="line"><span class="function"><span class="title">ally</span>关注的人：allysub -&gt;</span> &#123;<span class="string">"seven"</span>, <span class="string">"jack"</span>, <span class="string">"mic"</span>, <span class="string">"james"</span>&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="title">far</span>和ally共同关注的人：SINTER farsub allysub -&gt;</span> &#123;<span class="string">"mic"</span>, <span class="string">"james"</span>&#125;</span><br><span class="line">far关注的人是否关注了ally：SISMEMBER allysub jayden、 SISMEMBER allysub james</span><br><span class="line"><span class="function"><span class="title">far</span>可能认识的人：SDIFF allysub farsub -&gt;</span> &#123;<span class="string">"seven"</span>, <span class="string">"jack"</span>&#125;</span><br></pre></td></tr></table></figure></p>
+<h4 id="电商商品筛选"><a href="#电商商品筛选" class="headerlink" title="电商商品筛选"></a>电商商品筛选</h4><p><img src="/images/middleware/redis_set_3.png" alt="set电商商品筛选"><br>在每个商品入库的时候，给没有商品建立它的静态标签，如品牌、尺寸、处理器、内存…。如下<br><figure class="highlight armasm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SADD </span><span class="keyword">brand::lenovo </span>拯救者y7000 Thinkpad-T480</span><br><span class="line"><span class="keyword">SADD </span>screenSize::<span class="number">15</span>.<span class="number">6</span> 拯救者y7000 雷神<span class="number">911</span>-M5TA</span><br><span class="line"><span class="keyword">SADD </span>cpu::i7 拯救者y7000 雷神<span class="number">911</span>-M5TA</span><br><span class="line"><span class="keyword">SADD </span>memory::<span class="number">8</span>G 拯救者y7000 Thinkpad-T480</span><br></pre></td></tr></table></figure><br>那么你在筛选查询的时候，将各个标签放在一起求交集就得到对应的结果，如下<br><figure class="highlight elixir"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">SINTER brand::lenovo screenSize::<span class="number">15.6</span> cpu::i7 memory::<span class="number">8</span>G  -&gt; 拯救者y7000</span><br></pre></td></tr></table></figure></p>
+<h4 id="订单对账的功能"><a href="#订单对账的功能" class="headerlink" title="订单对账的功能"></a>订单对账的功能</h4><p>场景是这样的，与第三方公司交互时，不能实时对账。第三方公司只能在第二天将前一天的所有订单都传过来，然后要跟我们自己这边的订单对账。<br>当你的数据量比较庞大时，一天几十万单的时候，你循环一个个遍历我们的订单是否存在对方的订单中，这样的操作肯定是不合适的。<br>使用redis解决方案。将我们要关注的字段值，比如订单号、金额组成一个值存入redis的set类型中，形成两个set集合，然后取差值。如下<br><img src="/images/middleware/redis_set_4.png" alt="set订单对账的功能"></p>
+</div><iframe src="/donate/?AliPayQR=null&amp;WeChatQR=/img/WeChatQR.jpg&amp;GitHub=https://github.com/farawayliu&amp;BTCQR=null&amp;BTCKEY=null&amp;PayPal=null" style="overflow-x:hidden; overflow-y:hidden; border:0xp none #fff; min-height:240px; width:100%;" frameborder="0" scrolling="no"></iframe><div><ul class="post-copyright"><li class="post-copyright-author"><strong>本文作者：</strong>far</li><li class="post-copyright-link"><strong>本文链接：</strong><a href="/2019/05/17/middleware/redis妙用-set类型/">https://www.ofcoder.com/2019/05/17/middleware/redis%E5%A6%99%E7%94%A8-set%E7%B1%BB%E5%9E%8B/</a></li><li class="post-copyright-license"><strong>版权声明：</strong>Copyright © 2021 ofcoder. Author by far.</li></ul></div><br><script type="text/javascript" src="/js/share.js?v=0.0.0" async></script><a class="article-share-link" data-url="https://www.ofcoder.com/2019/05/17/middleware/redis%E5%A6%99%E7%94%A8-set%E7%B1%BB%E5%9E%8B/" data-id="ckxm1vic0001jf8j1cwkx25u2" data-qrcode="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAPYAAAD2CAAAAADAeSUUAAADHUlEQVR42u3azXKCUAwG0L7/S9ttZ1rxS4IdiIeVo8jlXBYhP19f8fH4cSRnPvvm2effqxz/Wr2r5oGNjY19E/bj8DheILn1hH38r+NNSa7zx9ZgY2Njr2Mfh6IEnCzcvMUiOwmr2NjY2NjV1KJ6nV7Sgo2NjY09KQZVv+kVofLzsbGxsT+NnReDet/kqcgkvL2lloaNjY19eXbeFb3+57f0t7GxsbEvzH4Uj7PaA72QkzeAX1wTGxsbexE7DwD5a32vZZtT8wfwYsuwsbGx17Hzl/6clJeT8jJTtZ3w9L/Y2NjYK9iTl/7kVnpN3Dzs9VIUbGxs7N3s5M/VYZo5qfcwomEdbGxs7BXs6NTWMpN05X1pEjY2NvY+dv6KP2nQ5rEjfxi9tbCxsbE3sasFoHkpP094eiWkwoZiY2Njr2Dnwy7J5fJbPDfZqA4GYWNjY29iT8DlyxWvkP9aDbfY2NjY+9jVBCOH5cM6Z43+FJoZ2NjY2KvZk5DWq8bnAz29jXtaS8PGxsa+OfsRH9XBmvnxjhCIjY2NvZV9bim/OtaTlPvz60SNBGxsbOxF7F6qkKcuZw3u5CWncicEGxsb++bseX84accm51cTj+p2v0hFsLGxsW/L7g3W9JAJr9eE6I31YGNjY29iTxoDvVGb6nPIC0bNchI2Njb2zdnVAJbfUD6OM1+xPKmEjY2NvYI9uUS+l3nImTeYo63HxsbG/hh2vuSkNN8bxEnSntHwJTY2NvZN2JO27qSE1At+SQO4UOTCxsbGXsqedInz/+bl/gn+RfMYGxsbex27+rmXACR9iV44rDaMsbGxsT+H3RumqTaM8wLTvPGMjY2NvZv9P+/qk03sHdjY2Nhb2eVhl2LISYpNo+Gb3kgQNjY29iJ2LwDkW1Mt6/duNGnx5iUtbGxs7Duy8yDRW7IXrqrblzeVsbGxsbeyq6TJOdXEJklvqqEOGxsbG7tXeDo3fxo1LbCxsbGx44JRc6TmpAYwNjY29uewewWgZCPOTWmqv55QS8PGxsa+PLtcjiki81J+b/XkMTQHd7CxsbGvzv4G/iH4dG3fdvIAAAAASUVORK5CYII=">分享</a><div class="tags"><a href="/tags/redis/">redis</a><a href="/tags/%E4%B8%AD%E9%97%B4%E4%BB%B6/">中间件</a></div><div class="post-nav"><a class="pre" href="/2019/05/29/middleware/redis%E5%A6%99%E7%94%A8-zset%E7%B1%BB%E5%9E%8B/">redis妙用-zset类型</a><a class="next" href="/2019/05/15/middleware/redis%E5%A6%99%E7%94%A8-list%E7%B1%BB%E5%9E%8B/">redis妙用-list类型</a></div><div id="vcomment"></div><script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script><script src="//unpkg.com/valine@latest/dist/Valine.min.js"></script><script>var notify = 'true' == true ? true : false;
+var verify = 'false' == true ? true : false;
+var GUEST_INFO = ['nick','mail','link'];
+var guest_info = 'nick,mail,link'.split(',').filter(function(item){
+  return GUEST_INFO.indexOf(item) > -1
+});
+guest_info = guest_info.length == 0 ? GUEST_INFO :guest_info;
+window.valine = new Valine({
+  el:'#vcomment',
+  notify:notify,
+  verify:verify,
+  appId:'s8pJruGkXvi5Skd0e6EaMQ5X-gzGzoHsz',
+  appKey:'K3NjnXxqhPNwUw5pmqOzoO4i',
+  placeholder:'说出你的故事...',
+  avatar:'mm',
+  guest_info:guest_info,
+  pageSize:'10'
+})</script></div></div></div><div class="pure-u-1-4 hidden_mid_and_down"><div id="sidebar-toc"><div class="stoc-article" id="sidebar-stoc"><strong class="stoc-title"><i class="fa fa-blind"> Contents </i></strong><div class="toc-nav" id="stoc"><ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#api"><span class="toc-number">1.</span> <span class="toc-text">api</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#基本操作"><span class="toc-number">1.1.</span> <span class="toc-text">基本操作</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#集合运算操作"><span class="toc-number">1.2.</span> <span class="toc-text">集合运算操作</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#应用场景"><span class="toc-number">2.</span> <span class="toc-text">应用场景</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#抽奖活动"><span class="toc-number">2.1.</span> <span class="toc-text">抽奖活动</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#点赞、签到"><span class="toc-number">2.2.</span> <span class="toc-text">点赞、签到</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#好友关注模型"><span class="toc-number">2.3.</span> <span class="toc-text">好友关注模型</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#电商商品筛选"><span class="toc-number">2.4.</span> <span class="toc-text">电商商品筛选</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#订单对账的功能"><span class="toc-number">2.5.</span> <span class="toc-text">订单对账的功能</span></a></li></ol></li></ol></div></div></div></div><div class="pure-u-1 pure-u-md-3-4"><div id="footer">Copyright © 2021 <a href="/." rel="nofollow">并发笔记 - ofcoder.com | </a><a href="https://beian.miit.gov.cn/" rel="nofollow" target="_blank">粤ICP备18053760号</a><div>本站访客 <span id="busuanzi_value_site_uv"></span>人次 | 总访问 <span id="busuanzi_value_site_pv"></span>次<img src="https://s04.flagcounter.com/count/MnzJ/bg_FFFFFF/txt_000000/border_726EE0/columns_2/maxflags_10/viewers_0/labels_1/pageviews_1/flags_0/percent_0/" style="display: none;"/></div></div></div></div><a class="show" id="rocket" href="#top"></a><script type="text/javascript" src="/js/totop.js?v=0.0.0" async></script><script type="text/javascript" src="//cdn.bootcss.com/fancybox/3.3.5/jquery.fancybox.min.js" async></script><script type="text/javascript" src="/js/fancybox.js?v=0.0.0" async></script><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/fancybox/3.3.5/jquery.fancybox.min.css"><script type="text/javascript" src="/js/search.js?v=0.0.0"></script><script>var search_path = 'search.xml';
+if (search_path.length == 0) {
+   search_path = 'search.xml';
+}
+var path = '/' + search_path;
+searchFunc(path, 'local-search-input', 'local-search-result');
+</script><script type="text/javascript" color="100,99,98" opacity="0.7" zIndex="-1" count="5" src="//cdn.bootcss.com/canvas-nest.js/1.0.1/canvas-nest.min.js"></script><script type="text/javascript" src="/js/codeblock-resizer.js?v=0.0.0"></script><script type="text/javascript" src="/js/smartresize.js?v=0.0.0"></script></div></body></html><script type="text/javascript" src="/js/toc.js?v=0.0.0" async></script><script src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" async></script>

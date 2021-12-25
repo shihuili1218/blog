@@ -1,0 +1,70 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta http-equiv="content-type" content="text/html; charset=utf-8"><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport"><meta content="yes" name="apple-mobile-web-app-capable"><meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"><meta content="telephone=no" name="format-detection"><meta name="description"><title>spring源码解析 | 并发笔记 - ofcoder.com</title><link rel="stylesheet" type="text/css" href="/css/style.css?v=0.0.0"><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/normalize/8.0.0/normalize.min.css"><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/pure/1.0.0/pure-min.css"><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/pure/1.0.0/grids-responsive-min.css"><link rel="stylesheet" href="//cdn.bootcss.com/font-awesome/4.7.0/css/font-awesome.min.css"><script type="text/javascript" src="//cdn.bootcss.com/jquery/3.3.1/jquery.min.js"></script><link rel="Shortcut Icon" type="image/x-icon" href="/favicon.ico"><link rel="apple-touch-icon" href="/apple-touch-icon.png"><link rel="apple-touch-icon-precomposed" href="/apple-touch-icon.png"><!-- 顶部加载进度条 --><script type="text/javascript" src="//cdn.bootcss.com/pace/1.0.2/pace.min.js"></script><link rel="stylesheet" href="//cdn.bootcss.com/pace/1.0.2/themes/pink/pace-theme-flash.css"><link rel="alternate" type="application/atom+xml" href="/atom.xml"><meta name="generator" content="Hexo 4.2.1"></head><body><div class="body_container"><div id="header"><div class="site-name"><h1 class="hidden">spring源码解析</h1><a id="logo" href="/.">并发笔记 - ofcoder.com</a><p class="description">一位后端开发的养肝历程，护发经验</p></div><div id="nav-menu"><a class="current" href="/."><i class="fa fa-home"> 首页</i></a><a href="/tags/"><i class="fa fa-tags"> 标签</i></a><a href="/usql/"><i class="fa fa-database"> usql</i></a><a href="/book/"><i class="fa fas fa-book"> book</i></a><a href="/atom.xml"><i class="fa fa-rss"> 订阅</i></a></div></div><div class="pure-g-g" id="layout"><div class="pure-u-1 pure-u-md-3-4"><div class="content_container"><div class="post"><h1 class="post-title">spring源码解析</h1><div class="post-meta">Nov 9, 2019<span> | </span><span class="category"><a href="/categories/%E6%BA%90%E7%A0%81%E7%8B%82%E6%83%B3/">源码狂想</a></span><span id="busuanzi_container_page_pv"> | <span id="busuanzi_value_page_pv"></span><span> 阅读</span></span><span class="post-time"><span class="post-meta-item-text"> | </span><span class="post-meta-item-icon"><i class="fa fa-keyboard-o"></i><span class="post-count"> 378</span><span class="post-meta-item-text"> 字</span></span></span><span class="post-time"> | <span class="post-meta-item-icon"><i class="fa fa-hourglass-half"></i><span class="post-count"> 1</span><span class="post-meta-item-text"> 分钟</span></span></span></div><a class="disqus-comment-count" href="/2019/11/09/java/spring%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90/#vcomment"><span class="valine-comment-count" data-xid="/2019/11/09/java/spring%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90/"></span><span> 条评论</span></a><div class="post-content"><p>本系列博客为看书留下的笔记，记录整个spring运行过程。主要分为四个模块，如下</p>
+<ul>
+<li>spring 启动(ClassPathXmlApplicationContext)<ul>
+<li>分割传入location路径</li>
+<li>refresh()模板启动<ul>
+<li>IOC 启动(obtainFreshBeanFactory())<ul>
+<li>准备容器<ul>
+<li>销毁之前容器</li>
+<li>创建新容器</li>
+</ul>
+</li>
+<li>加载BeanDefinition<ul>
+<li>初始化XmlBeanDefinitionReader</li>
+<li>解析资源文件路径(分别处理location为文件路径、URL路径、等情况，封装成Resource对象)</li>
+<li>加载文件内容(根据Resource对象，加载xml的Document对象)</li>
+<li>解析xml，封装成BeanDefinition<ul>
+<li>import标签(获得location，继续上述步骤)</li>
+<li>alias标签(向Map中保存alias-&gt;name的关系)</li>
+<li>bean标签<ul>
+<li>处理id、name属性(非空、重复等处理)</li>
+<li>处理其他属性，保存至BeanDefinition中</li>
+<li>处理子标签（propertity、list等）</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>向IOC中注册BeanDefinition<ul>
+<li>向IOC中的Map保存beanName-&gt;beanDefinition的映射关系</li>
+<li>向IOC中的Map保存alias-&gt;beanName的映射关系</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h3 id="IOC总结"><a href="#IOC总结" class="headerlink" title="IOC总结"></a>IOC总结</h3><p>IOC初始化入口从refresh()方法进入，obtainFreshBeanFactory()完后容器创建和bean定义的加载，其中加载bean定义由ResourceLoader来完成资源文件的定位，DefaultResourceLoader给出它的实现，可以通过类路径、文件路径、URL等方式来定位资源，最后封装成Resource对象，交由IOC处理。BeanDefinitionReader根据Resource来完成bean定义解析和bean定义注册，其中bean定义解析由BeanDefinitionParseDelegate完成并封装成BeanDefinition。然后BeanDefinitionReader完成第二步骤：注册Bean定义，注册的过程就是将其保存在IOC中的HashMap中，后续对bean的操作全都依赖该Map。</p>
+<ol>
+<li>DI</li>
+<li>AOP</li>
+<li>springMVC</li>
+</ol>
+</div><iframe src="/donate/?AliPayQR=null&amp;WeChatQR=/img/WeChatQR.jpg&amp;GitHub=https://github.com/farawayliu&amp;BTCQR=null&amp;BTCKEY=null&amp;PayPal=null" style="overflow-x:hidden; overflow-y:hidden; border:0xp none #fff; min-height:240px; width:100%;" frameborder="0" scrolling="no"></iframe><div><ul class="post-copyright"><li class="post-copyright-author"><strong>本文作者：</strong>far</li><li class="post-copyright-link"><strong>本文链接：</strong><a href="/2019/11/09/java/spring源码解析/">https://www.ofcoder.com/2019/11/09/java/spring%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90/</a></li><li class="post-copyright-license"><strong>版权声明：</strong>Copyright © 2021 ofcoder. Author by far.</li></ul></div><br><script type="text/javascript" src="/js/share.js?v=0.0.0" async></script><a class="article-share-link" data-url="https://www.ofcoder.com/2019/11/09/java/spring%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90/" data-id="ckxm1vibm000rf8j18n86970g" data-qrcode="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAN4AAADeCAAAAAB3DOFrAAACtElEQVR42u3aQW7jMBAEQP//01lgTwE2kruHpLwISicjligWD+akh69XfH39vf79fPXt96sd7Wqcqzs3XHh4eHijqd8Plwx9/9TVFPP77xfxcgnw8PDwjvGSn++rybXTysdPxnxjwcPDw/sob/Zzny8ZHh4e3u/j5UV2Aj4XYeDh4eE9w0vCiDY4SArxvJg+nrXg4eHhxbyVBtinPj/U38PDw8Mru+orZe7egONrdOHh4eGd4OXBQd6mauOJ5Km2xK9zETw8PLxlXn44IA8C8i0kHz9qv+Hh4eFt5SVNqdkStEuzK7r94T8GPDw8vGO8WTSwqwTPkUWZjoeHh3eAN2vnt0Xz7HhBnicsNcPw8PDwNh0IuL8nj33zp2bbwJtv8fDw8I7xkhK5jRXy0GF9I3kT4+Lh4eFt5a0fI2ibWLMjAvk/A0WRjYeHhzfirQQEebNqNkIeIhduPDw8vGXe+itXytw8gNiMxMPDw1vmJdNtt5a2ZJ813qL78fDw8A7w2hK23RJaxsrIUYyLh4eHt8zLDwTkW0UeAa83t94sGR4eHt4x3qxsXWmPzXaw/LACHh4e3jO8/JhUu6nk8cEVLy/u8fDw8M7xVg6DtkepZq2vBHm5rHh4eHgHeG2sMItid4W592A8PDy8Z3iz6DYpc9tINz/mVQQceHh4eI/z8pAi31TW31W8HQ8PD+8Arx1uVuC2P+ubx8fDw8PbylsPUtvAIp96uw3g4eHhPc9Lrhzfbi35pJNt5pWsNx4eHt6Il195+3/loMAsFMbDw8N7npeXwjP8rExvF7TIWvDw8PA28domVluIz6ab72mXT+Hh4eF9lNeGBScA+dEEPDw8vP+TN2v8z944C0fw8PDwzvFWWv75hjGLP9pFwcPDwzvNmzXA2hg3+Us7/sH+Hh4eHt7PI/wBd6rFOpHHAvcAAAAASUVORK5CYII=">分享</a><div class="tags"><a href="/tags/%E5%B9%B2%E8%B4%A7/">干货</a><a href="/tags/%E6%BA%90%E7%A0%81/">源码</a><a href="/tags/spring/">spring</a></div><div class="post-nav"><a class="pre" href="/2019/11/09/java/spring%E6%BA%90%E7%A0%81%E4%B9%8BIOC%20-%20%E6%BA%90%E7%A0%81%E9%A2%84%E8%AF%BB/">spring源码之IOC - 源码预读</a><a class="next" href="/2019/10/29/java/dubbo%E7%95%AA%E5%A4%96%E7%AF%87-%E3%80%90mock%E4%B8%8A%E6%B8%B8%E6%9C%8D%E5%8A%A1%E3%80%91/">dubbo番外篇-【mock上游服务】</a></div><div id="vcomment"></div><script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script><script src="//unpkg.com/valine@latest/dist/Valine.min.js"></script><script>var notify = 'true' == true ? true : false;
+var verify = 'false' == true ? true : false;
+var GUEST_INFO = ['nick','mail','link'];
+var guest_info = 'nick,mail,link'.split(',').filter(function(item){
+  return GUEST_INFO.indexOf(item) > -1
+});
+guest_info = guest_info.length == 0 ? GUEST_INFO :guest_info;
+window.valine = new Valine({
+  el:'#vcomment',
+  notify:notify,
+  verify:verify,
+  appId:'s8pJruGkXvi5Skd0e6EaMQ5X-gzGzoHsz',
+  appKey:'K3NjnXxqhPNwUw5pmqOzoO4i',
+  placeholder:'说出你的故事...',
+  avatar:'mm',
+  guest_info:guest_info,
+  pageSize:'10'
+})</script></div></div></div><div class="pure-u-1-4 hidden_mid_and_down"><div id="sidebar-toc"><div class="stoc-article" id="sidebar-stoc"><strong class="stoc-title"><i class="fa fa-blind"> Contents </i></strong><div class="toc-nav" id="stoc"><ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#IOC总结"><span class="toc-number">1.</span> <span class="toc-text">IOC总结</span></a></li></ol></div></div></div></div><div class="pure-u-1 pure-u-md-3-4"><div id="footer">Copyright © 2021 <a href="/." rel="nofollow">并发笔记 - ofcoder.com | </a><a href="https://beian.miit.gov.cn/" rel="nofollow" target="_blank">粤ICP备18053760号</a><div>本站访客 <span id="busuanzi_value_site_uv"></span>人次 | 总访问 <span id="busuanzi_value_site_pv"></span>次<img src="https://s04.flagcounter.com/count/MnzJ/bg_FFFFFF/txt_000000/border_726EE0/columns_2/maxflags_10/viewers_0/labels_1/pageviews_1/flags_0/percent_0/" style="display: none;"/></div></div></div></div><a class="show" id="rocket" href="#top"></a><script type="text/javascript" src="/js/totop.js?v=0.0.0" async></script><script type="text/javascript" src="//cdn.bootcss.com/fancybox/3.3.5/jquery.fancybox.min.js" async></script><script type="text/javascript" src="/js/fancybox.js?v=0.0.0" async></script><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/fancybox/3.3.5/jquery.fancybox.min.css"><script type="text/javascript" src="/js/search.js?v=0.0.0"></script><script>var search_path = 'search.xml';
+if (search_path.length == 0) {
+   search_path = 'search.xml';
+}
+var path = '/' + search_path;
+searchFunc(path, 'local-search-input', 'local-search-result');
+</script><script type="text/javascript" color="100,99,98" opacity="0.7" zIndex="-1" count="5" src="//cdn.bootcss.com/canvas-nest.js/1.0.1/canvas-nest.min.js"></script><script type="text/javascript" src="/js/codeblock-resizer.js?v=0.0.0"></script><script type="text/javascript" src="/js/smartresize.js?v=0.0.0"></script></div></body></html><script type="text/javascript" src="/js/toc.js?v=0.0.0" async></script><script src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" async></script>

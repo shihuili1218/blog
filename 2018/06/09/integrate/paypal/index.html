@@ -1,21 +1,13 @@
 <!DOCTYPE html><html lang="zh-CN"><head><meta http-equiv="content-type" content="text/html; charset=utf-8"><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport"><meta content="yes" name="apple-mobile-web-app-capable"><meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"><meta content="telephone=no" name="format-detection"><meta name="description"><title>【干货】java集成paypal，含android代码，服务端代码 | 并发笔记 - ofcoder.com</title><link rel="stylesheet" type="text/css" href="/css/style.css?v=0.0.0"><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/normalize/8.0.0/normalize.min.css"><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/pure/1.0.0/pure-min.css"><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/pure/1.0.0/grids-responsive-min.css"><link rel="stylesheet" href="//cdn.bootcss.com/font-awesome/4.7.0/css/font-awesome.min.css"><script type="text/javascript" src="//cdn.bootcss.com/jquery/3.3.1/jquery.min.js"></script><link rel="Shortcut Icon" type="image/x-icon" href="/favicon.ico"><link rel="apple-touch-icon" href="/apple-touch-icon.png"><link rel="apple-touch-icon-precomposed" href="/apple-touch-icon.png"><!-- 顶部加载进度条 --><script type="text/javascript" src="//cdn.bootcss.com/pace/1.0.2/pace.min.js"></script><link rel="stylesheet" href="//cdn.bootcss.com/pace/1.0.2/themes/pink/pace-theme-flash.css"><link rel="alternate" type="application/atom+xml" href="/atom.xml"><meta name="generator" content="Hexo 4.2.1"></head><body><div class="body_container"><div id="header"><div class="site-name"><h1 class="hidden">【干货】java集成paypal，含android代码，服务端代码</h1><a id="logo" href="/.">并发笔记 - ofcoder.com</a><p class="description">一位后端开发的养肝历程，护发经验</p></div><div id="nav-menu"><a class="current" href="/."><i class="fa fa-home"> 首页</i></a><a href="/tags/"><i class="fa fa-tags"> 标签</i></a><a href="/usql/"><i class="fa fa-database"> usql</i></a><a href="/book/"><i class="fa fas fa-book"> book</i></a><a href="/atom.xml"><i class="fa fa-rss"> 订阅</i></a></div></div><div class="pure-g-g" id="layout"><div class="pure-u-1 pure-u-md-3-4"><div class="content_container"><div class="post"><h1 class="post-title">【干货】java集成paypal，含android代码，服务端代码</h1><div class="post-meta">Jun 9, 2018<span> | </span><span class="category"><a href="/categories/java/">java</a></span><span id="busuanzi_container_page_pv"> | <span id="busuanzi_value_page_pv"></span><span> 阅读</span></span><span class="post-time"><span class="post-meta-item-text"> | </span><span class="post-meta-item-icon"><i class="fa fa-keyboard-o"></i><span class="post-count"> 3.2k</span><span class="post-meta-item-text"> 字</span></span></span><span class="post-time"> | <span class="post-meta-item-icon"><i class="fa fa-hourglass-half"></i><span class="post-count"> 16</span><span class="post-meta-item-text"> 分钟</span></span></span></div><a class="disqus-comment-count" href="/2018/06/09/integrate/paypal/#vcomment"><span class="valine-comment-count" data-xid="/2018/06/09/integrate/paypal/"></span><span> 条评论</span></a><div class="post-content"><h3 id="支付流程"><a href="#支付流程" class="headerlink" title="支付流程"></a>支付流程</h3><blockquote>
 <p><strong>1. 前端选择商品，调用paypal支付</strong></p>
-</blockquote>
-<blockquote>
 <p><strong>2. 支付完成，paypal会返回payment信息，将payment的id返回给自己服务端</strong></p>
-</blockquote>
-<blockquote>
 <p><strong>3. 服务端根据paymentId,调paypal，查询支付是否完成</strong></p>
 </blockquote>
 <h3 id="准备"><a href="#准备" class="headerlink" title="准备"></a>准备</h3><ul>
-<li><p>前往<code>https://www.paypal.com/</code>注册商家账号</p>
-</li>
-<li><p>前往<code>https://developer.paypal.com/</code>，使用刚注册的商家账号登录</p>
-</li>
-<li><p>点击右上角名字，选择Dashboard</p>
-</li>
-<li><p>在左边的导航栏中点击 Sandbox 下的 Accounts</p>
-</li>
+<li>前往<code>https://www.paypal.com/</code>注册商家账号</li>
+<li>前往<code>https://developer.paypal.com/</code>，使用刚注册的商家账号登录</li>
+<li>点击右上角名字，选择Dashboard</li>
+<li>在左边的导航栏中点击 Sandbox 下的 Accounts</li>
 <li><p>进入Acccouts界面后，可以看到系统有两个已经生成好的测试账号，但是我们不要用系统给的测试账号，自己创建两个，一个是商家账号，一个是个人账号</p>
 <blockquote>
 <ol>
@@ -31,417 +23,423 @@
 <blockquote>
 <ol>
 <li>点击左边导航栏Dashboard下的My Apps &amp; Credentials，创建一个Live账号</li>
-<li>然后再到下边创建App</li>
-<li>点击刚刚创建好的App，注意看到”ClientID“ 和”Secret“(Secret如果没显示，点击下面的show就会看到，点击后show变为hide) </li>
+<li>然后再到下边创建App<br>3.点击刚刚创建好的App，注意看到”ClientID“ 和”Secret“(Secret如果没显示，点击下面的show就会看到，点击后show变为hide) </li>
 </ol>
 </blockquote>
 </li>
 </ul>
 <h3 id="start-coding"><a href="#start-coding" class="headerlink" title="start coding"></a>start coding</h3><h4 id="Android"><a href="#Android" class="headerlink" title="Android`"></a>Android`</h4><ul>
 <li><p>添加依赖</p>
-<pre><code>`compile(&apos;com.paypal.sdk:paypal-android-sdk:2.15.1&apos;) 
-{ exclude group: &apos;io.card&apos; }//禁止通过信用卡直接支付，如果不禁止可以直接去掉这一句`</code></pre></li>
-<li><p>强制在你的编译版本上执行编译操作（编译不过的时候才建议添加）</p>
-<pre><code>`&lt;uses-sdk    android:minSdkVersion=&quot;这里填写你需要的编译版本&quot;    tools:overrideLibrary=&quot;com.paypal.android.sdk.payments&quot; /&gt;`</code></pre></li>
+<pre><code>  `compile(&#39;com.paypal.sdk:paypal-android-sdk:2.15.1&#39;) 
+  { exclude group: &#39;io.card&#39; }//禁止通过信用卡直接支付，如果不禁止可以直接去掉这一句`
+</code></pre></li>
+<li>强制在你的编译版本上执行编译操作（编译不过的时候才建议添加）<pre><code>  `&lt;uses-sdk    android:minSdkVersion=&quot;这里填写你需要的编译版本&quot;    tools:overrideLibrary=&quot;com.paypal.android.sdk.payments&quot; /&gt;`
+</code></pre></li>
 <li><p>封装好的工具类</p>
-<pre><code>`
-    import android.app.Activity;
-    import android.content.Context;
-    import android.content.Intent;
-    import android.util.Log;
+<pre><code>  `
+      import android.app.Activity;
+      import android.content.Context;
+      import android.content.Intent;
+      import android.util.Log;
 
-    import com.globalegrow.app.gearbest.network.HttpCallBack;
-    import com.globalegrow.app.gearbest.widget.CustomToast;
-    import com.paypal.android.sdk.payments.PayPalAuthorization;
-    import com.paypal.android.sdk.payments.PayPalConfiguration;
-    import com.paypal.android.sdk.payments.PayPalFuturePaymentActivity;
-    import com.paypal.android.sdk.payments.PayPalItem;
-    import com.paypal.android.sdk.payments.PayPalPayment;
-    import com.paypal.android.sdk.payments.PayPalPaymentDetails;
-    import com.paypal.android.sdk.payments.PayPalProfileSharingActivity;
-    import com.paypal.android.sdk.payments.PayPalService;
-    import com.paypal.android.sdk.payments.PaymentActivity;
-    import com.paypal.android.sdk.payments.PaymentConfirmation;
+      import com.globalegrow.app.gearbest.network.HttpCallBack;
+      import com.globalegrow.app.gearbest.widget.CustomToast;
+      import com.paypal.android.sdk.payments.PayPalAuthorization;
+      import com.paypal.android.sdk.payments.PayPalConfiguration;
+      import com.paypal.android.sdk.payments.PayPalFuturePaymentActivity;
+      import com.paypal.android.sdk.payments.PayPalItem;
+      import com.paypal.android.sdk.payments.PayPalPayment;
+      import com.paypal.android.sdk.payments.PayPalPaymentDetails;
+      import com.paypal.android.sdk.payments.PayPalProfileSharingActivity;
+      import com.paypal.android.sdk.payments.PayPalService;
+      import com.paypal.android.sdk.payments.PaymentActivity;
+      import com.paypal.android.sdk.payments.PaymentConfirmation;
 
-    import org.json.JSONException;
-    import org.json.JSONObject;
+      import org.json.JSONException;
+      import org.json.JSONObject;
 
-    import java.io.IOException;
-    import java.math.BigDecimal;
+      import java.io.IOException;
+      import java.math.BigDecimal;
 
-    /**
-     * Create by Moosen on 09/11/2016
-     */
-    public class PayPalHelper {
+      /**
+       * Create by Moosen on 09/11/2016
+       */
+      public class PayPalHelper {
 
-        private static final String TAG = &quot;PayPalHelper&quot;;
-        //配置何种支付环境，一般沙盒，正式
-        private static final String CONFIG_ENVIRONMENT = PayPalConfiguration.ENVIRONMENT_SANDBOX;
+          private static final String TAG = &quot;PayPalHelper&quot;;
+          //配置何种支付环境，一般沙盒，正式
+          private static final String CONFIG_ENVIRONMENT = PayPalConfiguration.ENVIRONMENT_SANDBOX;
 
-        // note that these credentials will differ between live &amp; sandbox environments.
-        //你所注册的APP Id
-        private static final String CONFIG_CLIENT_ID = &quot;&quot;;
+          // note that these credentials will differ between live &amp; sandbox environments.
+          //你所注册的APP Id
+          private static final String CONFIG_CLIENT_ID = &quot;&quot;;
 
-        private static final int REQUEST_CODE_PAYMENT = 1;
-        private static final int REQUEST_CODE_FUTURE_PAYMENT = 2;
-        private static final int REQUEST_CODE_PROFILE_SHARING = 3;
+          private static final int REQUEST_CODE_PAYMENT = 1;
+          private static final int REQUEST_CODE_FUTURE_PAYMENT = 2;
+          private static final int REQUEST_CODE_PROFILE_SHARING = 3;
 
-        private static PayPalConfiguration config = new PayPalConfiguration()
-                .environment(CONFIG_ENVIRONMENT)
-                .clientId(CONFIG_CLIENT_ID);
-        //以下配置是授权支付的时候用到的
-    //            .merchantName(&quot;Example Merchant&quot;)
-    //            .merchantPrivacyPolicyUri(Uri.parse(&quot;https://www.example.com/privacy&quot;))
-    //            .merchantUserAgreementUri(Uri.parse(&quot;https://www.example.com/legal&quot;));
-        private static PayPalHelper payPalHelper;
+          private static PayPalConfiguration config = new PayPalConfiguration()
+                  .environment(CONFIG_ENVIRONMENT)
+                  .clientId(CONFIG_CLIENT_ID);
+          //以下配置是授权支付的时候用到的
+      //            .merchantName(&quot;Example Merchant&quot;)
+      //            .merchantPrivacyPolicyUri(Uri.parse(&quot;https://www.example.com/privacy&quot;))
+      //            .merchantUserAgreementUri(Uri.parse(&quot;https://www.example.com/legal&quot;));
+          private static PayPalHelper payPalHelper;
 
-        private PayPalHelper() {
-        }
+          private PayPalHelper() {
+          }
 
-        public static PayPalHelper getInstance() {
-            if (payPalHelper == null) {
-                synchronized (PayPalHelper.class) {
-                    payPalHelper = new PayPalHelper();
-                }
-            }
-            return payPalHelper;
-        }
+          public static PayPalHelper getInstance() {
+              if (payPalHelper == null) {
+                  synchronized (PayPalHelper.class) {
+                      payPalHelper = new PayPalHelper();
+                  }
+              }
+              return payPalHelper;
+          }
 
-        /**
-         * 启动PayPal服务
-         *
-         * @param context
-         */
-        public void startPayPalService(Context context) {
-            Intent intent = new Intent(context, PayPalService.class);
-            intent.putExtra(PayPalService.EXTRA_PAYPAL_CONFIGURATION, config);
-            context.startService(intent);
-        }
+          /**
+           * 启动PayPal服务
+           *
+           * @param context
+           */
+          public void startPayPalService(Context context) {
+              Intent intent = new Intent(context, PayPalService.class);
+              intent.putExtra(PayPalService.EXTRA_PAYPAL_CONFIGURATION, config);
+              context.startService(intent);
+          }
 
-        /**
-         * 停止PayPal服务  sdfsdfsdssaaass
-         *
-         * @param context
-         */
-        public void stopPayPalService(Context context) {
-            context.stopService(new Intent(context, PayPalService.class));
-        }
+          /**
+           * 停止PayPal服务  sdfsdfsdssaaass
+           *
+           * @param context
+           */
+          public void stopPayPalService(Context context) {
+              context.stopService(new Intent(context, PayPalService.class));
+          }
 
-        /**
-         * 开始执行支付操作
-         *
-         * @param context
-         */
-        public void doPayPalPay(Context context) {
-            /*
-             * PAYMENT_INTENT_SALE will cause the payment to complete immediately.
-             * Change PAYMENT_INTENT_SALE to
-             *   - PAYMENT_INTENT_AUTHORIZE to only authorize payment and capture funds later.
-             *   - PAYMENT_INTENT_ORDER to create a payment for authorization and capture
-             *     later via calls from your server.
-             *
-             * Also, to include additional payment details and an item list, see getStuffToBuy() below.
-             */
-            PayPalPayment thingToBuy = getStuffToBuy(PayPalPayment.PAYMENT_INTENT_SALE);
-            /*
-             * See getStuffToBuy(..) for examples of some available payment options.
-             */
-            Intent intent = new Intent(context, PaymentActivity.class);
+          /**
+           * 开始执行支付操作
+           *
+           * @param context
+           */
+          public void doPayPalPay(Context context) {
+              /*
+               * PAYMENT_INTENT_SALE will cause the payment to complete immediately.
+               * Change PAYMENT_INTENT_SALE to
+               *   - PAYMENT_INTENT_AUTHORIZE to only authorize payment and capture funds later.
+               *   - PAYMENT_INTENT_ORDER to create a payment for authorization and capture
+               *     later via calls from your server.
+               *
+               * Also, to include additional payment details and an item list, see getStuffToBuy() below.
+               */
+              PayPalPayment thingToBuy = getStuffToBuy(PayPalPayment.PAYMENT_INTENT_SALE);
+              /*
+               * See getStuffToBuy(..) for examples of some available payment options.
+               */
+              Intent intent = new Intent(context, PaymentActivity.class);
 
-            // send the same configuration for restart resiliency
-            intent.putExtra(PayPalService.EXTRA_PAYPAL_CONFIGURATION, config);
+              // send the same configuration for restart resiliency
+              intent.putExtra(PayPalService.EXTRA_PAYPAL_CONFIGURATION, config);
 
-            intent.putExtra(PaymentActivity.EXTRA_PAYMENT, thingToBuy);
+              intent.putExtra(PaymentActivity.EXTRA_PAYMENT, thingToBuy);
 
-            ((Activity) context).startActivityForResult(intent, REQUEST_CODE_PAYMENT);
-        }
+              ((Activity) context).startActivityForResult(intent, REQUEST_CODE_PAYMENT);
+          }
 
-        /*
-             * This method shows use of optional payment details and item list.
-             *
-             * 直接给PP创建支付的信息，支付对象实体信息
-             */
-        private PayPalPayment getStuffToBuy(String paymentIntent) {
-            //--- include an item list, payment amount details
-            //具体的产品信息列表
-            PayPalItem[] items =
-                    {
-                            new PayPalItem(&quot;sample item #1&quot;, 2, new BigDecimal(&quot;0.50&quot;), &quot;USD&quot;,
-                                    &quot;sku-12345678&quot;),
-                            new PayPalItem(&quot;free sample item #2&quot;, 1, new BigDecimal(&quot;0.00&quot;),
-                                    &quot;USD&quot;, &quot;sku-zero-price&quot;),
-                            new PayPalItem(&quot;sample item #3 with a longer name&quot;, 6, new BigDecimal(&quot;0.99&quot;),
-                                    &quot;USD&quot;, &quot;sku-33333&quot;)
-                    };
-            BigDecimal subtotal = PayPalItem.getItemTotal(items);
-            BigDecimal shipping = new BigDecimal(&quot;0.21&quot;);
-            BigDecimal tax = new BigDecimal(&quot;0.67&quot;);
-            PayPalPaymentDetails paymentDetails = new PayPalPaymentDetails(shipping, subtotal, tax);
-            BigDecimal amount = subtotal.add(shipping).add(tax);
-            PayPalPayment payment = new PayPalPayment(amount, &quot;USD&quot;, &quot;sample item&quot;, paymentIntent);
-            payment.items(items).paymentDetails(paymentDetails);
-            //--- set other optional fields like invoice_number, custom field, and soft_descriptor
-            payment.custom(&quot;This is text that will be associated with the payment that the app can use.&quot;);
-            return payment;
-        }
+          /*
+               * This method shows use of optional payment details and item list.
+               *
+               * 直接给PP创建支付的信息，支付对象实体信息
+               */
+          private PayPalPayment getStuffToBuy(String paymentIntent) {
+              //--- include an item list, payment amount details
+              //具体的产品信息列表
+              PayPalItem[] items =
+                      {
+                              new PayPalItem(&quot;sample item #1&quot;, 2, new BigDecimal(&quot;0.50&quot;), &quot;USD&quot;,
+                                      &quot;sku-12345678&quot;),
+                              new PayPalItem(&quot;free sample item #2&quot;, 1, new BigDecimal(&quot;0.00&quot;),
+                                      &quot;USD&quot;, &quot;sku-zero-price&quot;),
+                              new PayPalItem(&quot;sample item #3 with a longer name&quot;, 6, new BigDecimal(&quot;0.99&quot;),
+                                      &quot;USD&quot;, &quot;sku-33333&quot;)
+                      };
+              BigDecimal subtotal = PayPalItem.getItemTotal(items);
+              BigDecimal shipping = new BigDecimal(&quot;0.21&quot;);
+              BigDecimal tax = new BigDecimal(&quot;0.67&quot;);
+              PayPalPaymentDetails paymentDetails = new PayPalPaymentDetails(shipping, subtotal, tax);
+              BigDecimal amount = subtotal.add(shipping).add(tax);
+              PayPalPayment payment = new PayPalPayment(amount, &quot;USD&quot;, &quot;sample item&quot;, paymentIntent);
+              payment.items(items).paymentDetails(paymentDetails);
+              //--- set other optional fields like invoice_number, custom field, and soft_descriptor
+              payment.custom(&quot;This is text that will be associated with the payment that the app can use.&quot;);
+              return payment;
+          }
 
-        /**
-         * 处理支付之后的结果
-         *
-         * @param context
-         * @param requestCode
-         * @param resultCode
-         * @param data
-         */
-        public void confirmPayResult(final Context context, int requestCode, int resultCode, Intent data, final DoResult doResult) {
-            if (requestCode == REQUEST_CODE_PAYMENT) {
-                if (resultCode == Activity.RESULT_OK) {
-                    PaymentConfirmation confirm =
-                            data.getParcelableExtra(PaymentActivity.EXTRA_RESULT_CONFIRMATION);
-                    if (confirm != null) {
-                        try {
-                            Log.i(TAG, confirm.toJSONObject().toString(4));
-                            Log.i(TAG, confirm.getPayment().toJSONObject().toString(4));
+          /**
+           * 处理支付之后的结果
+           *
+           * @param context
+           * @param requestCode
+           * @param resultCode
+           * @param data
+           */
+          public void confirmPayResult(final Context context, int requestCode, int resultCode, Intent data, final DoResult doResult) {
+              if (requestCode == REQUEST_CODE_PAYMENT) {
+                  if (resultCode == Activity.RESULT_OK) {
+                      PaymentConfirmation confirm =
+                              data.getParcelableExtra(PaymentActivity.EXTRA_RESULT_CONFIRMATION);
+                      if (confirm != null) {
+                          try {
+                              Log.i(TAG, confirm.toJSONObject().toString(4));
+                              Log.i(TAG, confirm.getPayment().toJSONObject().toString(4));
 
-                            /**
-                             *  TODO: send &apos;confirm&apos; (and possibly confirm.getPayment() to your server for verification
-                             * or consent completion.
-                             * See https://developer.paypal.com/webapps/developer/docs/integration/mobile/verify-mobile-payment/
-                             * for more details.
-                             *
-                             * For sample mobile backend interactions, see
-                             * https://github.com/paypal/rest-api-sdk-python/tree/master/samples/mobile_backend
-                             */
-    //                        displayResultText(&quot;PaymentConfirmation info received from PayPal&quot;);
-                            // 这里直接跟服务器确认支付结果，支付结果确认后回调处理结果
-                            JSONObject jsonObject = confirm.toJSONObject();
-                            if (jsonObject != null) {
-                                JSONObject response = jsonObject.optJSONObject(&quot;response&quot;);
-                                if (response != null) {
-                                    String id = response.optString(&quot;id&quot;);
-                                    try {
-                                        CartManager.getInstance().confirmPayPalPayPrice(context, id, new HttpCallBack&lt;String&gt;() {
-                                            @Override
-                                            public void onSuccess(String responseString) {
-                                                if (responseString != null) {
-                                                    try {
-                                                        JSONObject jsonObject = new JSONObject(responseString);
-                                                        if (jsonObject != null) {
-                                                            int resultcode = jsonObject.optInt(&quot;_resultcode&quot;);
-                                                            String msg = jsonObject.optString(&quot;_msg&quot;);
-                                                            if (200 == resultcode) {
-                                                                doResult.confirmSuccess();
-                                                                Log.i(TAG, &quot;dddddddd&quot;);
-                                                            } else {
-                                                                Log.i(TAG, &quot;ssssssss&quot;);
-                                                                CustomToast.getInstance(context).showToast(msg);
-                                                                doResult.confirmNetWorkError();
-                                                            }
-                                                            CustomToast.getInstance(context).showToast(msg);
-                                                        }
-                                                    } catch (JSONException e) {
-                                                        e.printStackTrace();
-                                                        doResult.confirmNetWorkError();
-                                                    }
-                                                }
-                                            }
+                              /**
+                               *  TODO: send &#39;confirm&#39; (and possibly confirm.getPayment() to your server for verification
+                               * or consent completion.
+                               * See https://developer.paypal.com/webapps/developer/docs/integration/mobile/verify-mobile-payment/
+                               * for more details.
+                               *
+                               * For sample mobile backend interactions, see
+                               * https://github.com/paypal/rest-api-sdk-python/tree/master/samples/mobile_backend
+                               */
+      //                        displayResultText(&quot;PaymentConfirmation info received from PayPal&quot;);
+                              // 这里直接跟服务器确认支付结果，支付结果确认后回调处理结果
+                              JSONObject jsonObject = confirm.toJSONObject();
+                              if (jsonObject != null) {
+                                  JSONObject response = jsonObject.optJSONObject(&quot;response&quot;);
+                                  if (response != null) {
+                                      String id = response.optString(&quot;id&quot;);
+                                      try {
+                                          CartManager.getInstance().confirmPayPalPayPrice(context, id, new HttpCallBack&lt;String&gt;() {
+                                              @Override
+                                              public void onSuccess(String responseString) {
+                                                  if (responseString != null) {
+                                                      try {
+                                                          JSONObject jsonObject = new JSONObject(responseString);
+                                                          if (jsonObject != null) {
+                                                              int resultcode = jsonObject.optInt(&quot;_resultcode&quot;);
+                                                              String msg = jsonObject.optString(&quot;_msg&quot;);
+                                                              if (200 == resultcode) {
+                                                                  doResult.confirmSuccess();
+                                                                  Log.i(TAG, &quot;dddddddd&quot;);
+                                                              } else {
+                                                                  Log.i(TAG, &quot;ssssssss&quot;);
+                                                                  CustomToast.getInstance(context).showToast(msg);
+                                                                  doResult.confirmNetWorkError();
+                                                              }
+                                                              CustomToast.getInstance(context).showToast(msg);
+                                                          }
+                                                      } catch (JSONException e) {
+                                                          e.printStackTrace();
+                                                          doResult.confirmNetWorkError();
+                                                      }
+                                                  }
+                                              }
 
-                                            @Override
-                                            public void onFailure(IOException e) {
-                                                Log.i(TAG, &quot;aaaaaaaa&quot;);
-                                                doResult.confirmNetWorkError();
-                                            }
-                                        });
-                                    } catch (Exception e) {
-                                        e.printStackTrace();
-                                        doResult.confirmNetWorkError();
-                                    }
-                                }
-                            }
-                        } catch (JSONException e) {
-                            Log.e(TAG, &quot;an extremely unlikely failure occurred: &quot;, e);
-                            doResult.confirmNetWorkError();
-                        }
-                    }
-                } else if (resultCode == Activity.RESULT_CANCELED) {
-                    Log.i(TAG, &quot;The user canceled.&quot;);
-                    doResult.customerCanceled();
-                } else if (resultCode == PaymentActivity.RESULT_EXTRAS_INVALID) {
-                    doResult.invalidPaymentConfiguration();
-                    Log.i(
-                            TAG,
-                            &quot;An invalid Payment or PayPalConfiguration was submitted. Please see the docs.&quot;);
-                }
-            } else if (requestCode == REQUEST_CODE_FUTURE_PAYMENT) {
-                if (resultCode == Activity.RESULT_OK) {
-                    PayPalAuthorization auth =
-                            data.getParcelableExtra(PayPalFuturePaymentActivity.EXTRA_RESULT_AUTHORIZATION);
-                    if (auth != null) {
-                        try {
-                            doResult.confirmFuturePayment();
-                            Log.i(&quot;FuturePaymentExample&quot;, auth.toJSONObject().toString(4));
+                                              @Override
+                                              public void onFailure(IOException e) {
+                                                  Log.i(TAG, &quot;aaaaaaaa&quot;);
+                                                  doResult.confirmNetWorkError();
+                                              }
+                                          });
+                                      } catch (Exception e) {
+                                          e.printStackTrace();
+                                          doResult.confirmNetWorkError();
+                                      }
+                                  }
+                              }
+                          } catch (JSONException e) {
+                              Log.e(TAG, &quot;an extremely unlikely failure occurred: &quot;, e);
+                              doResult.confirmNetWorkError();
+                          }
+                      }
+                  } else if (resultCode == Activity.RESULT_CANCELED) {
+                      Log.i(TAG, &quot;The user canceled.&quot;);
+                      doResult.customerCanceled();
+                  } else if (resultCode == PaymentActivity.RESULT_EXTRAS_INVALID) {
+                      doResult.invalidPaymentConfiguration();
+                      Log.i(
+                              TAG,
+                              &quot;An invalid Payment or PayPalConfiguration was submitted. Please see the docs.&quot;);
+                  }
+              } else if (requestCode == REQUEST_CODE_FUTURE_PAYMENT) {
+                  if (resultCode == Activity.RESULT_OK) {
+                      PayPalAuthorization auth =
+                              data.getParcelableExtra(PayPalFuturePaymentActivity.EXTRA_RESULT_AUTHORIZATION);
+                      if (auth != null) {
+                          try {
+                              doResult.confirmFuturePayment();
+                              Log.i(&quot;FuturePaymentExample&quot;, auth.toJSONObject().toString(4));
 
-                            String authorization_code = auth.getAuthorizationCode();
-                            Log.i(&quot;FuturePaymentExample&quot;, authorization_code);
+                              String authorization_code = auth.getAuthorizationCode();
+                              Log.i(&quot;FuturePaymentExample&quot;, authorization_code);
 
-    //                        sendAuthorizationToServer(auth);
-    //                        displayResultText(&quot;Future Payment code received from PayPal&quot;);
+      //                        sendAuthorizationToServer(auth);
+      //                        displayResultText(&quot;Future Payment code received from PayPal&quot;);
 
-                        } catch (JSONException e) {
-                            doResult.confirmNetWorkError();
-                            Log.e(&quot;FuturePaymentExample&quot;, &quot;an extremely unlikely failure occurred: &quot;, e);
-                        }
-                    }
-                } else if (resultCode == Activity.RESULT_CANCELED) {
-                    Log.i(&quot;FuturePaymentExample&quot;, &quot;The user canceled.&quot;);
-                    doResult.customerCanceled();
-                } else if (resultCode == PayPalFuturePaymentActivity.RESULT_EXTRAS_INVALID) {
-                    doResult.invalidPaymentConfiguration();
-                    Log.i(
-                            &quot;FuturePaymentExample&quot;,
-                            &quot;Probably the attempt to previously start the PayPalService had an invalid PayPalConfiguration. Please see the docs.&quot;);
-                }
-            } else if (requestCode == REQUEST_CODE_PROFILE_SHARING) {
-                if (resultCode == Activity.RESULT_OK) {
-                    PayPalAuthorization auth =
-                            data.getParcelableExtra(PayPalProfileSharingActivity.EXTRA_RESULT_AUTHORIZATION);
-                    if (auth != null) {
-                        try {
-                            Log.i(&quot;ProfileSharingExample&quot;, auth.toJSONObject().toString(4));
+                          } catch (JSONException e) {
+                              doResult.confirmNetWorkError();
+                              Log.e(&quot;FuturePaymentExample&quot;, &quot;an extremely unlikely failure occurred: &quot;, e);
+                          }
+                      }
+                  } else if (resultCode == Activity.RESULT_CANCELED) {
+                      Log.i(&quot;FuturePaymentExample&quot;, &quot;The user canceled.&quot;);
+                      doResult.customerCanceled();
+                  } else if (resultCode == PayPalFuturePaymentActivity.RESULT_EXTRAS_INVALID) {
+                      doResult.invalidPaymentConfiguration();
+                      Log.i(
+                              &quot;FuturePaymentExample&quot;,
+                              &quot;Probably the attempt to previously start the PayPalService had an invalid PayPalConfiguration. Please see the docs.&quot;);
+                  }
+              } else if (requestCode == REQUEST_CODE_PROFILE_SHARING) {
+                  if (resultCode == Activity.RESULT_OK) {
+                      PayPalAuthorization auth =
+                              data.getParcelableExtra(PayPalProfileSharingActivity.EXTRA_RESULT_AUTHORIZATION);
+                      if (auth != null) {
+                          try {
+                              Log.i(&quot;ProfileSharingExample&quot;, auth.toJSONObject().toString(4));
 
-                            String authorization_code = auth.getAuthorizationCode();
-                            Log.i(&quot;ProfileSharingExample&quot;, authorization_code);
+                              String authorization_code = auth.getAuthorizationCode();
+                              Log.i(&quot;ProfileSharingExample&quot;, authorization_code);
 
-    //                        sendAuthorizationToServer(auth);
-    //                        displayResultText(&quot;Profile Sharing code received from PayPal&quot;);
+      //                        sendAuthorizationToServer(auth);
+      //                        displayResultText(&quot;Profile Sharing code received from PayPal&quot;);
 
-                        } catch (JSONException e) {
-                            Log.e(&quot;ProfileSharingExample&quot;, &quot;an extremely unlikely failure occurred: &quot;, e);
-                        }
-                    }
-                } else if (resultCode == Activity.RESULT_CANCELED) {
-                    Log.i(&quot;ProfileSharingExample&quot;, &quot;The user canceled.&quot;);
-                } else if (resultCode == PayPalFuturePaymentActivity.RESULT_EXTRAS_INVALID) {
-                    Log.i(
-                            &quot;ProfileSharingExample&quot;,
-                            &quot;Probably the attempt to previously start the PayPalService had an invalid PayPalConfiguration. Please see the docs.&quot;);
-                }
-            }
-        }
+                          } catch (JSONException e) {
+                              Log.e(&quot;ProfileSharingExample&quot;, &quot;an extremely unlikely failure occurred: &quot;, e);
+                          }
+                      }
+                  } else if (resultCode == Activity.RESULT_CANCELED) {
+                      Log.i(&quot;ProfileSharingExample&quot;, &quot;The user canceled.&quot;);
+                  } else if (resultCode == PayPalFuturePaymentActivity.RESULT_EXTRAS_INVALID) {
+                      Log.i(
+                              &quot;ProfileSharingExample&quot;,
+                              &quot;Probably the attempt to previously start the PayPalService had an invalid PayPalConfiguration. Please see the docs.&quot;);
+                  }
+              }
+          }
 
-        /**
-         * c处理完结果之后回调
-         */
-        public interface DoResult {
-            //与服务确认支付成功
-            void confirmSuccess();
+          /**
+           * c处理完结果之后回调
+           */
+          public interface DoResult {
+              //与服务确认支付成功
+              void confirmSuccess();
 
-            //网络异常或者json返回有问题
-            void confirmNetWorkError();
+              //网络异常或者json返回有问题
+              void confirmNetWorkError();
 
-            //用户取消支付
-            void customerCanceled();
+              //用户取消支付
+              void customerCanceled();
 
-            //授权支付
-            void confirmFuturePayment();
+              //授权支付
+              void confirmFuturePayment();
 
-            //订单支付验证无效
-            void invalidPaymentConfiguration();
-        }
+              //订单支付验证无效
+              void invalidPaymentConfiguration();
+          }
 
-    }
-`</code></pre></li>
+      }
+  `
+</code></pre></li>
 <li><p>在你需要调起支付的页面配置支付环境（或者在基类配置相应的支付环境）</p>
-<pre><code>`
-    //配置何种支付环境，一般沙盒，正式    
-    private static final String CONFIG_ENVIRONMENT = PayPalConfiguration.ENVIRONMENT_SANDBOX;    
-    // note that these credentials will differ between live &amp; sandbox environments.    
-    //你所注册的APP Id    private static final String CONFIG_CLIENT_ID = &quot;你所注册的CLient Id&quot;;   
-    private static final int REQUEST_CODE_PAYMENT = 1;    
-    private static final int REQUEST_CODE_FUTURE_PAYMENT = 2;    
-    private static final int REQUEST_CODE_PROFILE_SHARING = 3;    
-    private static PayPalConfiguration config = new PayPalConfiguration()            .environment(CONFIG_ENVIRONMENT)            
-    .clientId(CONFIG_CLIENT_ID);    
-    //以下配置是授权支付的时候用到的
-    //.merchantName(&quot;Example Merchant&quot;)
-    // .merchantPrivacyPolicyUri(Uri.parse(&quot;https://www.example.com/privacy&quot;))
-    //.merchantUserAgreementUri(Uri.parse(&quot;https://www.example.com/legal&quot;));
-`</code></pre></li>
+<pre><code>  `
+      //配置何种支付环境，一般沙盒，正式    
+      private static final String CONFIG_ENVIRONMENT = PayPalConfiguration.ENVIRONMENT_SANDBOX;    
+      // note that these credentials will differ between live &amp; sandbox environments.    
+      //你所注册的APP Id    private static final String CONFIG_CLIENT_ID = &quot;你所注册的CLient Id&quot;;   
+      private static final int REQUEST_CODE_PAYMENT = 1;    
+      private static final int REQUEST_CODE_FUTURE_PAYMENT = 2;    
+      private static final int REQUEST_CODE_PROFILE_SHARING = 3;    
+      private static PayPalConfiguration config = new PayPalConfiguration()            .environment(CONFIG_ENVIRONMENT)            
+      .clientId(CONFIG_CLIENT_ID);    
+      //以下配置是授权支付的时候用到的
+      //.merchantName(&quot;Example Merchant&quot;)
+      // .merchantPrivacyPolicyUri(Uri.parse(&quot;https://www.example.com/privacy&quot;))
+      //.merchantUserAgreementUri(Uri.parse(&quot;https://www.example.com/legal&quot;));
+  `
+</code></pre></li>
 <li><p>在类的onCreate方法里面调起支付服务</p>
-<pre><code>`
-    Intent intent = new Intent(this, PayPalService.class);
-    intent.putExtra(PayPalService.EXTRA_PAYPAL_CONFIGURATION, config);
-    startService(intent);
-`</code></pre></li>
+<pre><code>  `
+      Intent intent = new Intent(this, PayPalService.class);
+      intent.putExtra(PayPalService.EXTRA_PAYPAL_CONFIGURATION, config);
+      startService(intent);
+  `
+</code></pre></li>
 <li><p>创建支付实体，在需要调起支付的地方调起支付</p>
-<pre><code>`
-    public void onBuyPressed(View pressed) {
-    //创建支付对象，用于传过去给PayPal服务器进行收款
-    PayPalPayment thingToBuy = getThingToBuy(PayPalPayment.PAYMENT_INTENT_SALE);
-    Intent intent = new Intent(SampleActivity.this, PaymentActivity.class);
-    intent.putExtra(PayPalService.EXTRA_PAYPAL_CONFIGURATION, config);
-    intent.putExtra(PaymentActivity.EXTRA_PAYMENT, thingToBuy);
-    //这里直接调起PayPal的sdk进行付款操作
-    startActivityForResult(intent, REQUEST_CODE_PAYMENT);
-    }
-    //这里只传一个总价格或者单个产品的信息收款情况
-    private PayPalPayment getThingToBuy(String paymentIntent) {
-    return new PayPalPayment(new BigDecimal(&quot;0.01&quot;), &quot;USD&quot;, &quot;sample item&quot;,
-    paymentIntent);
+<pre><code>  `
+      public void onBuyPressed(View pressed) {
+      //创建支付对象，用于传过去给PayPal服务器进行收款
+      PayPalPayment thingToBuy = getThingToBuy(PayPalPayment.PAYMENT_INTENT_SALE);
+      Intent intent = new Intent(SampleActivity.this, PaymentActivity.class);
+      intent.putExtra(PayPalService.EXTRA_PAYPAL_CONFIGURATION, config);
+      intent.putExtra(PaymentActivity.EXTRA_PAYMENT, thingToBuy);
+      //这里直接调起PayPal的sdk进行付款操作
+      startActivityForResult(intent, REQUEST_CODE_PAYMENT);
+      }
+      //这里只传一个总价格或者单个产品的信息收款情况
+      private PayPalPayment getThingToBuy(String paymentIntent) {
+      return new PayPalPayment(new BigDecimal(&quot;0.01&quot;), &quot;USD&quot;, &quot;sample item&quot;,
+      paymentIntent);
 
-    }
-    //这里是购买一系列产品创建购买对象
-    private PayPalPayment getStuffToBuy(String paymentIntent) {
-    PayPalItem[] items =
-    {
-    new PayPalItem(&quot;sample item #1&quot;, 2, new BigDecimal(&quot;87.50&quot;), &quot;USD&quot;,
-    &quot;sku-12345678&quot;),
-    new PayPalItem(&quot;free sample item #2&quot;, 1, new BigDecimal(&quot;0.00&quot;),
-    &quot;USD&quot;, &quot;sku-zero-price&quot;),
-    new PayPalItem(&quot;sample item #3 with a longer name&quot;, 6, new BigDecimal(&quot;37.99&quot;),
-    &quot;USD&quot;, &quot;sku-33333&quot;)
-    };
-    BigDecimal subtotal = PayPalItem.getItemTotal(items);
-    BigDecimal shipping = new BigDecimal(&quot;7.21&quot;);
-    BigDecimal tax = new BigDecimal(&quot;4.67&quot;);
-    PayPalPaymentDetails paymentDetails = new PayPalPaymentDetails(shipping, subtotal, tax);
-    BigDecimal amount = subtotal.add(shipping).add(tax);
-    PayPalPayment payment = new PayPalPayment(amount, &quot;USD&quot;, &quot;sample item&quot;, paymentIntent);
-    payment.items(items).paymentDetails(paymentDetails);
-    //--- set other optional fields like invoice_number, custom field, and soft_descriptor
-    payment.custom(&quot;This is text that will be associated with the payment that the app can use.&quot;);
-    return payment;
-    }
-`</code></pre></li>
+      }
+      //这里是购买一系列产品创建购买对象
+      private PayPalPayment getStuffToBuy(String paymentIntent) {
+      PayPalItem[] items =
+      {
+      new PayPalItem(&quot;sample item #1&quot;, 2, new BigDecimal(&quot;87.50&quot;), &quot;USD&quot;,
+      &quot;sku-12345678&quot;),
+      new PayPalItem(&quot;free sample item #2&quot;, 1, new BigDecimal(&quot;0.00&quot;),
+      &quot;USD&quot;, &quot;sku-zero-price&quot;),
+      new PayPalItem(&quot;sample item #3 with a longer name&quot;, 6, new BigDecimal(&quot;37.99&quot;),
+      &quot;USD&quot;, &quot;sku-33333&quot;)
+      };
+      BigDecimal subtotal = PayPalItem.getItemTotal(items);
+      BigDecimal shipping = new BigDecimal(&quot;7.21&quot;);
+      BigDecimal tax = new BigDecimal(&quot;4.67&quot;);
+      PayPalPaymentDetails paymentDetails = new PayPalPaymentDetails(shipping, subtotal, tax);
+      BigDecimal amount = subtotal.add(shipping).add(tax);
+      PayPalPayment payment = new PayPalPayment(amount, &quot;USD&quot;, &quot;sample item&quot;, paymentIntent);
+      payment.items(items).paymentDetails(paymentDetails);
+      //--- set other optional fields like invoice_number, custom field, and soft_descriptor
+      payment.custom(&quot;This is text that will be associated with the payment that the app can use.&quot;);
+      return payment;
+      }
+  `
+</code></pre></li>
 <li><p>在类的onActivityResult 里进行回调结果的处理</p>
-<pre><code>`
-if (resultCode == Activity.RESULT_OK) {
-    PaymentConfirmation confirm =
-    data.getParcelableExtra(PaymentActivity.EXTRA_RESULT_CONFIRMATION);
-    if (confirm != null) {
-    try {
-    Log.i(TAG, confirm.toJSONObject().toString(4));
-    Log.i(TAG, confirm.getPayment().toJSONObject().toString(4));
-    //这里可以把PayPal带回来的json数据传给服务器以确认你的款项是否收到或者收全
-    //可以直接把 confirm.toJSONObject() 这个带给服务器，
-    //得到服务器返回的结果，你就可以跳转成功页面或者做相应的处理了
-    } catch (JSONException e) {
-    Log.e(TAG, &quot;an extremely unlikely failure occurred: &quot;, e);
-    }
-    }
-    } else if (resultCode == Activity.RESULT_CANCELED) {
-    Log.i(TAG, &quot;The user canceled.&quot;);
-    } else if (resultCode == PaymentActivity.RESULT_EXTRAS_INVALID) {
-    Log.i(
-    TAG,
-    &quot;An invalid Payment or PayPalConfiguration was submitted. Please see the docs.&quot;);
-    }
-    }</code></pre><p>  `</p>
+<pre><code>  `
+  if (resultCode == Activity.RESULT_OK) {
+      PaymentConfirmation confirm =
+      data.getParcelableExtra(PaymentActivity.EXTRA_RESULT_CONFIRMATION);
+      if (confirm != null) {
+      try {
+      Log.i(TAG, confirm.toJSONObject().toString(4));
+      Log.i(TAG, confirm.getPayment().toJSONObject().toString(4));
+      //这里可以把PayPal带回来的json数据传给服务器以确认你的款项是否收到或者收全
+      //可以直接把 confirm.toJSONObject() 这个带给服务器，
+      //得到服务器返回的结果，你就可以跳转成功页面或者做相应的处理了
+      } catch (JSONException e) {
+      Log.e(TAG, &quot;an extremely unlikely failure occurred: &quot;, e);
+      }
+      }
+      } else if (resultCode == Activity.RESULT_CANCELED) {
+      Log.i(TAG, &quot;The user canceled.&quot;);
+      } else if (resultCode == PaymentActivity.RESULT_EXTRAS_INVALID) {
+      Log.i(
+      TAG,
+      &quot;An invalid Payment or PayPalConfiguration was submitted. Please see the docs.&quot;);
+      }
+      }
+</code></pre><p>  `</p>
 </li>
 <li><p>在类的onDestroy 注销服务</p>
-<pre><code>`
-stopService(new Intent(this, PayPalService.class));
-`</code></pre></li>
+<pre><code>  `
+  stopService(new Intent(this, PayPalService.class));
+  `
+</code></pre></li>
 </ul>
 <h4 id="服务端，根据前端给的paymentId，判断是否完成付款"><a href="#服务端，根据前端给的paymentId，判断是否完成付款" class="headerlink" title="服务端，根据前端给的paymentId，判断是否完成付款"></a>服务端，根据前端给的paymentId，判断是否完成付款</h4><pre><code>`
     package com.net.pay.paypal.service;
@@ -555,7 +553,7 @@ public class PayPalVerifyPayment {
             JSONArray relatedResources = transactions.optJSONArray(&quot;related_resources&quot;);
             //从数据库查询支付总金额与Paypal校验支付总金额
             double total = 0;
-            System.out.println(&quot;amount.optDouble(&apos;total&apos;):&quot;+amount.optDouble(&quot;total&quot;));
+            System.out.println(&quot;amount.optDouble(&#39;total&#39;):&quot;+amount.optDouble(&quot;total&quot;));
             if( total != amount.optDouble(&quot;total&quot;) ){
                 return false;
             }
@@ -590,7 +588,8 @@ public class PayPalVerifyPayment {
     }
 }
 
-`</code></pre></div><iframe src="/donate/?AliPayQR=null&amp;WeChatQR=/img/WeChatQR.jpg&amp;GitHub=https://github.com/farawayliu&amp;BTCQR=null&amp;BTCKEY=null&amp;PayPal=null" style="overflow-x:hidden; overflow-y:hidden; border:0xp none #fff; min-height:240px; width:100%;" frameborder="0" scrolling="no"></iframe><div><ul class="post-copyright"><li class="post-copyright-author"><strong>本文作者：</strong>far</li><li class="post-copyright-link"><strong>本文链接：</strong><a href="/2018/06/09/integrate/paypal/">https://www.ofcoder.com/2018/06/09/integrate/paypal/</a></li><li class="post-copyright-license"><strong>版权声明：</strong>Copyright © 2021 ofcoder. Author by far.</li></ul></div><br><script type="text/javascript" src="/js/share.js?v=0.0.0" async></script><a class="article-share-link" data-url="https://www.ofcoder.com/2018/06/09/integrate/paypal/" data-id="ckt6ou26w0006u8j18wmz5nf0" data-qrcode="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMYAAADGCAAAAACs8KCBAAACNElEQVR42u3aQW7jMAwF0Nz/0i4wq9lY/hSdoqafVoGbyHoqIFAkP594HP/G2ef/n6yfr7+T/Ko1MDAwHss4lqPKSH6b8PK1YWBgvIeRT9cHrBd0NsPFmjEwMDCWL8sP5YtDEwMDA+PWA7e/9PX3MTAwMPYusVVwkji7K6DEwMCYzegXBr73+VfrGxgYGH+ScRRHJxm3fm9rVRgYGKMZeSoteZ6n0pLgLwkcP3n+DwMD47GMPLG1l3rrtFYk24eBgYFRmOgLzRl5eg4DA2M2I/lzkrjvp+f23nhR5cDAwBjEqB6OyYUzT6hVj/iLdBsGBsY4RhKcVRdUbe3qz4CBgfEGRhK0dUoC+ZPNbcXAwBjNqKb1qwFiXiTIGy8ugksMDIxxjGo7V6dF44tzYmBgvIaRJ8WSNotOEJmHhpv3bAwMjAcyqqXHfmEyD0OjZg4MDIzRjHxZyRW0k4a7reSAgYExlJFfHautEjmguusX/wcMDIxxjPyY65cqO6XNQvIOAwNjEKO6oL102F7hIb8eY2BgvIGRL3Qv6ZZfcavX3dPuNgwMjEGMKmAv9dYpJxQKnBgYGEMZR3HcUH8optuiIBUDA2M0Ix/Vwze5uObI6jZhYGDMYySH7F5RMw8oq0fqaSUWAwNjNKMfwCUbUT7pqw0WGBgYr2d0WjSqIWM5tsXAwMCIy4rVJe4dtafNYRgYGKMZeWB310V3Lw13uhEYGBijGZ0L5L1NY9UZWvUNDAyMZzB+AF/rQc8o8Uk8AAAAAElFTkSuQmCC">分享</a><div class="tags"><a href="/tags/paypal/">paypal</a></div><div class="post-nav"><a class="pre" href="/2018/06/10/sql/antipatterns/01-%E5%BC%95%E5%AD%90/">SQL反模式01-引子</a><a class="next" href="/2018/06/08/centos/nginx/">nginx负载均衡</a></div><div id="vcomment"></div><script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script><script src="//unpkg.com/valine@latest/dist/Valine.min.js"></script><script>var notify = 'true' == true ? true : false;
+`
+</code></pre></div><iframe src="/donate/?AliPayQR=null&amp;WeChatQR=/img/WeChatQR.jpg&amp;GitHub=https://github.com/farawayliu&amp;BTCQR=null&amp;BTCKEY=null&amp;PayPal=null" style="overflow-x:hidden; overflow-y:hidden; border:0xp none #fff; min-height:240px; width:100%;" frameborder="0" scrolling="no"></iframe><div><ul class="post-copyright"><li class="post-copyright-author"><strong>本文作者：</strong>far</li><li class="post-copyright-link"><strong>本文链接：</strong><a href="/2018/06/09/integrate/paypal/">https://www.ofcoder.com/2018/06/09/integrate/paypal/</a></li><li class="post-copyright-license"><strong>版权声明：</strong>Copyright © 2021 ofcoder. Author by far.</li></ul></div><br><script type="text/javascript" src="/js/share.js?v=0.0.0" async></script><a class="article-share-link" data-url="https://www.ofcoder.com/2018/06/09/integrate/paypal/" data-id="ckxm1vibb000af8j1gote3gf4" data-qrcode="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMYAAADGCAAAAACs8KCBAAACNElEQVR42u3aQW7jMAwF0Nz/0i4wq9lY/hSdoqafVoGbyHoqIFAkP594HP/G2ef/n6yfr7+T/Ko1MDAwHss4lqPKSH6b8PK1YWBgvIeRT9cHrBd0NsPFmjEwMDCWL8sP5YtDEwMDA+PWA7e/9PX3MTAwMPYusVVwkji7K6DEwMCYzegXBr73+VfrGxgYGH+ScRRHJxm3fm9rVRgYGKMZeSoteZ6n0pLgLwkcP3n+DwMD47GMPLG1l3rrtFYk24eBgYFRmOgLzRl5eg4DA2M2I/lzkrjvp+f23nhR5cDAwBjEqB6OyYUzT6hVj/iLdBsGBsY4RhKcVRdUbe3qz4CBgfEGRhK0dUoC+ZPNbcXAwBjNqKb1qwFiXiTIGy8ugksMDIxxjGo7V6dF44tzYmBgvIaRJ8WSNotOEJmHhpv3bAwMjAcyqqXHfmEyD0OjZg4MDIzRjHxZyRW0k4a7reSAgYExlJFfHautEjmguusX/wcMDIxxjPyY65cqO6XNQvIOAwNjEKO6oL102F7hIb8eY2BgvIGRL3Qv6ZZfcavX3dPuNgwMjEGMKmAv9dYpJxQKnBgYGEMZR3HcUH8optuiIBUDA2M0Ix/Vwze5uObI6jZhYGDMYySH7F5RMw8oq0fqaSUWAwNjNKMfwCUbUT7pqw0WGBgYr2d0WjSqIWM5tsXAwMCIy4rVJe4dtafNYRgYGKMZeWB310V3Lw13uhEYGBijGZ0L5L1NY9UZWvUNDAyMZzB+AF/rQc8o8Uk8AAAAAElFTkSuQmCC">分享</a><div class="tags"><a href="/tags/paypal/">paypal</a></div><div class="post-nav"><a class="pre" href="/2018/06/10/sql/antipatterns/01-%E5%BC%95%E5%AD%90/">SQL反模式01-引子</a><a class="next" href="/2018/06/08/centos/nginx/">nginx负载均衡</a></div><div id="vcomment"></div><script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script><script src="//unpkg.com/valine@latest/dist/Valine.min.js"></script><script>var notify = 'true' == true ? true : false;
 var verify = 'false' == true ? true : false;
 var GUEST_INFO = ['nick','mail','link'];
 var guest_info = 'nick,mail,link'.split(',').filter(function(item){

@@ -56,6 +56,67 @@
   </entry>
   
   <entry>
+    <title>分布式事务之Seata常见异常</title>
+    <link href="https://www.ofcoder.com/2021/06/23/java/%E5%88%86%E5%B8%83%E5%BC%8F%E4%BA%8B%E5%8A%A1%E4%B9%8BSeata%E5%B8%B8%E8%A7%81%E5%BC%82%E5%B8%B8/"/>
+    <id>https://www.ofcoder.com/2021/06/23/java/%E5%88%86%E5%B8%83%E5%BC%8F%E4%BA%8B%E5%8A%A1%E4%B9%8BSeata%E5%B8%B8%E8%A7%81%E5%BC%82%E5%B8%B8/</id>
+    <published>2021-06-23T12:57:30.000Z</published>
+    <updated>2021-12-25T04:04:34.890Z</updated>
+    
+    <summary type="html">
+    
+      
+      
+        
+        
+          &lt;h3 id=&quot;关于log-status-1的记录&quot;&gt;&lt;a href=&quot;#关于log-status-1的记录&quot; class=&quot;headerlink&quot; title=&quot;关于log_status=1的记录&quot;&gt;&lt;/a&gt;关于log_status=1的记录&lt;/h3&gt;&lt;p&gt;网上都说是防悬挂，具体是指啥又没说清楚。这里先说结论：这个条记录，你可以不用管它。&lt;/p&gt;
+&lt;p&gt;防悬挂，因为网络延迟或者第一阶段请求丢包，导致第二阶段的回滚请求，先到RM，RM此时没有处理第一阶段请求，没有记录undo_log，所以插入该记录，作为一个防御性的操作，阻止后到的第一阶段请求继续执行。&lt;/p&gt;
+&lt;p&gt;产生的另一个原因是，请检查项目中是否为多数据源。如果是，需要把seata自动代理关了，一般多数据源都是有开发者已经手动代理了。二阶段的时候，下发找datasource，找到的不是你业务操作数据库的datasource，导致没发现undolog，就插了一条status=1。&lt;/p&gt;
+&lt;figure class=&quot;highlight yaml&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td
+        
+      
+    
+    </summary>
+    
+    
+      <category term="踩坑日记" scheme="https://www.ofcoder.com/categories/%E8%B8%A9%E5%9D%91%E6%97%A5%E8%AE%B0/"/>
+    
+    
+      <category term="干货" scheme="https://www.ofcoder.com/tags/%E5%B9%B2%E8%B4%A7/"/>
+    
+      <category term="maven" scheme="https://www.ofcoder.com/tags/maven/"/>
+    
+      <category term="HTTPS" scheme="https://www.ofcoder.com/tags/HTTPS/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>SQL生成随机字符串</title>
+    <link href="https://www.ofcoder.com/2021/04/11/sql/SQL%E7%94%9F%E6%88%90%E9%9A%8F%E6%9C%BA%E5%AD%97%E7%AC%A6%E4%B8%B2/"/>
+    <id>https://www.ofcoder.com/2021/04/11/sql/SQL%E7%94%9F%E6%88%90%E9%9A%8F%E6%9C%BA%E5%AD%97%E7%AC%A6%E4%B8%B2/</id>
+    <published>2021-04-11T12:57:30.000Z</published>
+    <updated>2021-12-25T04:09:56.845Z</updated>
+    
+    <summary type="html">
+    
+      
+      
+        
+        
+          &lt;h3 id=&quot;生成随机数字&quot;&gt;&lt;a href=&quot;#生成随机数字&quot; class=&quot;headerlink&quot; title=&quot;生成随机数字&quot;&gt;&lt;/a&gt;生成随机数字&lt;/h3&gt;&lt;figure class=&quot;highlight sql&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;select&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;CONCAT&lt;/span&gt;(&lt;span class=&quot;keyword&quot;&gt;FLOOR&lt;/span&gt;(&lt;span class=&quot;keyword&quot;&gt;RAND&lt;/span&gt;()*&lt;span class=&quot;number&quot;&gt;500000000000000000&lt;/span&gt; + &lt;span class=&quot;number&quot;&gt;500000000000000000&lt;/span&gt;)
+        
+      
+    
+    </summary>
+    
+    
+      <category term="芝士点心" scheme="https://www.ofcoder.com/categories/%E8%8A%9D%E5%A3%AB%E7%82%B9%E5%BF%83/"/>
+    
+    
+      <category term="SQL" scheme="https://www.ofcoder.com/tags/SQL/"/>
+    
+  </entry>
+  
+  <entry>
     <title>分布式一致性协议 - 温故知新</title>
     <link href="https://www.ofcoder.com/2021/01/26/theory/%E5%88%86%E5%B8%83%E5%BC%8F%E4%B8%80%E8%87%B4%E6%80%A7%E5%8D%8F%E8%AE%AE%20-%20%E6%B8%A9%E6%95%85%E7%9F%A5%E6%96%B0/"/>
     <id>https://www.ofcoder.com/2021/01/26/theory/%E5%88%86%E5%B8%83%E5%BC%8F%E4%B8%80%E8%87%B4%E6%80%A7%E5%8D%8F%E8%AE%AE%20-%20%E6%B8%A9%E6%95%85%E7%9F%A5%E6%96%B0/</id>
@@ -90,6 +151,33 @@
   </entry>
   
   <entry>
+    <title>Centos</title>
+    <link href="https://www.ofcoder.com/2021/01/20/centos/Centos/"/>
+    <id>https://www.ofcoder.com/2021/01/20/centos/Centos/</id>
+    <published>2021-01-20T12:57:30.000Z</published>
+    <updated>2021-12-25T04:10:29.328Z</updated>
+    
+    <summary type="html">
+    
+      
+      
+        
+        
+          &lt;h3 id=&quot;kill一组进程&quot;&gt;&lt;a href=&quot;#kill一组进程&quot; class=&quot;headerlink&quot; title=&quot;kill一组进程&quot;&gt;&lt;/a&gt;kill一组进程&lt;/h3&gt;&lt;figure class=&quot;highlight vim&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;ps&lt;/span&gt; -ef|&lt;span class=&quot;keyword&quot;&gt;grep&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;python&lt;/span&gt;|&lt;span class=&quot;keyword&quot;&gt;grep&lt;/span&gt; -v &lt;span class=&quot;keyword&quot;&gt;grep&lt;/span&gt;|cut -&lt;span class=&quot;keyword&quot;&gt;c&lt;/span&gt; &lt;span class=&quot;number&quot;&gt;9&lt;/span&gt;-&lt;span
+        
+      
+    
+    </summary>
+    
+    
+      <category term="centos" scheme="https://www.ofcoder.com/categories/centos/"/>
+    
+    
+      <category term="linux" scheme="https://www.ofcoder.com/tags/linux/"/>
+    
+  </entry>
+  
+  <entry>
     <title>分布式一致性协议 - EPaxos</title>
     <link href="https://www.ofcoder.com/2020/12/21/theory/%E5%88%86%E5%B8%83%E5%BC%8F%E4%B8%80%E8%87%B4%E6%80%A7%E5%8D%8F%E8%AE%AE%20-%20EPaxos/"/>
     <id>https://www.ofcoder.com/2020/12/21/theory/%E5%88%86%E5%B8%83%E5%BC%8F%E4%B8%80%E8%87%B4%E6%80%A7%E5%8D%8F%E8%AE%AE%20-%20EPaxos/</id>
@@ -115,6 +203,37 @@
       <category term="分布式事务" scheme="https://www.ofcoder.com/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E4%BA%8B%E5%8A%A1/"/>
     
       <category term="paxos" scheme="https://www.ofcoder.com/tags/paxos/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>ControllerAdvice拦截Filter抛出的异常</title>
+    <link href="https://www.ofcoder.com/2020/12/10/java/ControllerAdvice%E6%8B%A6%E6%88%AAFilter%E6%8A%9B%E5%87%BA%E7%9A%84%E5%BC%82%E5%B8%B8/"/>
+    <id>https://www.ofcoder.com/2020/12/10/java/ControllerAdvice%E6%8B%A6%E6%88%AAFilter%E6%8A%9B%E5%87%BA%E7%9A%84%E5%BC%82%E5%B8%B8/</id>
+    <published>2020-12-10T12:57:30.000Z</published>
+    <updated>2021-12-25T04:18:43.044Z</updated>
+    
+    <summary type="html">
+    
+      
+      
+        
+        
+          &lt;h3 id=&quot;场景还原&quot;&gt;&lt;a href=&quot;#场景还原&quot; class=&quot;headerlink&quot; title=&quot;场景还原&quot;&gt;&lt;/a&gt;场景还原&lt;/h3&gt;&lt;p&gt;@ControllerAdvice在spring中用于全局的异常拦截和处理。Filter则过滤请求，多用于请求鉴权。它们之间的关系如下：&lt;br&gt;&lt;img src=&quot;/images/java/exception_handle_filter_1.png&quot; alt=&quot;filter,controller关系&quot;&gt;&lt;/p&gt;
+&lt;p&gt;因为spring设计原因，Filter和Interceptor中抛出的异常，@ControllerAdvice则捕获不到，自然也就处理不了。&lt;/p&gt;
+&lt;h3 id=&quot;解决方案&quot;&gt;&lt;a href=&quot;#解决方案&quot; class=&quot;headerlink&quot; title=&quot;解决方案&quot;&gt;&lt;/a&gt;解决方案&lt;/h3&gt;&lt;p&gt;手动注入HandlerExceptionResolver对象，调用resolveException()，自己处理异常。&lt;br&gt;&lt;figure class=&quot;highlight less&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td
+        
+      
+    
+    </summary>
+    
+    
+      <category term="踩坑日记" scheme="https://www.ofcoder.com/categories/%E8%B8%A9%E5%9D%91%E6%97%A5%E8%AE%B0/"/>
+    
+    
+      <category term="Filter" scheme="https://www.ofcoder.com/tags/Filter/"/>
+    
+      <category term="异常" scheme="https://www.ofcoder.com/tags/%E5%BC%82%E5%B8%B8/"/>
     
   </entry>
   
@@ -389,11 +508,11 @@
   </entry>
   
   <entry>
-    <title>谈谈mysql索引实现-B+ Tree</title>
-    <link href="https://www.ofcoder.com/2019/04/01/theory/%E8%B0%88%E8%B0%88mysql%E7%B4%A2%E5%BC%95%E5%AE%9E%E7%8E%B0-B+Tree/"/>
-    <id>https://www.ofcoder.com/2019/04/01/theory/%E8%B0%88%E8%B0%88mysql%E7%B4%A2%E5%BC%95%E5%AE%9E%E7%8E%B0-B+Tree/</id>
-    <published>2019-04-01T15:14:18.000Z</published>
-    <updated>2020-09-05T13:42:57.089Z</updated>
+    <title>分布式事务之实现分布式系统的最终一致性</title>
+    <link href="https://www.ofcoder.com/2020/05/20/java/%E5%88%86%E5%B8%83%E5%BC%8F%E4%BA%8B%E5%8A%A1%E4%B9%8B%E5%AE%9E%E7%8E%B0%E5%88%86%E5%B8%83%E5%BC%8F%E7%B3%BB%E7%BB%9F%E7%9A%84%E6%9C%80%E7%BB%88%E4%B8%80%E8%87%B4%E6%80%A7/"/>
+    <id>https://www.ofcoder.com/2020/05/20/java/%E5%88%86%E5%B8%83%E5%BC%8F%E4%BA%8B%E5%8A%A1%E4%B9%8B%E5%AE%9E%E7%8E%B0%E5%88%86%E5%B8%83%E5%BC%8F%E7%B3%BB%E7%BB%9F%E7%9A%84%E6%9C%80%E7%BB%88%E4%B8%80%E8%87%B4%E6%80%A7/</id>
+    <published>2020-05-20T12:57:30.000Z</published>
+    <updated>2021-12-25T04:35:20.229Z</updated>
     
     <summary type="html">
     
@@ -401,34 +520,32 @@
       
         
         
-          &lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;本文记录学习mysql索引时，了解到一系列知识点。先从二叉树，到平衡二叉树，再到多路平衡树(B-Tree)，最后到加强版多路平衡查找树(B+Tree)，也就是Mysql默认使用的索引结构。分别解析各自的优缺点。以及最后为什么Mysql选择B+Tree。最后总结对日常开发的影响。&lt;/p&gt;
-&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;树，这种数据结构诞生的原因，想必都说腻了。也就是，当你在一堆数据中要查询某个值的时候，你是不是得去遍历所有数据，找到你要的那一个，对不对。当你数据量很大的时候，遍历的成本是非常高。假如你要从一百万个数值中查找你要的值，你有可能就得比较一百万次。那么这个时候树的结构就诞生了。它按照一定规则存储数据，当你查询的时候，按照一定的规则查找数据。它的时间复杂度比你直接遍历要降低数倍。&lt;/p&gt;
-&lt;h4 id=&quot;二叉查找树-Binary-Search-Tree&quot;&gt;&lt;a href=&quot;#二叉查找树-Binary-Search-Tree&quot; class=&quot;headerlink&quot; title=&quot;二叉查找树(Binary
+          &lt;p&gt;转载自： &lt;a href=&quot;https://www.cnblogs.com/wudimanong/p/10558710.html&quot; target=&quot;_blank&quot; rel=&quot;noopener&quot;&gt;https://www.cnblogs.com/wudimanong/p/10558710.html&lt;/a&gt;&lt;/p&gt;
+&lt;h3 id=&quot;导读&quot;&gt;&lt;a href=&quot;#导读&quot; class=&quot;headerlink&quot; title=&quot;导读&quot;&gt;&lt;/a&gt;导读&lt;/h3&gt;&lt;p&gt;在之前的文章中我们介绍了如何基于RocketMQ搭建生产级消息集群，以及2PC、3PC和TCC等与分布式事务相关的基本概念（没有读过的读者详见👇推荐阅读）。在这篇文章中我们将介绍RocketMQ的事务消息相关的内容，并通过一些实践和大家一起来探索下事务消息如何解决分布式系统中的分布式事务问题。&lt;/p&gt;
+&lt;h3 id=&quot;事务消息原理&quot;&gt;&lt;a href=&quot;#事务消息原理&quot; class=&quot;headerlink&quot;
         
       
     
     </summary>
     
     
-      <category term="算法理论" scheme="https://www.ofcoder.com/categories/%E7%AE%97%E6%B3%95%E7%90%86%E8%AE%BA/"/>
+      <category term="芝士点心" scheme="https://www.ofcoder.com/categories/%E8%8A%9D%E5%A3%AB%E7%82%B9%E5%BF%83/"/>
     
     
-      <category term="mysql" scheme="https://www.ofcoder.com/tags/mysql/"/>
+      <category term="分布式事务" scheme="https://www.ofcoder.com/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E4%BA%8B%E5%8A%A1/"/>
     
-      <category term="B-Tree" scheme="https://www.ofcoder.com/tags/B-Tree/"/>
+      <category term="RocketMQ" scheme="https://www.ofcoder.com/tags/RocketMQ/"/>
     
-      <category term="索引" scheme="https://www.ofcoder.com/tags/%E7%B4%A2%E5%BC%95/"/>
-    
-      <category term="树" scheme="https://www.ofcoder.com/tags/%E6%A0%91/"/>
+      <category term="最终一致性" scheme="https://www.ofcoder.com/tags/%E6%9C%80%E7%BB%88%E4%B8%80%E8%87%B4%E6%80%A7/"/>
     
   </entry>
   
   <entry>
-    <title>自定义注解3-组合注解</title>
-    <link href="https://www.ofcoder.com/2018/10/20/java/%E8%87%AA%E5%AE%9A%E4%B9%89%E6%B3%A8%E8%A7%A33-%E7%BB%84%E5%90%88%E6%B3%A8%E8%A7%A3/"/>
-    <id>https://www.ofcoder.com/2018/10/20/java/%E8%87%AA%E5%AE%9A%E4%B9%89%E6%B3%A8%E8%A7%A33-%E7%BB%84%E5%90%88%E6%B3%A8%E8%A7%A3/</id>
-    <published>2018-10-20T05:33:11.000Z</published>
-    <updated>2019-11-20T14:01:31.641Z</updated>
+    <title>maven依赖本地jar包</title>
+    <link href="https://www.ofcoder.com/2020/03/14/java/maven%E4%BE%9D%E8%B5%96%E6%9C%AC%E5%9C%B0jar%E5%8C%85/"/>
+    <id>https://www.ofcoder.com/2020/03/14/java/maven%E4%BE%9D%E8%B5%96%E6%9C%AC%E5%9C%B0jar%E5%8C%85/</id>
+    <published>2020-03-14T12:57:30.000Z</published>
+    <updated>2021-12-25T04:41:41.790Z</updated>
     
     <summary type="html">
     
@@ -436,205 +553,39 @@
       
         
         
-          &lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;组合注解用处很多，只是我们有时没注意而已，比如RestController，PostMapping，GetMapping等。他们的意义在于将多个注解组合在一起，写一个注解就够了。&lt;/p&gt;
-&lt;h4 id=&quot;定义组合注解&quot;&gt;&lt;a href=&quot;#定义组合注解&quot; class=&quot;headerlink&quot; title=&quot;定义组合注解&quot;&gt;&lt;/a&gt;定义组合注解&lt;/h4&gt;&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;本节目的在于，组合Cacheable注解，将它的cacheNames写成默认的default（想想第一节最后的讨论）。&lt;/p&gt;
-&lt;figure class=&quot;highlight less&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;2&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;3&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;4&lt;/span&gt;&lt;br&gt;&lt;span
-        
-      
-    
-    </summary>
-    
-    
-      <category term="java" scheme="https://www.ofcoder.com/categories/java/"/>
-    
-    
-      <category term="干货" scheme="https://www.ofcoder.com/tags/%E5%B9%B2%E8%B4%A7/"/>
-    
-      <category term="API设计" scheme="https://www.ofcoder.com/tags/API%E8%AE%BE%E8%AE%A1/"/>
-    
-      <category term="注解" scheme="https://www.ofcoder.com/tags/%E6%B3%A8%E8%A7%A3/"/>
-    
-      <category term="组合注解" scheme="https://www.ofcoder.com/tags/%E7%BB%84%E5%90%88%E6%B3%A8%E8%A7%A3/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>自定义注解2-动态修改注解的属性值</title>
-    <link href="https://www.ofcoder.com/2018/10/20/java/%E8%87%AA%E5%AE%9A%E4%B9%89%E6%B3%A8%E8%A7%A32-%E5%8A%A8%E6%80%81%E4%BF%AE%E6%94%B9%E6%B3%A8%E8%A7%A3%E7%9A%84%E5%B1%9E%E6%80%A7%E5%80%BC/"/>
-    <id>https://www.ofcoder.com/2018/10/20/java/%E8%87%AA%E5%AE%9A%E4%B9%89%E6%B3%A8%E8%A7%A32-%E5%8A%A8%E6%80%81%E4%BF%AE%E6%94%B9%E6%B3%A8%E8%A7%A3%E7%9A%84%E5%B1%9E%E6%80%A7%E5%80%BC/</id>
-    <published>2018-10-20T03:12:44.000Z</published>
-    <updated>2019-11-20T14:01:25.175Z</updated>
-    
-    <summary type="html">
-    
-      
-      
-        
-        
-          &lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;经过上一节的，我们可以自己解析spel表达式。那么我现在的想法是，在注解的第一层aop中解析spel，然后将解析后的值设置到属性中，那么在之后的aop中就不用解析了。&lt;/p&gt;
-&lt;h4 id=&quot;找出注解中值存放位置&quot;&gt;&lt;a href=&quot;#找出注解中值存放位置&quot; class=&quot;headerlink&quot; title=&quot;找出注解中值存放位置&quot;&gt;&lt;/a&gt;找出注解中值存放位置&lt;/h4&gt;&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;继续上一节的代码，在上一节的AOP中添加注解@Order(0)，再新增一个注解，添加@Order(1)。注意order这个注解有坑的，最好先百度完再使用。&lt;/p&gt;
-&lt;figure class=&quot;highlight kotlin&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;2&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;3&lt;/span&gt;&lt;br&gt;&lt;span
-        
-      
-    
-    </summary>
-    
-    
-      <category term="java" scheme="https://www.ofcoder.com/categories/java/"/>
-    
-    
-      <category term="干货" scheme="https://www.ofcoder.com/tags/%E5%B9%B2%E8%B4%A7/"/>
-    
-      <category term="API设计" scheme="https://www.ofcoder.com/tags/API%E8%AE%BE%E8%AE%A1/"/>
-    
-      <category term="注解" scheme="https://www.ofcoder.com/tags/%E6%B3%A8%E8%A7%A3/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>自定义注解1-实现spel表达式</title>
-    <link href="https://www.ofcoder.com/2018/10/19/java/%E8%87%AA%E5%AE%9A%E4%B9%89%E6%B3%A8%E8%A7%A31-%E5%AE%9E%E7%8E%B0spel%E8%A1%A8%E8%BE%BE%E5%BC%8F/"/>
-    <id>https://www.ofcoder.com/2018/10/19/java/%E8%87%AA%E5%AE%9A%E4%B9%89%E6%B3%A8%E8%A7%A31-%E5%AE%9E%E7%8E%B0spel%E8%A1%A8%E8%BE%BE%E5%BC%8F/</id>
-    <published>2018-10-19T15:14:18.000Z</published>
-    <updated>2019-11-20T14:01:18.556Z</updated>
-    
-    <summary type="html">
-    
-      
-      
-        
-        
-          &lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;开发中多多少少会使用spel，spel是Spring3引入了Spring表达式语言（Spring Expression Language,SpEL），在一些配置中，注解中经常用到，可谓是神器。比如说spring中的@Cacheable注解，其中key、unless等属性都支持Spel。举个例子：&lt;/p&gt;
-&lt;figure class=&quot;highlight reasonml&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;2&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;3&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;4&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;@&lt;span class=&quot;constructor&quot;&gt;Cacheable(&lt;span
-        
-      
-    
-    </summary>
-    
-    
-      <category term="java" scheme="https://www.ofcoder.com/categories/java/"/>
-    
-    
-      <category term="干货" scheme="https://www.ofcoder.com/tags/%E5%B9%B2%E8%B4%A7/"/>
-    
-      <category term="API设计" scheme="https://www.ofcoder.com/tags/API%E8%AE%BE%E8%AE%A1/"/>
-    
-      <category term="SpEL" scheme="https://www.ofcoder.com/tags/SpEL/"/>
-    
-      <category term="注解" scheme="https://www.ofcoder.com/tags/%E6%B3%A8%E8%A7%A3/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>SQL反模式15-模棱两可的分组</title>
-    <link href="https://www.ofcoder.com/2018/10/08/sql/antipatterns/15-%E6%A8%A1%E6%A3%B1%E4%B8%A4%E5%8F%AF%E7%9A%84%E5%88%86%E7%BB%84/"/>
-    <id>https://www.ofcoder.com/2018/10/08/sql/antipatterns/15-%E6%A8%A1%E6%A3%B1%E4%B8%A4%E5%8F%AF%E7%9A%84%E5%88%86%E7%BB%84/</id>
-    <published>2018-10-08T12:16:02.000Z</published>
-    <updated>2018-10-20T01:31:50.450Z</updated>
-    
-    <summary type="html">
-    
-      
-      
-        
-        
-          &lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;假如你的老板想知道哪些项目还处于活跃状态，哪些项目已经停止了。他让你生成一个每个项目最后一个bug提交日期的报表。你查询根据product分组的dete_report的最大值，如下：&lt;/p&gt;
-&lt;table&gt;
-&lt;thead&gt;
-&lt;tr&gt;
-&lt;th&gt;product&lt;/th&gt;
-&lt;th&gt;latest&lt;/th&gt;
-&lt;th&gt;bug_id&lt;/th&gt;
-&lt;/tr&gt;
-&lt;/thead&gt;
-&lt;tbody&gt;&lt;tr&gt;
-&lt;td&gt;USQL&lt;/td&gt;
-&lt;td&gt;2010-06-01&lt;/td&gt;
-&lt;td&gt;1234&lt;/td&gt;
-&lt;/tr&gt;
-&lt;tr&gt;
-&lt;td&gt;Open
-        
-      
-    
-    </summary>
-    
-    
-      <category term="SQL反模式" scheme="https://www.ofcoder.com/categories/SQL%E5%8F%8D%E6%A8%A1%E5%BC%8F/"/>
-    
-    
-      <category term="SQL" scheme="https://www.ofcoder.com/tags/SQL/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>SQL反模式14-对未知的恐惧</title>
-    <link href="https://www.ofcoder.com/2018/09/10/sql/antipatterns/14-%E5%AF%B9%E6%9C%AA%E7%9F%A5%E7%9A%84%E6%81%90%E6%83%A7/"/>
-    <id>https://www.ofcoder.com/2018/09/10/sql/antipatterns/14-%E5%AF%B9%E6%9C%AA%E7%9F%A5%E7%9A%84%E6%81%90%E6%83%A7/</id>
-    <published>2018-09-10T12:54:59.000Z</published>
-    <updated>2019-04-17T13:38:44.568Z</updated>
-    
-    <summary type="html">
-    
-      
-      
-        
-        
-          &lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;你的account表中有first_name, last_name两个字段，现在有需求要你显示一个完整名字。&lt;/p&gt;
-&lt;figure class=&quot;highlight sql&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;2&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;select&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;concat&lt;/span&gt;(first_name, last_name)&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt; &lt;span class=&quot;keyword&quot;&gt;as&lt;/span&gt; &lt;span class=&quot;string&quot;&gt;&#39;full_name&#39;&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;from&lt;/span&gt;
-        
-      
-    
-    </summary>
-    
-    
-      <category term="SQL反模式" scheme="https://www.ofcoder.com/categories/SQL%E5%8F%8D%E6%A8%A1%E5%BC%8F/"/>
-    
-    
-      <category term="SQL" scheme="https://www.ofcoder.com/tags/SQL/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>SQL反模式13-乱用索引</title>
-    <link href="https://www.ofcoder.com/2018/09/02/sql/antipatterns/13-%E4%B9%B1%E7%94%A8%E7%B4%A2%E5%BC%95/"/>
-    <id>https://www.ofcoder.com/2018/09/02/sql/antipatterns/13-%E4%B9%B1%E7%94%A8%E7%B4%A2%E5%BC%95/</id>
-    <published>2018-09-02T06:08:48.000Z</published>
-    <updated>2018-09-02T09:12:28.754Z</updated>
-    
-    <summary type="html">
-    
-      
-      
-        
-        
-          &lt;h4 id=&quot;目的：优化性能&quot;&gt;&lt;a href=&quot;#目的：优化性能&quot; class=&quot;headerlink&quot; title=&quot;目的：优化性能&quot;&gt;&lt;/a&gt;目的：优化性能&lt;/h4&gt;&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;改善性能最好的技术就是合理使用数据库中的索引。索引也是数据结构，他可以帮助快速定位到相应的行，而不需要野蛮的自上而下全表遍历。&lt;/p&gt;
-&lt;h4 id=&quot;反模式：无规划的使用索引&quot;&gt;&lt;a href=&quot;#反模式：无规划的使用索引&quot; class=&quot;headerlink&quot; title=&quot;反模式：无规划的使用索引&quot;&gt;&lt;/a&gt;反模式：无规划的使用索引&lt;/h4&gt;&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;软件开发人员通常猜测的来选择索引，那么就不可避免的犯一些错误&lt;/p&gt;
+          &lt;h3 id=&quot;项目情况&quot;&gt;&lt;a href=&quot;#项目情况&quot; class=&quot;headerlink&quot; title=&quot;项目情况&quot;&gt;&lt;/a&gt;项目情况&lt;/h3&gt;&lt;p&gt;没有搭建私仓，多模块依赖的父子模块（工程），需要依赖提供商提供的jar包。期望：&lt;/p&gt;
 &lt;ol&gt;
-&lt;li&gt;不使用索引或索引不足&lt;/li&gt;
-&lt;li&gt;使用了太多索引或者使用了一些无效的索引&lt;/li&gt;
-&lt;li&gt;执行一些让索引无能为力的查询&lt;/li&gt;
+&lt;li&gt;在需要依赖该模块的模块下依赖，不将该jar影响其他模块&lt;/li&gt;
+&lt;li&gt;打包简单，在其他同事启动项目是不要手动处理这个jar包。&lt;/li&gt;
 &lt;/ol&gt;
-&lt;h5 id=&quot;无索引&quot;&gt;&lt;a href=&quot;#无索引&quot; class=&quot;headerlink&quot;
+&lt;p&gt;本文介绍三种方式：&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;打包时，将jar移至BOOT-INF&lt;/li&gt;
+&lt;li&gt;打包时，将jar安装至本地仓库&lt;/li&gt;
+&lt;li&gt;创建一个不同的本地仓库&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h3 id=&quot;将jar移至BOOT-INF&quot;&gt;&lt;a href=&quot;#将jar移至BOOT-INF&quot; class=&quot;headerlink&quot; title=&quot;将jar移至BOOT-INF&quot;&gt;&lt;/a&gt;将jar移至BOOT-INF&lt;/h3&gt;&lt;h4 id=&quot;实现方案&quot;&gt;&lt;a href=&quot;#实现方案&quot; class=&quot;headerlink&quot;
         
       
     
     </summary>
     
     
-      <category term="SQL反模式" scheme="https://www.ofcoder.com/categories/SQL%E5%8F%8D%E6%A8%A1%E5%BC%8F/"/>
+      <category term="芝士点心" scheme="https://www.ofcoder.com/categories/%E8%8A%9D%E5%A3%AB%E7%82%B9%E5%BF%83/"/>
     
     
-      <category term="SQL" scheme="https://www.ofcoder.com/tags/SQL/"/>
+      <category term="干货" scheme="https://www.ofcoder.com/tags/%E5%B9%B2%E8%B4%A7/"/>
+    
+      <category term="maven" scheme="https://www.ofcoder.com/tags/maven/"/>
     
   </entry>
   
   <entry>
-    <title>SQL反模式12-幽灵文件</title>
-    <link href="https://www.ofcoder.com/2018/08/30/sql/antipatterns/12-%E5%B9%BD%E7%81%B5%E6%96%87%E4%BB%B6/"/>
-    <id>https://www.ofcoder.com/2018/08/30/sql/antipatterns/12-%E5%B9%BD%E7%81%B5%E6%96%87%E4%BB%B6/</id>
-    <published>2018-08-30T13:44:30.000Z</published>
-    <updated>2018-08-30T15:09:38.478Z</updated>
+    <title>位运算-linux权限管理</title>
+    <link href="https://www.ofcoder.com/2020/03/12/java/%E4%BD%8D%E8%BF%90%E7%AE%97-linux%E6%9D%83%E9%99%90%E7%AE%A1%E7%90%86/"/>
+    <id>https://www.ofcoder.com/2020/03/12/java/%E4%BD%8D%E8%BF%90%E7%AE%97-linux%E6%9D%83%E9%99%90%E7%AE%A1%E7%90%86/</id>
+    <published>2020-03-12T12:57:30.000Z</published>
+    <updated>2021-12-25T04:58:01.095Z</updated>
     
     <summary type="html">
     
@@ -642,28 +593,30 @@
       
         
         
-          &lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;在一次灾难中，你的服务器硬件机架整个倾倒，导致大量硬盘损坏，庆幸的是IT部分灾备做的比较好，你们有一份和上次备份一样的完整副本。但是在冒烟测试中你们发现所有的图片都不能加载，这是才想起来所有的文件都存在/var目录下。&lt;/p&gt;
-&lt;h4 id=&quot;目的：存储图片或其他媒体大文件&quot;&gt;&lt;a href=&quot;#目的：存储图片或其他媒体大文件&quot; class=&quot;headerlink&quot; title=&quot;目的：存储图片或其他媒体大文件&quot;&gt;&lt;/a&gt;目的：存储图片或其他媒体大文件&lt;/h4&gt;&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;本章的目标就是要存储这些图片并且将其和数据库实体管理起来，当查询这些实体时，我们需要确保同时能获取与其关联的图片。&lt;/p&gt;
-&lt;h4 id=&quot;反模式：假设你必须使用文件系统&quot;&gt;&lt;a href=&quot;#反模式：假设你必须使用文件系统&quot; class=&quot;headerlink&quot;
+          &lt;h3 id=&quot;Linux基于位运算的权限控制&quot;&gt;&lt;a href=&quot;#Linux基于位运算的权限控制&quot; class=&quot;headerlink&quot; title=&quot;Linux基于位运算的权限控制&quot;&gt;&lt;/a&gt;Linux基于位运算的权限控制&lt;/h3&gt;&lt;p&gt;Linux权限控制是基于位运算实现的。&lt;/p&gt;
+&lt;p&gt;在Linux权限系统中，读、写、执行权限分别对应三个状态位：&lt;/p&gt;
+&lt;div
         
       
     
     </summary>
     
     
-      <category term="SQL反模式" scheme="https://www.ofcoder.com/categories/SQL%E5%8F%8D%E6%A8%A1%E5%BC%8F/"/>
+      <category term="芝士点心" scheme="https://www.ofcoder.com/categories/%E8%8A%9D%E5%A3%AB%E7%82%B9%E5%BF%83/"/>
     
     
-      <category term="SQL" scheme="https://www.ofcoder.com/tags/SQL/"/>
+      <category term="linux" scheme="https://www.ofcoder.com/tags/linux/"/>
+    
+      <category term="位运算" scheme="https://www.ofcoder.com/tags/%E4%BD%8D%E8%BF%90%E7%AE%97/"/>
     
   </entry>
   
   <entry>
-    <title>SQL反模式11-每日新花样(限定列的有效值)</title>
-    <link href="https://www.ofcoder.com/2018/08/22/sql/antipatterns/11-%E6%AF%8F%E6%97%A5%E6%96%B0%E8%8A%B1%E6%A0%B7(%E9%99%90%E5%AE%9A%E5%88%97%E7%9A%84%E6%9C%89%E6%95%88%E5%80%BC)/"/>
-    <id>https://www.ofcoder.com/2018/08/22/sql/antipatterns/11-%E6%AF%8F%E6%97%A5%E6%96%B0%E8%8A%B1%E6%A0%B7(%E9%99%90%E5%AE%9A%E5%88%97%E7%9A%84%E6%9C%89%E6%95%88%E5%80%BC)/</id>
-    <published>2018-08-22T12:21:49.000Z</published>
-    <updated>2018-08-23T13:14:59.812Z</updated>
+    <title>埋点-淘宝SPM流量跟踪体系</title>
+    <link href="https://www.ofcoder.com/2020/03/09/java/%E5%9F%8B%E7%82%B9-%E6%B7%98%E5%AE%9DSPM%E6%B5%81%E9%87%8F%E8%B7%9F%E8%B8%AA%E4%BD%93%E7%B3%BB/"/>
+    <id>https://www.ofcoder.com/2020/03/09/java/%E5%9F%8B%E7%82%B9-%E6%B7%98%E5%AE%9DSPM%E6%B5%81%E9%87%8F%E8%B7%9F%E8%B8%AA%E4%BD%93%E7%B3%BB/</id>
+    <published>2020-03-09T12:57:30.000Z</published>
+    <updated>2021-12-25T05:06:04.327Z</updated>
     
     <summary type="html">
     
@@ -671,19 +624,55 @@
       
         
         
-          &lt;h4 id=&quot;目标：限定列的有效值&quot;&gt;&lt;a href=&quot;#目标：限定列的有效值&quot; class=&quot;headerlink&quot; title=&quot;目标：限定列的有效值&quot;&gt;&lt;/a&gt;目标：限定列的有效值&lt;/h4&gt;&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;限定列的有效值是非常有用的，比如bug表的status，我们定义check约束，让它只允许保存(“NEW”,”IN PROGRESS”,”FIXED”)，那么它就会拒绝所有不存在以上集合中的无效值。但是定义check约束，我们日后改如何修改限定有效值呢？这就是本章所讲的反模式。&lt;/p&gt;
-&lt;h4 id=&quot;反模式：在列定义上指定可选值-约束&quot;&gt;&lt;a href=&quot;#反模式：在列定义上指定可选值-约束&quot; class=&quot;headerlink&quot; title=&quot;反模式：在列定义上指定可选值(约束)&quot;&gt;&lt;/a&gt;反模式：在列定义上指定可选值(约束)&lt;/h4&gt;&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;很多数据库设计人员趋向于在定义列的时候指定所有可选的有效值。如下DDL：&lt;/p&gt;
-&lt;figure class=&quot;highlight
+          &lt;p&gt;本文转载：&lt;a href=&quot;https://www.biaodianfu.com/spm.html&quot; target=&quot;_blank&quot; rel=&quot;noopener&quot;&gt;https://www.biaodianfu.com/spm.html&lt;/a&gt;&lt;/p&gt;
+&lt;h3 id=&quot;什么是SPM&quot;&gt;&lt;a href=&quot;#什么是SPM&quot; class=&quot;headerlink&quot; title=&quot;什么是SPM&quot;&gt;&lt;/a&gt;什么是SPM&lt;/h3&gt;&lt;p&gt;SPM是淘宝社区电商业务（xTao）为外部合作伙伴（外站）提供的一套跟踪引导成交效果数据的解决方案。下面是一个跟踪点击到宝贝详情页的引导成交效果数据的SPM示例：&lt;a href=&quot;http://detail.tmall.com/item.htm?id=3716461318&amp;amp;&amp;amp;spm=2014.123456789.1.2&quot; target=&quot;_blank&quot; rel=&quot;noopener&quot;&gt;http://detail.tmall.com/item.htm?id=3716461318&amp;amp;&amp;amp;spm=2014.123456789.1.2&lt;/a&gt;
         
       
     
     </summary>
     
     
-      <category term="SQL反模式" scheme="https://www.ofcoder.com/categories/SQL%E5%8F%8D%E6%A8%A1%E5%BC%8F/"/>
+      <category term="芝士点心" scheme="https://www.ofcoder.com/categories/%E8%8A%9D%E5%A3%AB%E7%82%B9%E5%BF%83/"/>
     
     
-      <category term="SQL" scheme="https://www.ofcoder.com/tags/SQL/"/>
+      <category term="埋点" scheme="https://www.ofcoder.com/tags/%E5%9F%8B%E7%82%B9/"/>
+    
+      <category term="SPM" scheme="https://www.ofcoder.com/tags/SPM/"/>
+    
+      <category term="行为分析" scheme="https://www.ofcoder.com/tags/%E8%A1%8C%E4%B8%BA%E5%88%86%E6%9E%90/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>dubbo番外篇-bug之【aop失效】</title>
+    <link href="https://www.ofcoder.com/2020/01/07/java/dubbo%E7%95%AA%E5%A4%96%E7%AF%87-bug%E4%B9%8B%E3%80%90aop%E5%A4%B1%E6%95%88%E3%80%91/"/>
+    <id>https://www.ofcoder.com/2020/01/07/java/dubbo%E7%95%AA%E5%A4%96%E7%AF%87-bug%E4%B9%8B%E3%80%90aop%E5%A4%B1%E6%95%88%E3%80%91/</id>
+    <published>2020-01-07T12:57:30.000Z</published>
+    <updated>2021-12-25T05:12:31.931Z</updated>
+    
+    <summary type="html">
+    
+      
+      
+        
+        
+          &lt;p&gt;本文浅述：在使用dubbo时，spring aop失效问题。如果你也遇到该问题，先检查是否使用@Reference注入dubbo服务的。&lt;/p&gt;
+&lt;h3 id=&quot;场景还原&quot;&gt;&lt;a href=&quot;#场景还原&quot; class=&quot;headerlink&quot; title=&quot;场景还原&quot;&gt;&lt;/a&gt;场景还原&lt;/h3&gt;&lt;p&gt;&lt;strong&gt;版本&lt;/strong&gt;：我使用的dubbo版本是2.6.&lt;br&gt;&lt;strong&gt;场景&lt;/strong&gt;：我想消费者在调用我的dubbo接口时，都将自己应用名传过来，方便我鉴权，所以我在我提供的二方包中，提供aop，想通过dubbo的附加参数，将应用名传过来。大致代码如下：&lt;/p&gt;
+&lt;figure class=&quot;highlight java&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;2&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;3&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;4&lt;/span&gt;&lt;br&gt;&lt;span
+        
+      
+    
+    </summary>
+    
+    
+      <category term="源码狂想" scheme="https://www.ofcoder.com/categories/%E6%BA%90%E7%A0%81%E7%8B%82%E6%83%B3/"/>
+    
+    
+      <category term="干货" scheme="https://www.ofcoder.com/tags/%E5%B9%B2%E8%B4%A7/"/>
+    
+      <category term="dubbo" scheme="https://www.ofcoder.com/tags/dubbo/"/>
+    
+      <category term="源码" scheme="https://www.ofcoder.com/tags/%E6%BA%90%E7%A0%81/"/>
     
   </entry>
   

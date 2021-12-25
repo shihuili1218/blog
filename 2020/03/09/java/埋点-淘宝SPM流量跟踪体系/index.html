@@ -1,0 +1,101 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta http-equiv="content-type" content="text/html; charset=utf-8"><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport"><meta content="yes" name="apple-mobile-web-app-capable"><meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"><meta content="telephone=no" name="format-detection"><meta name="description"><title>埋点-淘宝SPM流量跟踪体系 | 并发笔记 - ofcoder.com</title><link rel="stylesheet" type="text/css" href="/css/style.css?v=0.0.0"><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/normalize/8.0.0/normalize.min.css"><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/pure/1.0.0/pure-min.css"><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/pure/1.0.0/grids-responsive-min.css"><link rel="stylesheet" href="//cdn.bootcss.com/font-awesome/4.7.0/css/font-awesome.min.css"><script type="text/javascript" src="//cdn.bootcss.com/jquery/3.3.1/jquery.min.js"></script><link rel="Shortcut Icon" type="image/x-icon" href="/favicon.ico"><link rel="apple-touch-icon" href="/apple-touch-icon.png"><link rel="apple-touch-icon-precomposed" href="/apple-touch-icon.png"><!-- 顶部加载进度条 --><script type="text/javascript" src="//cdn.bootcss.com/pace/1.0.2/pace.min.js"></script><link rel="stylesheet" href="//cdn.bootcss.com/pace/1.0.2/themes/pink/pace-theme-flash.css"><link rel="alternate" type="application/atom+xml" href="/atom.xml"><meta name="generator" content="Hexo 4.2.1"></head><body><div class="body_container"><div id="header"><div class="site-name"><h1 class="hidden">埋点-淘宝SPM流量跟踪体系</h1><a id="logo" href="/.">并发笔记 - ofcoder.com</a><p class="description">一位后端开发的养肝历程，护发经验</p></div><div id="nav-menu"><a class="current" href="/."><i class="fa fa-home"> 首页</i></a><a href="/tags/"><i class="fa fa-tags"> 标签</i></a><a href="/usql/"><i class="fa fa-database"> usql</i></a><a href="/book/"><i class="fa fas fa-book"> book</i></a><a href="/atom.xml"><i class="fa fa-rss"> 订阅</i></a></div></div><div class="pure-g-g" id="layout"><div class="pure-u-1 pure-u-md-3-4"><div class="content_container"><div class="post"><h1 class="post-title">埋点-淘宝SPM流量跟踪体系</h1><div class="post-meta">Mar 9, 2020<span> | </span><span class="category"><a href="/categories/%E8%8A%9D%E5%A3%AB%E7%82%B9%E5%BF%83/">芝士点心</a></span><span id="busuanzi_container_page_pv"> | <span id="busuanzi_value_page_pv"></span><span> 阅读</span></span><span class="post-time"><span class="post-meta-item-text"> | </span><span class="post-meta-item-icon"><i class="fa fa-keyboard-o"></i><span class="post-count"> 1.9k</span><span class="post-meta-item-text"> 字</span></span></span><span class="post-time"> | <span class="post-meta-item-icon"><i class="fa fa-hourglass-half"></i><span class="post-count"> 6</span><span class="post-meta-item-text"> 分钟</span></span></span></div><a class="disqus-comment-count" href="/2020/03/09/java/%E5%9F%8B%E7%82%B9-%E6%B7%98%E5%AE%9DSPM%E6%B5%81%E9%87%8F%E8%B7%9F%E8%B8%AA%E4%BD%93%E7%B3%BB/#vcomment"><span class="valine-comment-count" data-xid="/2020/03/09/java/%E5%9F%8B%E7%82%B9-%E6%B7%98%E5%AE%9DSPM%E6%B5%81%E9%87%8F%E8%B7%9F%E8%B8%AA%E4%BD%93%E7%B3%BB/"></span><span> 条评论</span></a><div class="post-content"><p>本文转载：<a href="https://www.biaodianfu.com/spm.html" target="_blank" rel="noopener">https://www.biaodianfu.com/spm.html</a></p>
+<h3 id="什么是SPM"><a href="#什么是SPM" class="headerlink" title="什么是SPM"></a>什么是SPM</h3><p>SPM是淘宝社区电商业务（xTao）为外部合作伙伴（外站）提供的一套跟踪引导成交效果数据的解决方案。下面是一个跟踪点击到宝贝详情页的引导成交效果数据的SPM示例：<a href="http://detail.tmall.com/item.htm?id=3716461318&amp;&amp;spm=2014.123456789.1.2" target="_blank" rel="noopener">http://detail.tmall.com/item.htm?id=3716461318&amp;&amp;spm=2014.123456789.1.2</a> 其中spm=2014.123456789.1.2 便是下文所说的SPM编码。</p>
+<p>SPM编码：用来跟踪页面模块位置的编码，标准spm编码由4段组成，采用a.b.c.d的格式（建议全部使用数字），其中，</p>
+<ul>
+<li>a代表站点类型，对于xTao合作伙伴（外站），a为固定值，a=2014</li>
+<li>b代表外站ID（即外站所使用的TOP appkey），比如您的站点使用的TOP appkey=123456789，则b=123456789</li>
+<li>c代表b站点上的频道ID，比如是外站某个团购频道，某个逛街频道，某个试用频道 等</li>
+<li>d代表c频道上的页面ID，比如是某个团购详情页，某个宝贝详情页，某个试用详情页 等</li>
+</ul>
+<p>如果是站内，则SPM编码会有第五个参数，具体为：</p>
+<ul>
+<li>a：网站ID，每一个单独的网站（域名），分配唯一的ID，如www.taobao.com的aID为1，list.taobao.com的aID为a217f，item.taobao.com的aID为a217v，tmall是3，聚划算是608，搜索是a230r</li>
+<li>b：网页ID，为同一个网站下每一个网页，分配唯一的ID，页面A ID为7274553，页面BID为7289245</li>
+<li>c：频道ID，为网站中不同区域划分频道，每个频道分配唯一ID，</li>
+<li>d：产品ID，为每个频道内的每个独立产品，分配唯一ID</li>
+<li>e：同一个链接请求，为每次请求分配一个随机特征码，保证每次点击spm值的唯一性。</li>
+</ul>
+<p>注意：spm的四位总长度32位，并且不支持%、&amp;等特殊字符，请尽量使用英文以及数字</p>
+<p>SPM的应用场景因为spm编码本身是有层次的，因此，我们可以：</p>
+<ul>
+<li>单独统计spm的a部分，我们可以知道某一类站点的访问和点击情况，以及后续引导和成交情况。</li>
+<li>单独统计spm的a.b部分，我们可以用来评估某一个站点的访问和点击效果，以及后续引导和成交情况。</li>
+<li>单独统计spm的a.b.c部分，我们可以用来评估某一个站点上某一频道的访问和点击效果，以及后续引导和成交情况。</li>
+<li>单独统计spm的a.b.c.d部分，我们可以用来评估某一个频道上某一具体页面的点击效果，以及后续引导和成交情况。</li>
+</ul>
+<p>SPM的效果指标和数据查看基于SPM可以得到的效果统计指标：</p>
+<ul>
+<li>PV：通过指定spm编码引导到宝贝详情页面的PV</li>
+<li>UV：通过指定spm编码引导到宝贝详情页面的UV</li>
+<li>支付宝成交人数：通过指定spm编码引导到宝贝详情页面的用户当天对同店商品的支付宝成交人数</li>
+<li>支付宝成交笔数：通过指定spm编码引导到宝贝详情页面的用户当天对同店商品的支付宝成交笔数</li>
+<li>支付宝成交金额：通过指定spm编码引导到宝贝详情页面的用户当天对同店商品的支付宝成交金额</li>
+<li>客单价=支付宝成交金额/支付宝成交人数，代表通过指定spm编码引导过来的购买用户的消费能力</li>
+<li>转化率=支付宝成交人数/UV，代表通过指定spm编码引导的用户最终转化为购买用户的比率</li>
+</ul>
+<p>除此之外，还有许多其他参数，分别代表其他含义或者适用于其他业务统计需求。如pos代表的是位置，另外一个比较重要的参数为：scm=1003.632.1102.1</p>
+<ul>
+<li>1003：投放系统ID，比如1003标识阿拉丁投放系统</li>
+<li>632：算法ID，标识投放的具体算法</li>
+<li>1102：标识投放算法的版本信息</li>
+<li>1：标示投放针对的具体投放人群分类等信息</li>
+</ul>
+<p>类似的跟踪方式还有凡客的体系，凡客与淘宝最主要的区别是跟踪参数ref的参数一直有继承，即是下一个点击会继承上一个点击产生ref，目前是继承到10级，然后就开始从原始的减少，一直保持10级。具体如下：<br><a href="http://item.vancl.com/2810450.html#ref=hp-hp-yc-1_1-v:n|hp-hp-head-logo-v:n|s-s-c_rs_28806-1_3-6373505_Sort01_qb_000-v|hp-hp-classman-3_2-v:n" target="_blank" rel="noopener">http://item.vancl.com/2810450.html#ref=hp-hp-yc-1_1-v:n|hp-hp-head-logo-v:n|s-s-c_rs_28806-1_3-6373505_Sort01_qb_000-v|hp-hp-classman-3_2-v:n</a></p>
+<h3 id="SPM体系有何作用"><a href="#SPM体系有何作用" class="headerlink" title="SPM体系有何作用"></a>SPM体系有何作用</h3><p>流量实现精准定位</p>
+<ul>
+<li>流量可以标识到频道、页面、区块、位置任意层级</li>
+<li>资源位的稳定唯一标识意味着效果可持续跟踪</li>
+<li>位置和内容的分离标识，将土地和庄稼分开评估</li>
+</ul>
+<p>运算资源消耗降低</p>
+<ul>
+<li>通过编码的配置圈定多样的流量业务归属</li>
+<li>CPU运算资源的大幅度减低</li>
+</ul>
+<p>建立效果评估体系</p>
+<ul>
+<li>流量资源价值的统一评估标准</li>
+<li>建立以资源位为中心的数据体系和运营体系</li>
+</ul>
+<p>流量运营的宏观调控+市场经济时代</p>
+<ul>
+<li>资源位估值和定价</li>
+<li>资源位的分层管理和运营</li>
+<li>资源位商业化通道和流动机制</li>
+<li>资源位竞价和排期</li>
+</ul>
+<p>如何搭建SPM体系</p>
+<ul>
+<li>流程约定 — 通过侵入页面发布流程，规范打点过程</li>
+<li>工具支持 — 提供低成本进行流量资源布点工具集</li>
+<li>技术保障 — 用户点击链接时，由全局js生成标识编码，有效避免标识重复和疏漏<br><img src="/images/java/SPM.jpg" alt="spm"></li>
+</ul>
+<h3 id="优势"><a href="#优势" class="headerlink" title="优势"></a>优势</h3><p>1、统计投放效果<br>如一个双11的广告页需要投放到微博、知乎和优酷等渠道，只需要为每个渠道指定一个编码，后续可以统计每个渠道的投放效果，事后按流量计费进行费用结算。</p>
+<p>2、分析用户行为<br>假设现在有一个淘宝女装的专题页，为了进行活动引流，会在淘宝首页多处区块放置引流入口，怎么统计各个入口进行淘宝女装专题的量呢，以便后续进行优化提高入口曝光度？</p>
+<p>一种常见的思路是每个入口进行布点，当用户进行点击时，同时向日志服务器发送一条埋点日志。但是这个方案有天然的弊端：<br>（1）在页面跳转时，埋点日志请求可能会丢失<br>（2）日志请求过多。</p>
+<p>SPM通过指定编码解决了这个问题，只需要进入页面的时发送一次埋点日志请求即可。</p>
+<p>3、分析链路转化<br>如新用户的注册过程中，往往包含多个步骤，输入账号，验证手机，设置密码和上传头像等等，这么长的链路过程中，任何一个产品或者技术优化，都可能直接作用到用户的流失率，为了直观的看到这个效果，一般会采用漏斗图。而SPM的采集数据包括了精细化的来源数据，可以做出丰富的漏斗图出来分析链路转化率问题。</p>
+</div><iframe src="/donate/?AliPayQR=null&amp;WeChatQR=/img/WeChatQR.jpg&amp;GitHub=https://github.com/farawayliu&amp;BTCQR=null&amp;BTCKEY=null&amp;PayPal=null" style="overflow-x:hidden; overflow-y:hidden; border:0xp none #fff; min-height:240px; width:100%;" frameborder="0" scrolling="no"></iframe><div><ul class="post-copyright"><li class="post-copyright-author"><strong>本文作者：</strong>far</li><li class="post-copyright-link"><strong>本文链接：</strong><a href="/2020/03/09/java/埋点-淘宝SPM流量跟踪体系/">https://www.ofcoder.com/2020/03/09/java/%E5%9F%8B%E7%82%B9-%E6%B7%98%E5%AE%9DSPM%E6%B5%81%E9%87%8F%E8%B7%9F%E8%B8%AA%E4%BD%93%E7%B3%BB/</a></li><li class="post-copyright-license"><strong>版权声明：</strong>Copyright © 2021 ofcoder. Author by far.</li></ul></div><br><script type="text/javascript" src="/js/share.js?v=0.0.0" async></script><a class="article-share-link" data-url="https://www.ofcoder.com/2020/03/09/java/%E5%9F%8B%E7%82%B9-%E6%B7%98%E5%AE%9DSPM%E6%B5%81%E9%87%8F%E8%B7%9F%E8%B8%AA%E4%BD%93%E7%B3%BB/" data-id="ckxm1vibo000uf8j1bnbd1m10" data-qrcode="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAASYAAAEmCAAAAADqr2IGAAAElUlEQVR42u3ay24iQQwF0Pz/TzObWWQ0onNtF1EbTq8QIf04IJWvy19f8fH4dnx/5//PXJ/h2dmuP3P9/vWZkzs/dmDChAkTplsyPS6PZw9wfYZrjuo5e19Yft3rZ8eECRMmTO/B1FvC8wKieq1XFBPJtZ6+jwkTJkyYPoYpD6LVFJnTJP87icGYMGHChOkzmfLXSVitguYN5fwrwYQJEyZMn8OUbxMmLdRJVD6L0itoMGHChAnTOzHll3+/14cPTJgwYcJ0M6ZH65jE1OvXeamRfJ3zJ/17NkyYMGHCtJap9xi9jcPJANC8QMkbvk/PgAkTJkyY1jIlD1wd5Zm0dPNhnWq7dl70YMKECROmjUzVSFkYdilucFY3NZPlf15kYMKECROm7UynwmH1pk/F6WrTudoCxoQJEyZMe5kmS2w1RlavlTeaJxM4UXMZEyZMmDCtZeptPeb1RbVxXA3S87GhQtmBCRMmTJgWMvVCZo+vupAnm5HV9wu7u/MsjgkTJkyYbsPUa5We2nrsDd9MXic/gn9eY8KECROmtUyTVukrRnzyzcjemE6vbY0JEyZMmPYyzUNs0mxNztALtJOGcqH4wIQJEyZMa5nOtlzzG+1tglY/eaqkwIQJEyZM25lOTQCdiqPXd5L/NT+iDgEmTJgwYVrOVA201RZqHoyrjeZJ07lQRmDChAkTprdjmsfaPNxWm7aTZb7648CECRMmTHuZegvzqeZprwioFiuTUiNK4ZgwYcKE6cZMeWs158uDZb5s976evNwpb6ZiwoQJE6YlTPP2aH6xaoTubXZWt12j6I4JEyZMmNYy5dGxF4kPVytHx4nyz2PChAkTpr1M+fhLfqPNsZhinK5uiB7uhWPChAkTpiVMvYhbZaoG7N6SfwoUEyZMmDC9E9OpAFktCPLtyepyfiowY8KECROm92CqkuVDM70BoEldU32/2c7GhAkTJkyrmHpRtrrAJ+EzieL5CE5eWESlACZMmDBhWsuUPGp12DR/1F67tldG5D+RH8oCTJgwYcK0imky2pIv81Wa/KuqBuDeOTFhwoQJ016mSQCehN55kTHZqsybyE/LAkyYMGHCtIrpFSVC0kI9NSRULUSONXwxYcKECdNCpmSQJf9rr+s8j7XVrdZjYRgTJkyYMN2eqTq405tv6T1GdRAnj8R5EYMJEyZMmDYyVRfavDXc2/hMHmMyWtTc2sSECRMmTAuZkuUzD5l5GK42ZPMW7SjxP/vpYMKECROmt2DKHzt/gLy1Wh2sqUbcyVARJkyYMGHay3RqBKcXmL+KR/7l9YZyCneFCRMmTJiWMD2KR3LJ5K95eK6WHdUmb1TEYMKECROmtUyvXoxz6GobN/98taH8NTkwYcKECdMtmXqL6O8TzGNztSlcqJ4wYcKECdPtmfKFM9/UnFcl83ubUB6+FUyYMGHCdHumyYXzM/eayMmQ0KihjAkTJkyYPoApv7nq1uZ8uzEPzMlX/vLoiwkTJkyYfp0pb/LmzdNXPNLr/veHHwcmTJgwYVrLNGmA9lDOtoaToaL886MpJ0yYMGHCdC+mP9Vbi0w8WvdFAAAAAElFTkSuQmCC">分享</a><div class="tags"><a href="/tags/%E5%9F%8B%E7%82%B9/">埋点</a><a href="/tags/SPM/">SPM</a><a href="/tags/%E8%A1%8C%E4%B8%BA%E5%88%86%E6%9E%90/">行为分析</a></div><div class="post-nav"><a class="pre" href="/2020/03/12/java/%E4%BD%8D%E8%BF%90%E7%AE%97-linux%E6%9D%83%E9%99%90%E7%AE%A1%E7%90%86/">位运算-linux权限管理</a><a class="next" href="/2020/01/07/java/dubbo%E7%95%AA%E5%A4%96%E7%AF%87-bug%E4%B9%8B%E3%80%90aop%E5%A4%B1%E6%95%88%E3%80%91/">dubbo番外篇-bug之【aop失效】</a></div><div id="vcomment"></div><script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script><script src="//unpkg.com/valine@latest/dist/Valine.min.js"></script><script>var notify = 'true' == true ? true : false;
+var verify = 'false' == true ? true : false;
+var GUEST_INFO = ['nick','mail','link'];
+var guest_info = 'nick,mail,link'.split(',').filter(function(item){
+  return GUEST_INFO.indexOf(item) > -1
+});
+guest_info = guest_info.length == 0 ? GUEST_INFO :guest_info;
+window.valine = new Valine({
+  el:'#vcomment',
+  notify:notify,
+  verify:verify,
+  appId:'s8pJruGkXvi5Skd0e6EaMQ5X-gzGzoHsz',
+  appKey:'K3NjnXxqhPNwUw5pmqOzoO4i',
+  placeholder:'说出你的故事...',
+  avatar:'mm',
+  guest_info:guest_info,
+  pageSize:'10'
+})</script></div></div></div><div class="pure-u-1-4 hidden_mid_and_down"><div id="sidebar-toc"><div class="stoc-article" id="sidebar-stoc"><strong class="stoc-title"><i class="fa fa-blind"> Contents </i></strong><div class="toc-nav" id="stoc"><ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#什么是SPM"><span class="toc-number">1.</span> <span class="toc-text">什么是SPM</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#SPM体系有何作用"><span class="toc-number">2.</span> <span class="toc-text">SPM体系有何作用</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#优势"><span class="toc-number">3.</span> <span class="toc-text">优势</span></a></li></ol></div></div></div></div><div class="pure-u-1 pure-u-md-3-4"><div id="footer">Copyright © 2021 <a href="/." rel="nofollow">并发笔记 - ofcoder.com | </a><a href="https://beian.miit.gov.cn/" rel="nofollow" target="_blank">粤ICP备18053760号</a><div>本站访客 <span id="busuanzi_value_site_uv"></span>人次 | 总访问 <span id="busuanzi_value_site_pv"></span>次<img src="https://s04.flagcounter.com/count/MnzJ/bg_FFFFFF/txt_000000/border_726EE0/columns_2/maxflags_10/viewers_0/labels_1/pageviews_1/flags_0/percent_0/" style="display: none;"/></div></div></div></div><a class="show" id="rocket" href="#top"></a><script type="text/javascript" src="/js/totop.js?v=0.0.0" async></script><script type="text/javascript" src="//cdn.bootcss.com/fancybox/3.3.5/jquery.fancybox.min.js" async></script><script type="text/javascript" src="/js/fancybox.js?v=0.0.0" async></script><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/fancybox/3.3.5/jquery.fancybox.min.css"><script type="text/javascript" src="/js/search.js?v=0.0.0"></script><script>var search_path = 'search.xml';
+if (search_path.length == 0) {
+   search_path = 'search.xml';
+}
+var path = '/' + search_path;
+searchFunc(path, 'local-search-input', 'local-search-result');
+</script><script type="text/javascript" color="100,99,98" opacity="0.7" zIndex="-1" count="5" src="//cdn.bootcss.com/canvas-nest.js/1.0.1/canvas-nest.min.js"></script><script type="text/javascript" src="/js/codeblock-resizer.js?v=0.0.0"></script><script type="text/javascript" src="/js/smartresize.js?v=0.0.0"></script></div></body></html><script type="text/javascript" src="/js/toc.js?v=0.0.0" async></script><script src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" async></script>

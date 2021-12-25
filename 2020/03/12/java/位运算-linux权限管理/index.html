@@ -1,0 +1,240 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta http-equiv="content-type" content="text/html; charset=utf-8"><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport"><meta content="yes" name="apple-mobile-web-app-capable"><meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"><meta content="telephone=no" name="format-detection"><meta name="description"><title>位运算-linux权限管理 | 并发笔记 - ofcoder.com</title><link rel="stylesheet" type="text/css" href="/css/style.css?v=0.0.0"><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/normalize/8.0.0/normalize.min.css"><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/pure/1.0.0/pure-min.css"><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/pure/1.0.0/grids-responsive-min.css"><link rel="stylesheet" href="//cdn.bootcss.com/font-awesome/4.7.0/css/font-awesome.min.css"><script type="text/javascript" src="//cdn.bootcss.com/jquery/3.3.1/jquery.min.js"></script><link rel="Shortcut Icon" type="image/x-icon" href="/favicon.ico"><link rel="apple-touch-icon" href="/apple-touch-icon.png"><link rel="apple-touch-icon-precomposed" href="/apple-touch-icon.png"><!-- 顶部加载进度条 --><script type="text/javascript" src="//cdn.bootcss.com/pace/1.0.2/pace.min.js"></script><link rel="stylesheet" href="//cdn.bootcss.com/pace/1.0.2/themes/pink/pace-theme-flash.css"><link rel="alternate" type="application/atom+xml" href="/atom.xml"><meta name="generator" content="Hexo 4.2.1"></head><body><div class="body_container"><div id="header"><div class="site-name"><h1 class="hidden">位运算-linux权限管理</h1><a id="logo" href="/.">并发笔记 - ofcoder.com</a><p class="description">一位后端开发的养肝历程，护发经验</p></div><div id="nav-menu"><a class="current" href="/."><i class="fa fa-home"> 首页</i></a><a href="/tags/"><i class="fa fa-tags"> 标签</i></a><a href="/usql/"><i class="fa fa-database"> usql</i></a><a href="/book/"><i class="fa fas fa-book"> book</i></a><a href="/atom.xml"><i class="fa fa-rss"> 订阅</i></a></div></div><div class="pure-g-g" id="layout"><div class="pure-u-1 pure-u-md-3-4"><div class="content_container"><div class="post"><h1 class="post-title">位运算-linux权限管理</h1><div class="post-meta">Mar 12, 2020<span> | </span><span class="category"><a href="/categories/%E8%8A%9D%E5%A3%AB%E7%82%B9%E5%BF%83/">芝士点心</a></span><span id="busuanzi_container_page_pv"> | <span id="busuanzi_value_page_pv"></span><span> 阅读</span></span><span class="post-time"><span class="post-meta-item-text"> | </span><span class="post-meta-item-icon"><i class="fa fa-keyboard-o"></i><span class="post-count"> 778</span><span class="post-meta-item-text"> 字</span></span></span><span class="post-time"> | <span class="post-meta-item-icon"><i class="fa fa-hourglass-half"></i><span class="post-count"> 3</span><span class="post-meta-item-text"> 分钟</span></span></span></div><a class="disqus-comment-count" href="/2020/03/12/java/%E4%BD%8D%E8%BF%90%E7%AE%97-linux%E6%9D%83%E9%99%90%E7%AE%A1%E7%90%86/#vcomment"><span class="valine-comment-count" data-xid="/2020/03/12/java/%E4%BD%8D%E8%BF%90%E7%AE%97-linux%E6%9D%83%E9%99%90%E7%AE%A1%E7%90%86/"></span><span> 条评论</span></a><div class="post-content"><h3 id="Linux基于位运算的权限控制"><a href="#Linux基于位运算的权限控制" class="headerlink" title="Linux基于位运算的权限控制"></a>Linux基于位运算的权限控制</h3><p>Linux权限控制是基于位运算实现的。</p>
+<p>在Linux权限系统中，读、写、执行权限分别对应三个状态位：</p>
+<div class="table-container">
+<table>
+<thead>
+<tr>
+<th>读</th>
+<th>写</th>
+<th>执行</th>
+<th>==&gt;</th>
+<th>二进制</th>
+<th>==&gt;</th>
+<th>十进制</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0</td>
+<td>0</td>
+<td>1</td>
+<td>==&gt;</td>
+<td>001</td>
+<td>==&gt;</td>
+<td>1</td>
+</tr>
+<tr>
+<td>0</td>
+<td>1</td>
+<td>0</td>
+<td>==&gt;</td>
+<td>010</td>
+<td>==&gt;</td>
+<td>2</td>
+</tr>
+<tr>
+<td>1</td>
+<td>0</td>
+<td>0</td>
+<td>==&gt;</td>
+<td>100</td>
+<td>==&gt;</td>
+<td>4</td>
+</tr>
+<tr>
+<td>0</td>
+<td>1</td>
+<td>1</td>
+<td>==&gt;</td>
+<td>011</td>
+<td>==&gt;</td>
+<td>3</td>
+</tr>
+<tr>
+<td>1</td>
+<td>0</td>
+<td>1</td>
+<td>==&gt;</td>
+<td>101</td>
+<td>==&gt;</td>
+<td>5</td>
+</tr>
+<tr>
+<td>1</td>
+<td>1</td>
+<td>0</td>
+<td>==&gt;</td>
+<td>110</td>
+<td>==&gt;</td>
+<td>6</td>
+</tr>
+<tr>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+<td>==&gt;</td>
+<td>111</td>
+<td>==&gt;</td>
+<td>7</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>如上所示</p>
+<ul>
+<li>“执行”权限使用二进制为001，即：十进制1。</li>
+<li>“写入”权限使用二进制为010，即：十进制2。</li>
+<li>“读取”权限使用二进制为100，即：十进制4。</li>
+</ul>
+<h3 id="实现权限的添加-或运算"><a href="#实现权限的添加-或运算" class="headerlink" title="实现权限的添加(或运算)"></a>实现权限的添加(或运算)</h3><p>增加权限使用或（|）运算实现。</p>
+<p>如，为用户增加“读取”、“写入”两种权限</p>
+<div class="table-container">
+<table>
+<thead>
+<tr>
+<th>读</th>
+<th>写</th>
+<th>执行</th>
+<th>==&gt;</th>
+<th>二进制</th>
+<th>==&gt;</th>
+<th>十进制</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>==&gt;</td>
+<td>000</td>
+<td>==&gt;</td>
+<td>0</td>
+<td>已有权限（没有任何权限）</td>
+</tr>
+<tr>
+<td>1</td>
+<td>0</td>
+<td>0</td>
+<td>==&gt;</td>
+<td>100</td>
+<td>==&gt;</td>
+<td>4</td>
+<td>待增加的权限，读</td>
+</tr>
+<tr>
+<td>0</td>
+<td>1</td>
+<td>0</td>
+<td>==&gt;</td>
+<td>010</td>
+<td>==&gt;</td>
+<td>2</td>
+<td>待增加的权限，写</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>用户现有的权限码为0，为其增加“读取”、“写入”两种权限，即4，2<br>使用或运算结果如下<br><figure class="highlight angelscript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="number">0</span>|<span class="number">4</span>=<span class="number">4</span> <span class="comment">//增加读取权限</span></span><br><span class="line"><span class="number">4</span>|<span class="number">2</span>=<span class="number">6</span> <span class="comment">//增加写入权限</span></span><br></pre></td></tr></table></figure></p>
+<h3 id="实现权限的减少（非运算）"><a href="#实现权限的减少（非运算）" class="headerlink" title="实现权限的减少（非运算）"></a>实现权限的减少（非运算）</h3><p>位运算同样可以实现用户权限的减少，减少用户权限使用非（^）运算。<br>如，将权限码为7用户，移除执行权限：</p>
+<div class="table-container">
+<table>
+<thead>
+<tr>
+<th>读</th>
+<th>写</th>
+<th>执行</th>
+<th>==&gt;</th>
+<th>二进制</th>
+<th>==&gt;</th>
+<th>十进制</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>1|1|1|==&gt;|111|==&gt;|7|已有权限|<br>1|0|0|==&gt;|100|==&gt;|4|待判断的权限，读|</p>
+<p>权限码7（111）和1（001）的非运算结果为6，即：7^1=6。<br>权限码6，则为权限码7移除执行后的权限码。</p>
+<h3 id="实现权限的判断（与运算）"><a href="#实现权限的判断（与运算）" class="headerlink" title="实现权限的判断（与运算）"></a>实现权限的判断（与运算）</h3><p>在需要进行用户权限判断时，可以使用与（&amp;）运算判断用户是否具有某项权限。</p>
+<p>如，判断权限码为6用户是否有“读取”，“执行”权限：</p>
+<div class="table-container">
+<table>
+<thead>
+<tr>
+<th>读</th>
+<th>写</th>
+<th>执行</th>
+<th>==&gt;</th>
+<th>二进制</th>
+<th>==&gt;</th>
+<th>十进制</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>1</td>
+<td>0</td>
+<td>==&gt;</td>
+<td>110</td>
+<td>==&gt;</td>
+<td>6</td>
+<td>已有权限</td>
+</tr>
+<tr>
+<td>1</td>
+<td>0</td>
+<td>0</td>
+<td>==&gt;</td>
+<td>100</td>
+<td>==&gt;</td>
+<td>4</td>
+<td>待判断的权限，读</td>
+</tr>
+<tr>
+<td>0</td>
+<td>0</td>
+<td>1</td>
+<td>==&gt;</td>
+<td>001</td>
+<td>==&gt;</td>
+<td>1</td>
+<td>待判断的权限，执行</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>权限码6（110）和4（100）的与运算结果为4，即：6&amp;4=4。<br>权限码6（110）和1（001）的与运算结果为0，即：0=6&amp;1。</p>
+<p>根据与运算的计算规律，当运算结果为所要判断权限本身值时，我们可以认为用户具有这个权限。而当运算结果为 0 时，我们可以认为用户不具有这个权限。</p>
+<h3 id="优点和缺陷"><a href="#优点和缺陷" class="headerlink" title="优点和缺陷"></a>优点和缺陷</h3><p>位运算的运算对象是二进制的位，速度快，效率高，而且节省存储空间，位运算做权限控制又相当地灵活。但是，位运算也有很大的局限，因为在32位计算机上，位移不能超过32次，这就要求权限数量不超过32种。而mySQL数据库的BIGINT，其存储空间为8Byte，使用BIGINT存储存储码时，权限数不能多于64个(8*8-1)。</p>
+</div><iframe src="/donate/?AliPayQR=null&amp;WeChatQR=/img/WeChatQR.jpg&amp;GitHub=https://github.com/farawayliu&amp;BTCQR=null&amp;BTCKEY=null&amp;PayPal=null" style="overflow-x:hidden; overflow-y:hidden; border:0xp none #fff; min-height:240px; width:100%;" frameborder="0" scrolling="no"></iframe><div><ul class="post-copyright"><li class="post-copyright-author"><strong>本文作者：</strong>far</li><li class="post-copyright-link"><strong>本文链接：</strong><a href="/2020/03/12/java/位运算-linux权限管理/">https://www.ofcoder.com/2020/03/12/java/%E4%BD%8D%E8%BF%90%E7%AE%97-linux%E6%9D%83%E9%99%90%E7%AE%A1%E7%90%86/</a></li><li class="post-copyright-license"><strong>版权声明：</strong>Copyright © 2021 ofcoder. Author by far.</li></ul></div><br><script type="text/javascript" src="/js/share.js?v=0.0.0" async></script><a class="article-share-link" data-url="https://www.ofcoder.com/2020/03/12/java/%E4%BD%8D%E8%BF%90%E7%AE%97-linux%E6%9D%83%E9%99%90%E7%AE%A1%E7%90%86/" data-id="ckxm1vibn000sf8j19tbyfjjm" data-qrcode="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAQ4AAAEOCAAAAABd2qZ5AAAD5ElEQVR42u3aW27jQAwEwNz/0tkDOJK6yRE2AUpfgWyPZsoBaD6+vuLr++P6fPXqztWrn6vd30+eeP+pYxcOHDhw4CiPmm80efDsePk69/fzM+LAgQMHjrMcV4/PQ2n0sNuV2+Ml+8nPiAMHDhw4/hdH+7A8rcqJE3ocOHDgwPFXOE4Fy7Y6dw/d7h8HDhw4cLzNkRQHW6ZZaS9Byct/L9ZKceDAgQNHGumKoPVX/n5lvgMHDhw4cJRTYXlAmgW2AwHvNp2rT4cDBw4cONYcZ8fUkiGG/FntwWbEOHDgwIHjPY68tdPS5CW8BOWeqX11GLdx4MCBA0cwypC0mmZ38jG49tht+vewNxw4cODAcaZbVIfJWcGuXXMPlK+MAwcOHDhOceRHnR2sTQLbYmLLEf1f4MCBAweONcc+bcvTpE3RsD5eWY7EgQMHDhynONqRgjx5m5XtWoL2x8HluXDgwIEDx5ojOWrb5smTrvsntk2sfSqIAwcOHDjOcmyCXAu0bxS1O0/CLQ4cOHDgOMWxeeRsGCIvQc6aT23BEQcOHDhwnOWYJWmz8JmXF/ftqLZ0iAMHDhw4znLsS2+zAbVZm6ody8hTShw4cODAsedoRxbaoLgJtG2a145c4MCBAweONzjeGCzI1zmbNM6GJ+qeFQ4cOHDgKEcZ2pGFWXEwaUTtG1pF0wsHDhw4cKw52oGAfXsp/2wSIBOmOjXFgQMHDhyHODZtnrzJtG8p7QuaD1g4cODAgWPB0Zb2ZkFu1gfLRyU273mYGcSBAwcOHAuOWaBqw96s8JeX9ja7woEDBw4cpzjyRk7emkqGD/LC4oysPh0OHDhw4DjEkfRc2kGBZKP7Tw2PfXVSHDhw4MBxiGNW5svTsIR1FiA3qeAP93HgwIEDx5qjDX6bQbo8wLepYBuwHwqdOHDgwIFjzdGOu+VFvbZNtR+wqMMqDhw4cOA4yrFp1Zxq9szef6odhQMHDhw43uZIhtuSMbjZUN1+PCLnfhhowIEDBw4cC448JdsEzs0IXb5mXsQsunA4cODAgaPkaAPnbLR6M42232ddE8WBAwcOHCOOU2MHeej9iq+WNT9wkcjhwIEDB46S47u8ZoMIsyPlAwqz5C36BnDgwIEDR8kxC3tJm2oTmGfrz3YyxMKBAwcOHLcceXDdBM62QZUnde1+Hn4E4MCBAweOQxyzkLZPtDY9oE16drkCDhw4cOD4NRynUrtZwXE/5IcDBw4cOH4Px6ZI145lb76eaDUcOHDgwHGIox1iSIYPcqw8YLdfSX0uHDhw4MCx5sgfOSsU5g2tzWp5qyzfAw4cOHDgKDn+AbrB96rO5fP6AAAAAElFTkSuQmCC">分享</a><div class="tags"><a href="/tags/linux/">linux</a><a href="/tags/%E4%BD%8D%E8%BF%90%E7%AE%97/">位运算</a></div><div class="post-nav"><a class="pre" href="/2020/03/14/java/maven%E4%BE%9D%E8%B5%96%E6%9C%AC%E5%9C%B0jar%E5%8C%85/">maven依赖本地jar包</a><a class="next" href="/2020/03/09/java/%E5%9F%8B%E7%82%B9-%E6%B7%98%E5%AE%9DSPM%E6%B5%81%E9%87%8F%E8%B7%9F%E8%B8%AA%E4%BD%93%E7%B3%BB/">埋点-淘宝SPM流量跟踪体系</a></div><div id="vcomment"></div><script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script><script src="//unpkg.com/valine@latest/dist/Valine.min.js"></script><script>var notify = 'true' == true ? true : false;
+var verify = 'false' == true ? true : false;
+var GUEST_INFO = ['nick','mail','link'];
+var guest_info = 'nick,mail,link'.split(',').filter(function(item){
+  return GUEST_INFO.indexOf(item) > -1
+});
+guest_info = guest_info.length == 0 ? GUEST_INFO :guest_info;
+window.valine = new Valine({
+  el:'#vcomment',
+  notify:notify,
+  verify:verify,
+  appId:'s8pJruGkXvi5Skd0e6EaMQ5X-gzGzoHsz',
+  appKey:'K3NjnXxqhPNwUw5pmqOzoO4i',
+  placeholder:'说出你的故事...',
+  avatar:'mm',
+  guest_info:guest_info,
+  pageSize:'10'
+})</script></div></div></div><div class="pure-u-1-4 hidden_mid_and_down"><div id="sidebar-toc"><div class="stoc-article" id="sidebar-stoc"><strong class="stoc-title"><i class="fa fa-blind"> Contents </i></strong><div class="toc-nav" id="stoc"><ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#Linux基于位运算的权限控制"><span class="toc-number">1.</span> <span class="toc-text">Linux基于位运算的权限控制</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#实现权限的添加-或运算"><span class="toc-number">2.</span> <span class="toc-text">实现权限的添加(或运算)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#实现权限的减少（非运算）"><span class="toc-number">3.</span> <span class="toc-text">实现权限的减少（非运算）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#实现权限的判断（与运算）"><span class="toc-number">4.</span> <span class="toc-text">实现权限的判断（与运算）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#优点和缺陷"><span class="toc-number">5.</span> <span class="toc-text">优点和缺陷</span></a></li></ol></div></div></div></div><div class="pure-u-1 pure-u-md-3-4"><div id="footer">Copyright © 2021 <a href="/." rel="nofollow">并发笔记 - ofcoder.com | </a><a href="https://beian.miit.gov.cn/" rel="nofollow" target="_blank">粤ICP备18053760号</a><div>本站访客 <span id="busuanzi_value_site_uv"></span>人次 | 总访问 <span id="busuanzi_value_site_pv"></span>次<img src="https://s04.flagcounter.com/count/MnzJ/bg_FFFFFF/txt_000000/border_726EE0/columns_2/maxflags_10/viewers_0/labels_1/pageviews_1/flags_0/percent_0/" style="display: none;"/></div></div></div></div><a class="show" id="rocket" href="#top"></a><script type="text/javascript" src="/js/totop.js?v=0.0.0" async></script><script type="text/javascript" src="//cdn.bootcss.com/fancybox/3.3.5/jquery.fancybox.min.js" async></script><script type="text/javascript" src="/js/fancybox.js?v=0.0.0" async></script><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/fancybox/3.3.5/jquery.fancybox.min.css"><script type="text/javascript" src="/js/search.js?v=0.0.0"></script><script>var search_path = 'search.xml';
+if (search_path.length == 0) {
+   search_path = 'search.xml';
+}
+var path = '/' + search_path;
+searchFunc(path, 'local-search-input', 'local-search-result');
+</script><script type="text/javascript" color="100,99,98" opacity="0.7" zIndex="-1" count="5" src="//cdn.bootcss.com/canvas-nest.js/1.0.1/canvas-nest.min.js"></script><script type="text/javascript" src="/js/codeblock-resizer.js?v=0.0.0"></script><script type="text/javascript" src="/js/smartresize.js?v=0.0.0"></script></div></body></html><script type="text/javascript" src="/js/toc.js?v=0.0.0" async></script><script src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" async></script>
