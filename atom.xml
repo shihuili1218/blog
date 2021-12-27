@@ -142,11 +142,11 @@
     
       <category term="分布式事务" scheme="https://www.ofcoder.com/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E4%BA%8B%E5%8A%A1/"/>
     
+      <category term="ZAB" scheme="https://www.ofcoder.com/tags/ZAB/"/>
+    
       <category term="paxos" scheme="https://www.ofcoder.com/tags/paxos/"/>
     
       <category term="Raft" scheme="https://www.ofcoder.com/tags/Raft/"/>
-    
-      <category term="ZAB" scheme="https://www.ofcoder.com/tags/ZAB/"/>
     
   </entry>
   
@@ -221,7 +221,8 @@
         
           &lt;h3 id=&quot;场景还原&quot;&gt;&lt;a href=&quot;#场景还原&quot; class=&quot;headerlink&quot; title=&quot;场景还原&quot;&gt;&lt;/a&gt;场景还原&lt;/h3&gt;&lt;p&gt;@ControllerAdvice在spring中用于全局的异常拦截和处理。Filter则过滤请求，多用于请求鉴权。它们之间的关系如下：&lt;br&gt;&lt;img src=&quot;/images/java/exception_handle_filter_1.png&quot; alt=&quot;filter,controller关系&quot;&gt;&lt;/p&gt;
 &lt;p&gt;因为spring设计原因，Filter和Interceptor中抛出的异常，@ControllerAdvice则捕获不到，自然也就处理不了。&lt;/p&gt;
-&lt;h3 id=&quot;解决方案&quot;&gt;&lt;a href=&quot;#解决方案&quot; class=&quot;headerlink&quot; title=&quot;解决方案&quot;&gt;&lt;/a&gt;解决方案&lt;/h3&gt;&lt;p&gt;手动注入HandlerExceptionResolver对象，调用resolveException()，自己处理异常。&lt;br&gt;&lt;figure class=&quot;highlight less&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td
+&lt;h3 id=&quot;解决方案&quot;&gt;&lt;a href=&quot;#解决方案&quot; class=&quot;headerlink&quot; title=&quot;解决方案&quot;&gt;&lt;/a&gt;解决方案&lt;/h3&gt;&lt;p&gt;手动注入HandlerExceptionResolver对象，调用resolveException()，自己处理异常。&lt;/p&gt;
+&lt;figure class=&quot;highlight
         
       
     
@@ -593,9 +594,7 @@
       
         
         
-          &lt;h3 id=&quot;Linux基于位运算的权限控制&quot;&gt;&lt;a href=&quot;#Linux基于位运算的权限控制&quot; class=&quot;headerlink&quot; title=&quot;Linux基于位运算的权限控制&quot;&gt;&lt;/a&gt;Linux基于位运算的权限控制&lt;/h3&gt;&lt;p&gt;Linux权限控制是基于位运算实现的。&lt;/p&gt;
-&lt;p&gt;在Linux权限系统中，读、写、执行权限分别对应三个状态位：&lt;/p&gt;
-&lt;div
+          &lt;h3 id=&quot;Linux基于位运算的权限控制&quot;&gt;&lt;a href=&quot;#Linux基于位运算的权限控制&quot; class=&quot;headerlink&quot;
         
       
     
