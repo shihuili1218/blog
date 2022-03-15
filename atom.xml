@@ -6,7 +6,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="https://www.ofcoder.com/"/>
-  <updated>2021-07-29T13:14:39.232Z</updated>
+  <updated>2022-03-15T15:38:02.592Z</updated>
   <id>https://www.ofcoder.com/</id>
   
   <author>
@@ -15,6 +15,39 @@
   </author>
   
   <generator uri="https://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>祭释慧利感怀</title>
+    <link href="https://www.ofcoder.com/2022/03/15/other/%E7%A5%AD%E9%87%8A%E6%85%A7%E5%88%A9%E6%84%9F%E6%80%80/"/>
+    <id>https://www.ofcoder.com/2022/03/15/other/%E7%A5%AD%E9%87%8A%E6%85%A7%E5%88%A9%E6%84%9F%E6%80%80/</id>
+    <published>2022-03-15T15:19:30.000Z</published>
+    <updated>2022-03-15T15:38:02.592Z</updated>
+    
+    <summary type="html">
+    
+      
+      
+        
+        
+          &lt;center&gt;&lt;font face=&quot;黑体&quot; size=10&gt;祭岳母感怀&lt;/font&gt;&lt;/center&gt;
+&lt;center&gt;&lt;font face=&quot;黑体&quot;&gt;余礼义&lt;/font&gt;&lt;/center&gt;
+&lt;center&gt;
+二七悲来暗伤神，嚎啕断肠奠墓门。&lt;/br&gt;
+谆谆教导尤传耳，点点指划唤吾声。&lt;/br&gt;
+憾惭东床无回力，却喜西方有佛恩。&lt;/br&gt;
+但愿九品莲台上，不返凡间半步程。&lt;/br&gt;
+&lt;/center&gt;
+
+&lt;center&gt;&lt;font face=&quot;黑体&quot; size=10&gt;哭祖母作古&lt;/font&gt;&lt;/center&gt;
+&lt;center&gt;&lt;font
+        
+      
+    
+    </summary>
+    
+    
+    
+  </entry>
   
   <entry>
     <title>PaddleOCR - PaddleServing部署</title>
@@ -142,9 +175,9 @@
     
       <category term="分布式事务" scheme="https://www.ofcoder.com/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E4%BA%8B%E5%8A%A1/"/>
     
-      <category term="ZAB" scheme="https://www.ofcoder.com/tags/ZAB/"/>
-    
       <category term="paxos" scheme="https://www.ofcoder.com/tags/paxos/"/>
+    
+      <category term="ZAB" scheme="https://www.ofcoder.com/tags/ZAB/"/>
     
       <category term="Raft" scheme="https://www.ofcoder.com/tags/Raft/"/>
     
@@ -639,39 +672,6 @@
       <category term="SPM" scheme="https://www.ofcoder.com/tags/SPM/"/>
     
       <category term="行为分析" scheme="https://www.ofcoder.com/tags/%E8%A1%8C%E4%B8%BA%E5%88%86%E6%9E%90/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>dubbo番外篇-bug之【aop失效】</title>
-    <link href="https://www.ofcoder.com/2020/01/07/java/dubbo%E7%95%AA%E5%A4%96%E7%AF%87-bug%E4%B9%8B%E3%80%90aop%E5%A4%B1%E6%95%88%E3%80%91/"/>
-    <id>https://www.ofcoder.com/2020/01/07/java/dubbo%E7%95%AA%E5%A4%96%E7%AF%87-bug%E4%B9%8B%E3%80%90aop%E5%A4%B1%E6%95%88%E3%80%91/</id>
-    <published>2020-01-07T12:57:30.000Z</published>
-    <updated>2021-12-25T05:12:31.931Z</updated>
-    
-    <summary type="html">
-    
-      
-      
-        
-        
-          &lt;p&gt;本文浅述：在使用dubbo时，spring aop失效问题。如果你也遇到该问题，先检查是否使用@Reference注入dubbo服务的。&lt;/p&gt;
-&lt;h3 id=&quot;场景还原&quot;&gt;&lt;a href=&quot;#场景还原&quot; class=&quot;headerlink&quot; title=&quot;场景还原&quot;&gt;&lt;/a&gt;场景还原&lt;/h3&gt;&lt;p&gt;&lt;strong&gt;版本&lt;/strong&gt;：我使用的dubbo版本是2.6.&lt;br&gt;&lt;strong&gt;场景&lt;/strong&gt;：我想消费者在调用我的dubbo接口时，都将自己应用名传过来，方便我鉴权，所以我在我提供的二方包中，提供aop，想通过dubbo的附加参数，将应用名传过来。大致代码如下：&lt;/p&gt;
-&lt;figure class=&quot;highlight java&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;2&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;3&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;4&lt;/span&gt;&lt;br&gt;&lt;span
-        
-      
-    
-    </summary>
-    
-    
-      <category term="源码狂想" scheme="https://www.ofcoder.com/categories/%E6%BA%90%E7%A0%81%E7%8B%82%E6%83%B3/"/>
-    
-    
-      <category term="干货" scheme="https://www.ofcoder.com/tags/%E5%B9%B2%E8%B4%A7/"/>
-    
-      <category term="dubbo" scheme="https://www.ofcoder.com/tags/dubbo/"/>
-    
-      <category term="源码" scheme="https://www.ofcoder.com/tags/%E6%BA%90%E7%A0%81/"/>
     
   </entry>
   

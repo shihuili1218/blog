@@ -4,6 +4,19 @@
   
     
     <entry>
+      <title>祭释慧利感怀</title>
+      <link href="/2022/03/15/other/%E7%A5%AD%E9%87%8A%E6%85%A7%E5%88%A9%E6%84%9F%E6%80%80/"/>
+      <url>/2022/03/15/other/%E7%A5%AD%E9%87%8A%E6%85%A7%E5%88%A9%E6%84%9F%E6%80%80/</url>
+      
+        <content type="html"><![CDATA[<center><font face="黑体" size=10>祭岳母感怀</font></center><center><font face="黑体">余礼义</font></center><center>二七悲来暗伤神，嚎啕断肠奠墓门。</br>谆谆教导尤传耳，点点指划唤吾声。</br>憾惭东床无回力，却喜西方有佛恩。</br>但愿九品莲台上，不返凡间半步程。</br></center><center><font face="黑体" size=10>哭祖母作古</font></center><center><font face="黑体">刘源远</font></center><center>旧岁一别两相隔，今日感怀悲痛绝。</br>谆谆教导尤传耳，点点指划唤吾声。</br>只因疬疫误作古，悔恨临终未瞻颜。</br>可庆升座极乐国，三品金莲念佛恩。</br></center>]]></content>
+      
+      
+      
+    </entry>
+    
+    
+    
+    <entry>
       <title>PaddleOCR - PaddleServing部署</title>
       <link href="/2021/07/29/machinelearn/PaddleOCR-PaddleServing%E9%83%A8%E7%BD%B2/"/>
       <url>/2021/07/29/machinelearn/PaddleOCR-PaddleServing%E9%83%A8%E7%BD%B2/</url>
@@ -107,9 +120,9 @@
             
             <tag> 分布式事务 </tag>
             
-            <tag> ZAB </tag>
-            
             <tag> paxos </tag>
+            
+            <tag> ZAB </tag>
             
             <tag> Raft </tag>
             
@@ -1034,9 +1047,9 @@
             
             <tag> 源码 </tag>
             
-            <tag> RPC </tag>
-            
             <tag> netty </tag>
+            
+            <tag> RPC </tag>
             
         </tags>
       
@@ -1067,9 +1080,9 @@
             
             <tag> 源码 </tag>
             
-            <tag> RPC </tag>
-            
             <tag> netty </tag>
+            
+            <tag> RPC </tag>
             
         </tags>
       
