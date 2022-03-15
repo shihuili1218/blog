@@ -6,7 +6,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="https://www.ofcoder.com/"/>
-  <updated>2022-03-15T15:38:02.592Z</updated>
+  <updated>2022-03-15T16:08:00.145Z</updated>
   <id>https://www.ofcoder.com/</id>
   
   <author>
@@ -15,6 +15,52 @@
   </author>
   
   <generator uri="https://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>祭释慧利感怀</title>
+    <link href="https://www.ofcoder.com/2022/03/15/other/%E9%87%8A%E6%9C%AC%E6%99%BA%E8%80%81%E5%92%8C%E5%B0%9A%E5%BC%80%E7%A4%BA/"/>
+    <id>https://www.ofcoder.com/2022/03/15/other/%E9%87%8A%E6%9C%AC%E6%99%BA%E8%80%81%E5%92%8C%E5%B0%9A%E5%BC%80%E7%A4%BA/</id>
+    <published>2022-03-15T15:53:10.000Z</published>
+    <updated>2022-03-15T16:08:00.145Z</updated>
+    
+    <summary type="html">
+    
+      
+      
+        
+        
+          &lt;center&gt;&lt;font face=&quot;黑体&quot; size=10&gt;七绝 植树节&lt;/font&gt;&lt;/center&gt;
+&lt;center&gt;
+近平垂范似朝霞，照耀新林绿嫩芽。&lt;/br&gt;
+生态安全民福祉，成荫繁木佑中华。&lt;/br&gt;
+&lt;/center&gt;
+
+&lt;center&gt;&lt;font face=&quot;黑体&quot; size=10&gt;无题&lt;/font&gt;&lt;/center&gt;
+&lt;center&gt;
+春雷惊蛰物苏醒，细雨和风柳叶青。&lt;/br&gt;
+代表京城商国是，豪情壮志满银屏。&lt;/br&gt;
+&lt;/center&gt;
+
+&lt;center&gt;&lt;font face=&quot;黑体&quot; size=10&gt;问空&lt;/font&gt;&lt;/center&gt;
+&lt;center&gt;
+世间万物却是空，功名利禄逝如风。&lt;/br&gt;
+天也空地也空，人生渺茫在其中。&lt;/br&gt;
+金也空银也空，死后何曾在手中。&lt;/br&gt;
+权也空名也空，转眼荒郊土一捧。&lt;/br&gt;
+情也空义也空，大难临头影无踪。&lt;/br&gt;
+生如百花逢春好，亡时黄叶落秋枫。&lt;/br&gt;
+回首仔细思量起，换来南柯一梦中！&lt;/br&gt;
+&lt;/center&gt;
+
+&lt;center&gt;&lt;font face=&quot;黑体&quot;
+        
+      
+    
+    </summary>
+    
+    
+    
+  </entry>
   
   <entry>
     <title>祭释慧利感怀</title>
@@ -640,38 +686,6 @@
       <category term="linux" scheme="https://www.ofcoder.com/tags/linux/"/>
     
       <category term="位运算" scheme="https://www.ofcoder.com/tags/%E4%BD%8D%E8%BF%90%E7%AE%97/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>埋点-淘宝SPM流量跟踪体系</title>
-    <link href="https://www.ofcoder.com/2020/03/09/java/%E5%9F%8B%E7%82%B9-%E6%B7%98%E5%AE%9DSPM%E6%B5%81%E9%87%8F%E8%B7%9F%E8%B8%AA%E4%BD%93%E7%B3%BB/"/>
-    <id>https://www.ofcoder.com/2020/03/09/java/%E5%9F%8B%E7%82%B9-%E6%B7%98%E5%AE%9DSPM%E6%B5%81%E9%87%8F%E8%B7%9F%E8%B8%AA%E4%BD%93%E7%B3%BB/</id>
-    <published>2020-03-09T12:57:30.000Z</published>
-    <updated>2021-12-25T05:06:04.327Z</updated>
-    
-    <summary type="html">
-    
-      
-      
-        
-        
-          &lt;p&gt;本文转载：&lt;a href=&quot;https://www.biaodianfu.com/spm.html&quot; target=&quot;_blank&quot; rel=&quot;noopener&quot;&gt;https://www.biaodianfu.com/spm.html&lt;/a&gt;&lt;/p&gt;
-&lt;h3 id=&quot;什么是SPM&quot;&gt;&lt;a href=&quot;#什么是SPM&quot; class=&quot;headerlink&quot; title=&quot;什么是SPM&quot;&gt;&lt;/a&gt;什么是SPM&lt;/h3&gt;&lt;p&gt;SPM是淘宝社区电商业务（xTao）为外部合作伙伴（外站）提供的一套跟踪引导成交效果数据的解决方案。下面是一个跟踪点击到宝贝详情页的引导成交效果数据的SPM示例：&lt;a href=&quot;http://detail.tmall.com/item.htm?id=3716461318&amp;amp;&amp;amp;spm=2014.123456789.1.2&quot; target=&quot;_blank&quot; rel=&quot;noopener&quot;&gt;http://detail.tmall.com/item.htm?id=3716461318&amp;amp;&amp;amp;spm=2014.123456789.1.2&lt;/a&gt;
-        
-      
-    
-    </summary>
-    
-    
-      <category term="芝士点心" scheme="https://www.ofcoder.com/categories/%E8%8A%9D%E5%A3%AB%E7%82%B9%E5%BF%83/"/>
-    
-    
-      <category term="埋点" scheme="https://www.ofcoder.com/tags/%E5%9F%8B%E7%82%B9/"/>
-    
-      <category term="SPM" scheme="https://www.ofcoder.com/tags/SPM/"/>
-    
-      <category term="行为分析" scheme="https://www.ofcoder.com/tags/%E8%A1%8C%E4%B8%BA%E5%88%86%E6%9E%90/"/>
     
   </entry>
   
