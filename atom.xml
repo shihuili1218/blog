@@ -271,6 +271,30 @@
   </entry>
   
   <entry>
+    <title>一篇小记，关乎生死</title>
+    <link href="https://www.ofcoder.com/2020/12/14/other/%E4%B8%80%E7%AF%87%E5%B0%8F%E8%AE%B0%EF%BC%8C%E5%85%B3%E4%B9%8E%E7%94%9F%E6%AD%BB/"/>
+    <id>https://www.ofcoder.com/2020/12/14/other/%E4%B8%80%E7%AF%87%E5%B0%8F%E8%AE%B0%EF%BC%8C%E5%85%B3%E4%B9%8E%E7%94%9F%E6%AD%BB/</id>
+    <published>2020-12-14T14:04:08.000Z</published>
+    <updated>2022-05-28T04:52:57.255Z</updated>
+    
+    <summary type="html">
+    
+      
+      
+        
+        
+          &lt;blockquote&gt;
+&lt;p&gt;教会别人死亡的人，同时也能教会别人生活。&lt;br&gt;  –
+        
+      
+    
+    </summary>
+    
+    
+    
+  </entry>
+  
+  <entry>
     <title>ControllerAdvice拦截Filter抛出的异常</title>
     <link href="https://www.ofcoder.com/2020/12/10/java/ControllerAdvice%E6%8B%A6%E6%88%AAFilter%E6%8A%9B%E5%87%BA%E7%9A%84%E5%BC%82%E5%B8%B8/"/>
     <id>https://www.ofcoder.com/2020/12/10/java/ControllerAdvice%E6%8B%A6%E6%88%AAFilter%E6%8A%9B%E5%87%BA%E7%9A%84%E5%BC%82%E5%B8%B8/</id>
@@ -642,35 +666,6 @@
       <category term="干货" scheme="https://www.ofcoder.com/tags/%E5%B9%B2%E8%B4%A7/"/>
     
       <category term="maven" scheme="https://www.ofcoder.com/tags/maven/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>位运算-linux权限管理</title>
-    <link href="https://www.ofcoder.com/2020/03/12/java/%E4%BD%8D%E8%BF%90%E7%AE%97-linux%E6%9D%83%E9%99%90%E7%AE%A1%E7%90%86/"/>
-    <id>https://www.ofcoder.com/2020/03/12/java/%E4%BD%8D%E8%BF%90%E7%AE%97-linux%E6%9D%83%E9%99%90%E7%AE%A1%E7%90%86/</id>
-    <published>2020-03-12T12:57:30.000Z</published>
-    <updated>2021-12-25T04:58:01.095Z</updated>
-    
-    <summary type="html">
-    
-      
-      
-        
-        
-          &lt;h3 id=&quot;Linux基于位运算的权限控制&quot;&gt;&lt;a href=&quot;#Linux基于位运算的权限控制&quot; class=&quot;headerlink&quot;
-        
-      
-    
-    </summary>
-    
-    
-      <category term="芝士点心" scheme="https://www.ofcoder.com/categories/%E8%8A%9D%E5%A3%AB%E7%82%B9%E5%BF%83/"/>
-    
-    
-      <category term="linux" scheme="https://www.ofcoder.com/tags/linux/"/>
-    
-      <category term="位运算" scheme="https://www.ofcoder.com/tags/%E4%BD%8D%E8%BF%90%E7%AE%97/"/>
     
   </entry>
   
