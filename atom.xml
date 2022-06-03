@@ -6,7 +6,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="https://www.ofcoder.com/"/>
-  <updated>2022-03-15T16:22:34.307Z</updated>
+  <updated>2022-06-03T08:14:47.262Z</updated>
   <id>https://www.ofcoder.com/</id>
   
   <author>
@@ -15,6 +15,41 @@
   </author>
   
   <generator uri="https://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>分桶策略管理SpringCache中的缓存</title>
+    <link href="https://www.ofcoder.com/2022/06/03/java/%E5%88%86%E6%A1%B6%E7%AD%96%E7%95%A5%E7%AE%A1%E7%90%86SpringCache%E4%B8%AD%E7%9A%84%E7%BC%93%E5%AD%98/"/>
+    <id>https://www.ofcoder.com/2022/06/03/java/%E5%88%86%E6%A1%B6%E7%AD%96%E7%95%A5%E7%AE%A1%E7%90%86SpringCache%E4%B8%AD%E7%9A%84%E7%BC%93%E5%AD%98/</id>
+    <published>2022-06-03T07:53:14.000Z</published>
+    <updated>2022-06-03T08:14:47.262Z</updated>
+    
+    <summary type="html">
+    
+      
+      
+        
+        
+          &lt;h3 id=&quot;背景介绍&quot;&gt;&lt;a href=&quot;#背景介绍&quot; class=&quot;headerlink&quot; title=&quot;背景介绍&quot;&gt;&lt;/a&gt;背景介绍&lt;/h3&gt;&lt;p&gt;我们使用SpringCache框架 + Redis来实现项目中的缓存实现，它能实现自动对数据缓存，也可以自动清理过期的缓存。大多数情况下，它都运行非常好。&lt;/p&gt;
+&lt;p&gt;这是因为我们需要缓存的数据，通常都是可序列化的，但是我们迟早会遇到不可序列化的对象。那么我们只能选择SpringCache中的ConcurrentMapCache才能缓存这些不可序列化的对象，但是ConcurrentMapCache呢又不提供自动清理缓存的功能。&lt;/p&gt;
+&lt;p&gt;于是我开始自己设计一个本地的、高效的、能自动清理缓存扩展，同样它能支持SpringCache。&lt;/p&gt;
+&lt;p&gt;为了高效的清理缓存，我采用分桶策略，这一设计思想来源于ZooKeeper的Session管理。分桶策略也是本文的精彩内容。&lt;/p&gt;
+&lt;h3 id=&quot;SpringCache的使用&quot;&gt;&lt;a href=&quot;#SpringCache的使用&quot; class=&quot;headerlink&quot;
+        
+      
+    
+    </summary>
+    
+    
+      <category term="芝士点心" scheme="https://www.ofcoder.com/categories/%E8%8A%9D%E5%A3%AB%E7%82%B9%E5%BF%83/"/>
+    
+    
+      <category term="缓存" scheme="https://www.ofcoder.com/tags/%E7%BC%93%E5%AD%98/"/>
+    
+      <category term="SpringCache" scheme="https://www.ofcoder.com/tags/SpringCache/"/>
+    
+      <category term="分桶策略" scheme="https://www.ofcoder.com/tags/%E5%88%86%E6%A1%B6%E7%AD%96%E7%95%A5/"/>
+    
+  </entry>
   
   <entry>
     <title>释本智大师开示</title>
@@ -626,46 +661,6 @@
       <category term="RocketMQ" scheme="https://www.ofcoder.com/tags/RocketMQ/"/>
     
       <category term="最终一致性" scheme="https://www.ofcoder.com/tags/%E6%9C%80%E7%BB%88%E4%B8%80%E8%87%B4%E6%80%A7/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>maven依赖本地jar包</title>
-    <link href="https://www.ofcoder.com/2020/03/14/java/maven%E4%BE%9D%E8%B5%96%E6%9C%AC%E5%9C%B0jar%E5%8C%85/"/>
-    <id>https://www.ofcoder.com/2020/03/14/java/maven%E4%BE%9D%E8%B5%96%E6%9C%AC%E5%9C%B0jar%E5%8C%85/</id>
-    <published>2020-03-14T12:57:30.000Z</published>
-    <updated>2021-12-25T04:41:41.790Z</updated>
-    
-    <summary type="html">
-    
-      
-      
-        
-        
-          &lt;h3 id=&quot;项目情况&quot;&gt;&lt;a href=&quot;#项目情况&quot; class=&quot;headerlink&quot; title=&quot;项目情况&quot;&gt;&lt;/a&gt;项目情况&lt;/h3&gt;&lt;p&gt;没有搭建私仓，多模块依赖的父子模块（工程），需要依赖提供商提供的jar包。期望：&lt;/p&gt;
-&lt;ol&gt;
-&lt;li&gt;在需要依赖该模块的模块下依赖，不将该jar影响其他模块&lt;/li&gt;
-&lt;li&gt;打包简单，在其他同事启动项目是不要手动处理这个jar包。&lt;/li&gt;
-&lt;/ol&gt;
-&lt;p&gt;本文介绍三种方式：&lt;/p&gt;
-&lt;ol&gt;
-&lt;li&gt;打包时，将jar移至BOOT-INF&lt;/li&gt;
-&lt;li&gt;打包时，将jar安装至本地仓库&lt;/li&gt;
-&lt;li&gt;创建一个不同的本地仓库&lt;/li&gt;
-&lt;/ol&gt;
-&lt;h3 id=&quot;将jar移至BOOT-INF&quot;&gt;&lt;a href=&quot;#将jar移至BOOT-INF&quot; class=&quot;headerlink&quot; title=&quot;将jar移至BOOT-INF&quot;&gt;&lt;/a&gt;将jar移至BOOT-INF&lt;/h3&gt;&lt;h4 id=&quot;实现方案&quot;&gt;&lt;a href=&quot;#实现方案&quot; class=&quot;headerlink&quot;
-        
-      
-    
-    </summary>
-    
-    
-      <category term="芝士点心" scheme="https://www.ofcoder.com/categories/%E8%8A%9D%E5%A3%AB%E7%82%B9%E5%BF%83/"/>
-    
-    
-      <category term="干货" scheme="https://www.ofcoder.com/tags/%E5%B9%B2%E8%B4%A7/"/>
-    
-      <category term="maven" scheme="https://www.ofcoder.com/tags/maven/"/>
     
   </entry>
   
