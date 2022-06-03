@@ -6,7 +6,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="https://www.ofcoder.com/"/>
-  <updated>2022-06-03T08:14:47.262Z</updated>
+  <updated>2022-06-03T08:18:47.752Z</updated>
   <id>https://www.ofcoder.com/</id>
   
   <author>
@@ -17,11 +17,11 @@
   <generator uri="https://hexo.io/">Hexo</generator>
   
   <entry>
-    <title>分桶策略管理SpringCache中的缓存</title>
-    <link href="https://www.ofcoder.com/2022/06/03/java/%E5%88%86%E6%A1%B6%E7%AD%96%E7%95%A5%E7%AE%A1%E7%90%86SpringCache%E4%B8%AD%E7%9A%84%E7%BC%93%E5%AD%98/"/>
-    <id>https://www.ofcoder.com/2022/06/03/java/%E5%88%86%E6%A1%B6%E7%AD%96%E7%95%A5%E7%AE%A1%E7%90%86SpringCache%E4%B8%AD%E7%9A%84%E7%BC%93%E5%AD%98/</id>
+    <title>分桶策略清理SpringCache中的缓存</title>
+    <link href="https://www.ofcoder.com/2022/06/03/java/%E5%88%86%E6%A1%B6%E7%AD%96%E7%95%A5%E6%B8%85%E7%90%86SpringCache%E4%B8%AD%E7%9A%84%E7%BC%93%E5%AD%98/"/>
+    <id>https://www.ofcoder.com/2022/06/03/java/%E5%88%86%E6%A1%B6%E7%AD%96%E7%95%A5%E6%B8%85%E7%90%86SpringCache%E4%B8%AD%E7%9A%84%E7%BC%93%E5%AD%98/</id>
     <published>2022-06-03T07:53:14.000Z</published>
-    <updated>2022-06-03T08:14:47.262Z</updated>
+    <updated>2022-06-03T08:18:47.752Z</updated>
     
     <summary type="html">
     
