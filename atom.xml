@@ -6,7 +6,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="https://www.ofcoder.com/"/>
-  <updated>2022-06-03T08:24:34.638Z</updated>
+  <updated>2022-07-26T12:33:15.587Z</updated>
   <id>https://www.ofcoder.com/</id>
   
   <author>
@@ -15,6 +15,38 @@
   </author>
   
   <generator uri="https://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>请求参数、响应参数自动加解密</title>
+    <link href="https://www.ofcoder.com/2022/07/26/java/%E8%AF%B7%E6%B1%82%E5%8F%82%E6%95%B0%E3%80%81%E5%93%8D%E5%BA%94%E5%8F%82%E6%95%B0%E8%87%AA%E5%8A%A8%E5%8A%A0%E8%A7%A3%E5%AF%86/"/>
+    <id>https://www.ofcoder.com/2022/07/26/java/%E8%AF%B7%E6%B1%82%E5%8F%82%E6%95%B0%E3%80%81%E5%93%8D%E5%BA%94%E5%8F%82%E6%95%B0%E8%87%AA%E5%8A%A8%E5%8A%A0%E8%A7%A3%E5%AF%86/</id>
+    <published>2022-07-26T12:31:14.000Z</published>
+    <updated>2022-07-26T12:33:15.587Z</updated>
+    
+    <summary type="html">
+    
+      
+      
+        
+        
+          &lt;h3 id=&quot;背景&quot;&gt;&lt;a href=&quot;#背景&quot; class=&quot;headerlink&quot; title=&quot;背景&quot;&gt;&lt;/a&gt;背景&lt;/h3&gt;&lt;p&gt;在我当前的项目中，有许多接口都需要加解密，&lt;strong&gt;保证数据的安全性，为了抽象出这一类接口的共性&lt;/strong&gt;。&lt;br&gt;而在我们的接口设计中，加密后的参数是以整个body来传送密文的，并非json中的某一个字段，所以本文的方案，&lt;strong&gt;也可以用于自定义传输数据类型&lt;/strong&gt;。&lt;br&gt;本文通过RequestBodyAdvice、ResponseBodyAdvice来实现这一需求。&lt;/p&gt;
+&lt;h3 id=&quot;定义注解，标识请求是否需要加解密&quot;&gt;&lt;a href=&quot;#定义注解，标识请求是否需要加解密&quot; class=&quot;headerlink&quot; title=&quot;定义注解，标识请求是否需要加解密&quot;&gt;&lt;/a&gt;定义注解，标识请求是否需要加解密&lt;/h3&gt;&lt;figure class=&quot;highlight less&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span
+        
+      
+    
+    </summary>
+    
+    
+      <category term="芝士点心" scheme="https://www.ofcoder.com/categories/%E8%8A%9D%E5%A3%AB%E7%82%B9%E5%BF%83/"/>
+    
+    
+      <category term="API设计" scheme="https://www.ofcoder.com/tags/API%E8%AE%BE%E8%AE%A1/"/>
+    
+      <category term="加密" scheme="https://www.ofcoder.com/tags/%E5%8A%A0%E5%AF%86/"/>
+    
+      <category term="数据安全" scheme="https://www.ofcoder.com/tags/%E6%95%B0%E6%8D%AE%E5%AE%89%E5%85%A8/"/>
+    
+  </entry>
   
   <entry>
     <title>分桶策略清理SpringCache中的缓存</title>
@@ -628,39 +660,6 @@
       <category term="2PC" scheme="https://www.ofcoder.com/tags/2PC/"/>
     
       <category term="3PC" scheme="https://www.ofcoder.com/tags/3PC/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>分布式事务之实现分布式系统的最终一致性</title>
-    <link href="https://www.ofcoder.com/2020/05/20/java/%E5%88%86%E5%B8%83%E5%BC%8F%E4%BA%8B%E5%8A%A1%E4%B9%8B%E5%AE%9E%E7%8E%B0%E5%88%86%E5%B8%83%E5%BC%8F%E7%B3%BB%E7%BB%9F%E7%9A%84%E6%9C%80%E7%BB%88%E4%B8%80%E8%87%B4%E6%80%A7/"/>
-    <id>https://www.ofcoder.com/2020/05/20/java/%E5%88%86%E5%B8%83%E5%BC%8F%E4%BA%8B%E5%8A%A1%E4%B9%8B%E5%AE%9E%E7%8E%B0%E5%88%86%E5%B8%83%E5%BC%8F%E7%B3%BB%E7%BB%9F%E7%9A%84%E6%9C%80%E7%BB%88%E4%B8%80%E8%87%B4%E6%80%A7/</id>
-    <published>2020-05-20T12:57:30.000Z</published>
-    <updated>2021-12-25T04:35:20.229Z</updated>
-    
-    <summary type="html">
-    
-      
-      
-        
-        
-          &lt;p&gt;转载自： &lt;a href=&quot;https://www.cnblogs.com/wudimanong/p/10558710.html&quot; target=&quot;_blank&quot; rel=&quot;noopener&quot;&gt;https://www.cnblogs.com/wudimanong/p/10558710.html&lt;/a&gt;&lt;/p&gt;
-&lt;h3 id=&quot;导读&quot;&gt;&lt;a href=&quot;#导读&quot; class=&quot;headerlink&quot; title=&quot;导读&quot;&gt;&lt;/a&gt;导读&lt;/h3&gt;&lt;p&gt;在之前的文章中我们介绍了如何基于RocketMQ搭建生产级消息集群，以及2PC、3PC和TCC等与分布式事务相关的基本概念（没有读过的读者详见👇推荐阅读）。在这篇文章中我们将介绍RocketMQ的事务消息相关的内容，并通过一些实践和大家一起来探索下事务消息如何解决分布式系统中的分布式事务问题。&lt;/p&gt;
-&lt;h3 id=&quot;事务消息原理&quot;&gt;&lt;a href=&quot;#事务消息原理&quot; class=&quot;headerlink&quot;
-        
-      
-    
-    </summary>
-    
-    
-      <category term="芝士点心" scheme="https://www.ofcoder.com/categories/%E8%8A%9D%E5%A3%AB%E7%82%B9%E5%BF%83/"/>
-    
-    
-      <category term="分布式事务" scheme="https://www.ofcoder.com/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E4%BA%8B%E5%8A%A1/"/>
-    
-      <category term="RocketMQ" scheme="https://www.ofcoder.com/tags/RocketMQ/"/>
-    
-      <category term="最终一致性" scheme="https://www.ofcoder.com/tags/%E6%9C%80%E7%BB%88%E4%B8%80%E8%87%B4%E6%80%A7/"/>
     
   </entry>
   
