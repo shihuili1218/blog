@@ -6,7 +6,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="https://www.ofcoder.com/"/>
-  <updated>2022-07-26T12:33:15.587Z</updated>
+  <updated>2022-09-02T14:03:13.311Z</updated>
   <id>https://www.ofcoder.com/</id>
   
   <author>
@@ -15,6 +15,33 @@
   </author>
   
   <generator uri="https://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>Nginx之LVS+KeepAlived搭建集群</title>
+    <link href="https://www.ofcoder.com/2022/09/02/centos/Nginx%E4%B9%8BLVS+KeepAlived%E6%90%AD%E5%BB%BA%E9%9B%86%E7%BE%A4/"/>
+    <id>https://www.ofcoder.com/2022/09/02/centos/Nginx%E4%B9%8BLVS+KeepAlived%E6%90%AD%E5%BB%BA%E9%9B%86%E7%BE%A4/</id>
+    <published>2022-09-02T13:25:11.000Z</published>
+    <updated>2022-09-02T14:03:13.311Z</updated>
+    
+    <summary type="html">
+    
+      
+      
+        
+        
+          &lt;p&gt;&lt;a href=&quot;https://blog.51cto.com/u_15294985/2994023&quot; target=&quot;_blank&quot;
+        
+      
+    
+    </summary>
+    
+    
+      <category term="centos" scheme="https://www.ofcoder.com/categories/centos/"/>
+    
+    
+      <category term="nginx" scheme="https://www.ofcoder.com/tags/nginx/"/>
+    
+  </entry>
   
   <entry>
     <title>请求参数、响应参数自动加解密</title>
@@ -626,40 +653,6 @@
       <category term="分布式事务" scheme="https://www.ofcoder.com/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E4%BA%8B%E5%8A%A1/"/>
     
       <category term="paxos" scheme="https://www.ofcoder.com/tags/paxos/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>分布式一致性协议 - 2PC, 3PC</title>
-    <link href="https://www.ofcoder.com/2020/07/05/theory/%E5%88%86%E5%B8%83%E5%BC%8F%E4%B8%80%E8%87%B4%E6%80%A7%E5%8D%8F%E8%AE%AE%20-%202PC,%203PC/"/>
-    <id>https://www.ofcoder.com/2020/07/05/theory/%E5%88%86%E5%B8%83%E5%BC%8F%E4%B8%80%E8%87%B4%E6%80%A7%E5%8D%8F%E8%AE%AE%20-%202PC,%203PC/</id>
-    <published>2020-07-05T14:45:01.000Z</published>
-    <updated>2021-02-04T15:01:49.774Z</updated>
-    
-    <summary type="html">
-    
-      
-      
-        
-        
-          &lt;p&gt;在分布式系统中，每一个机器节点虽然都能明确的知道自己在事务操作中的结果是成功或失败，但无法直接获取其他节点的操作结果。因此在分布式环境中，为了保持事务的ACID特性，就需要增加一个“协调者”来管理其他节点（“参与者”）事务的提交和回滚。基于这个思想，衍生出二阶段提交和三阶段提交两种协议。&lt;/p&gt;
-&lt;h3 id=&quot;2PC-简述&quot;&gt;&lt;a href=&quot;#2PC-简述&quot; class=&quot;headerlink&quot; title=&quot;2PC 简述&quot;&gt;&lt;/a&gt;2PC 简述&lt;/h3&gt;&lt;p&gt;二阶段提交(Two-Phase Commit)，是一个非常经典的&lt;strong&gt;强一致&lt;/strong&gt;、&lt;strong&gt;中心化的原子提交协议&lt;/strong&gt;。目前，绝大多数关系型数据库都采用二阶段提交协议来完成分布式事务处理（例如mysql的XA协议）。因此二阶段提交协议也被广泛运用到分布式系统中。&lt;/p&gt;
-&lt;p&gt;顾名思义，算法流程就是分为两个阶段提交某一操作，其分为准备阶段、提交阶段。为了更好描述算法过程，为此定义了两种角色：协调者（Coordinator）、参与者（Participant）。&lt;/p&gt;
-&lt;h4
-        
-      
-    
-    </summary>
-    
-    
-      <category term="算法理论" scheme="https://www.ofcoder.com/categories/%E7%AE%97%E6%B3%95%E7%90%86%E8%AE%BA/"/>
-    
-    
-      <category term="分布式事务" scheme="https://www.ofcoder.com/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E4%BA%8B%E5%8A%A1/"/>
-    
-      <category term="2PC" scheme="https://www.ofcoder.com/tags/2PC/"/>
-    
-      <category term="3PC" scheme="https://www.ofcoder.com/tags/3PC/"/>
     
   </entry>
   

@@ -2,6 +2,20 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>https://www.ofcoder.com/2022/09/02/centos/Nginx%E4%B9%8BLVS+KeepAlived%E6%90%AD%E5%BB%BA%E9%9B%86%E7%BE%A4/</loc>
+    
+    <lastmod>2022-09-02T14:03:13.311Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>https://www.ofcoder.com/2018/06/08/centos/nginx/</loc>
+    
+    <lastmod>2022-09-02T14:02:33.138Z</lastmod>
+    
+  </url>
+  
+  <url>
     <loc>https://www.ofcoder.com/2022/07/26/java/%E8%AF%B7%E6%B1%82%E5%8F%82%E6%95%B0%E3%80%81%E5%93%8D%E5%BA%94%E5%8F%82%E6%95%B0%E8%87%AA%E5%8A%A8%E5%8A%A0%E8%A7%A3%E5%AF%86/</loc>
     
     <lastmod>2022-07-26T12:33:15.587Z</lastmod>
@@ -677,13 +691,6 @@
     <loc>https://www.ofcoder.com/2018/06/09/integrate/paypal/</loc>
     
     <lastmod>2018-06-10T05:26:54.118Z</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>https://www.ofcoder.com/2018/06/08/centos/nginx/</loc>
-    
-    <lastmod>2018-06-09T06:17:47.713Z</lastmod>
     
   </url>
   
